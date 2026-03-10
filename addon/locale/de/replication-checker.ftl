@@ -21,7 +21,7 @@ replication-checker-progress-match-count = { $count } Eintrag/Einträge mit Repl
 replication-checker-progress-copying-readonly = Kopiere Einträge aus schreibgeschützter Bibliothek in persönliche Bibliothek...
 
 ## Alerts
-replication-checker-alert-title = Zotero Replikationsprüfer
+replication-checker-alert-title = Zotero Replication Checker
 replication-checker-alert-no-dois-selected = Keine DOIs in den ausgewählten Einträgen gefunden.
 replication-checker-alert-no-collection = Bitte wählen Sie eine Sammlung aus, bevor Sie diese Prüfung ausführen.
 replication-checker-alert-no-originals-available = Keine Originalstudien für diese Replikation verfügbar.
@@ -38,7 +38,7 @@ replication-checker-ban-confirm =
     Diese Einträge werden in den Papierkorb verschoben und bei zukünftigen Prüfungen nicht erneut hinzugefügt.
 replication-checker-ban-success = { $count } Replikation(en) erfolgreich gesperrt.
 replication-checker-alert-no-replications-selected = Keine Replikationseinträge ausgewählt.
-replication-checker-error-title = Replikationsprüfer - Fehler
+replication-checker-error-title = Replication Checker - Fehler
 replication-checker-error-api = Daten konnten nicht von der API abgerufen werden - überprüfen Sie Ihre Internetverbindung oder versuchen Sie es später erneut.
 replication-checker-error-body =
     Fehler beim Prüfen von { $target } auf Replikationen:
@@ -84,7 +84,7 @@ replication-checker-results-footer = Notizen für Details ansehen oder Einträge
 ## Tags
 replication-checker-tag = Hat Replikation
 replication-checker-tag-is-replication = Ist Replikation
-replication-checker-tag-added-by-checker = Hinzugefügt von Replikationsprüfer
+replication-checker-tag-added-by-checker = Hinzugefügt von Replication Checker
 replication-checker-tag-success = Replikation: Erfolgreich
 replication-checker-tag-failure = Replikation: Fehlgeschlagen
 replication-checker-tag-mixed = Replikation: Gemischt
@@ -99,7 +99,7 @@ replication-checker-note-warning = Diese Notiz wird automatisch generiert. Wenn 
 replication-checker-note-intro = Diese Studie wurde repliziert:
 replication-checker-note-feedback = War dieses Ergebnis hilfreich? Geben Sie <a href=“{ $url }” target=“_blank”>hier</a> Feedback!
 replication-checker-note-data-issues = Haben Sie Probleme mit den Daten gefunden? Bitte melden Sie diese <a href="{ $url }" target="_blank">hier</a>!
-replication-checker-note-footer = Erstellt von Zotero Replikationsprüfer unter Verwendung der FORRT Literaturdatenbank (FLoRA)
+replication-checker-note-footer = Erstellt von Zotero Replication Checker unter Verwendung der FORRT Literaturdatenbank (FLoRA)
 
 ## Replication Item Details
 replication-checker-li-no-title = Kein Titel verfügbar
@@ -111,9 +111,9 @@ replication-checker-li-outcome = Von Autoren berichtetes Ergebnis:
 replication-checker-li-link = Diese Studie hat einen verknüpften Bericht:
 
 ## First Run Prompt
-replication-checker-prompt-title = Willkommen beim Zotero Replikationsprüfer!
+replication-checker-prompt-title = Willkommen beim Zotero Replication Checker!
 replication-checker-prompt-first-run =
-    Vielen Dank für die Installation des Zotero Replikationsprüfers!
+    Vielen Dank für die Installation des Zotero Replication Checkers!
 
     Dieses Plugin hilft Ihnen, Replikationsstudien für Ihre Forschung zu entdecken, indem es Ihre Bibliothekseinträge mit der FORRT Literaturdatenbank (FLoRA) abgleicht.
 
@@ -123,9 +123,9 @@ replication-checker-prompt-first-run =
     • Klicken Sie "Abbrechen", um zu überspringen - Sie können später jederzeit über das Menü scannen
 
 ## Onboarding
-onboarding-welcome-title = Willkommen beim Replikationsprüfer!
+onboarding-welcome-title = Willkommen beim Replication Checker!
 onboarding-welcome-content =
-    Vielen Dank für die Installation des Zotero Replikationsprüfers!
+    Vielen Dank für die Installation des Zotero Replication Checkers!
 
     Dieses Plugin hilft Ihnen, Replikationsstudien zu entdecken, indem es Ihre Bibliothekseinträge automatisch mit der FORRT Literaturdatenbank (FLoRA) abgleicht.
 
@@ -164,7 +164,7 @@ onboarding-context-content =
     • Verhindert, dass unerwünschte Replikationen erneut hinzugefügt werden
 
     ⚙️ Einstellungen:
-    Bearbeiten → Einstellungen → Replikationsprüfer
+    Bearbeiten → Einstellungen → Replication Checker
     • Automatische Prüfhäufigkeit
     • Neue Einträge automatisch prüfen
 
@@ -178,7 +178,7 @@ onboarding-scan-content =
     • Klicken Sie "Nein", um zu überspringen - Sie können später jederzeit über das Menü Werkzeuge scannen
 
     💡 Zugriff auf diese Anleitung jederzeit:
-    Hilfe → Replikationsprüfer Benutzerhandbuch
+    Hilfe → Replication Checker Benutzerhandbuch
 
 ## Reproduction Feature - Menu Items
 reproduction-checker-context-menu-ban = Reproduktion sperren
@@ -186,7 +186,7 @@ reproduction-checker-context-menu-ban = Reproduktion sperren
 ## Reproduction Feature - Tags
 reproduction-checker-tag = Hat Reproduktion
 reproduction-checker-tag-is-reproduction = Ist Reproduktion
-reproduction-checker-tag-added-by-checker = Hinzugefügt von Replikationsprüfer
+reproduction-checker-tag-added-by-checker = Hinzugefügt von Replication Checker
 reproduction-checker-tag-readonly-origin = Original in schreibgeschützter Bibliothek vorhanden
 
 ## Reproduction Feature - Outcome Tags
@@ -203,7 +203,7 @@ reproduction-checker-note-warning = Diese Notiz wird automatisch generiert. Wenn
 reproduction-checker-note-intro = Diese Studie wurde reproduziert:
 reproduction-checker-note-feedback = War dieses Ergebnis hilfreich? Geben Sie <a href=“{ $url }” target=“_blank”>hier</a> Feedback!
 reproduction-checker-note-data-issues = Haben Sie Probleme mit den Daten gefunden? Bitte melden Sie diese <a href="{ $url }" target="_blank">hier</a>!
-reproduction-checker-note-footer = Erstellt von Zotero Replikationsprüfer unter Verwendung der FORRT Literaturdatenbank (FLoRA)
+reproduction-checker-note-footer = Erstellt von Zotero Replication Checker unter Verwendung der FORRT Literaturdatenbank (FLoRA)
 
 ## Reproduction Feature - Item Details
 reproduction-checker-li-no-title = Kein Titel verfügbar

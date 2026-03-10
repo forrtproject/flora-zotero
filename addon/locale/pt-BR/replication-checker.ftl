@@ -21,7 +21,7 @@ replication-checker-progress-match-count = { $count } item(ns) com replicações
 replication-checker-progress-copying-readonly = Copiando itens da biblioteca (somente leitura) para a biblioteca pessoal...
 
 ## Alerts
-replication-checker-alert-title = Verificador de Replicações do Zotero
+replication-checker-alert-title = Zotero Replication Checker
 replication-checker-alert-no-dois-selected = Nenhum DOI encontrado nos itens selecionados.
 replication-checker-alert-no-collection = Selecione uma coleção antes de executar esta verificação.
 replication-checker-alert-no-originals-available = Nenhum estudo original disponível para esta replicação.
@@ -29,7 +29,7 @@ replication-checker-alert-no-doi = O item selecionado não possui DOI.
 replication-checker-add-original-success = Estudo original adicionado com sucesso: { $title }
 replication-checker-add-original-confirm = { $count } estudo(s) original(is) encontrado(s) para esta replicação. Deseja adicionar todos à sua biblioteca?
 replication-checker-add-original-batch-success = { $count } estudo(s) original(is) adicionado(s) com sucesso à sua biblioteca.
-replication-checker-error-title = Verificador de Replicações - Erro
+replication-checker-error-title = Replication Checker - Erro
 replication-checker-error-api = Não foi possível recuperar dados da API - verifique sua conexão com a Internet ou tente novamente mais tarde.
 replication-checker-error-body =
     Falha ao verificar { $target } para replicações:
@@ -84,7 +84,7 @@ replication-checker-results-footer = Veja as notas para detalhes ou selecione it
 ## Tags
 replication-checker-tag = Tem Replicação
 replication-checker-tag-is-replication = É uma Replicação
-replication-checker-tag-added-by-checker = Adicionado pelo Verificador de Replicações
+replication-checker-tag-added-by-checker = Adicionado pelo Replication Checker
 replication-checker-tag-success = Replicação: Bem-sucedida
 replication-checker-tag-failure = Replicação: Falhou
 replication-checker-tag-mixed = Replicação: Mista
@@ -99,7 +99,7 @@ replication-checker-note-warning = Esta nota é gerada automaticamente. Se você
 replication-checker-note-intro = Este estudo foi replicado:
 replication-checker-note-feedback = Achou este resultado útil? Forneça feedback <a href="{ $url }" target="_blank">aqui</a>!
 replication-checker-note-data-issues = Encontrou algum problema nos dados? Por favor, reporte-o <a href="{ $url }" target="_blank">aqui</a>!
-replication-checker-note-footer = Gerado pelo Verificador de Replicações do Zotero usando a Base de Dados de Literatura FORRT (FLoRA)
+replication-checker-note-footer = Gerado pelo Zotero Replication Checker usando a Base de Dados de Literatura FORRT (FLoRA)
 
 ## Replication Item Details
 replication-checker-li-no-title = Nenhum título disponível
@@ -111,9 +111,9 @@ replication-checker-li-outcome = Resultado Relatado pelo Autor:
 replication-checker-li-link = Este estudo tem um relatório vinculado:
 
 ## First Run Prompt
-replication-checker-prompt-title = Bem-vindo ao Verificador de Replicações do Zotero!
+replication-checker-prompt-title = Bem-vindo ao Zotero Replication Checker!
 replication-checker-prompt-first-run =
-    Obrigado por instalar o Verificador de Replicações do Zotero!
+    Obrigado por instalar o Zotero Replication Checker!
 
     Este plugin ajuda você a descobrir estudos de replicação para sua pesquisa verificando os itens da sua biblioteca na Base de Dados de Literatura FORRT (FLoRA).
 
@@ -123,9 +123,9 @@ replication-checker-prompt-first-run =
     • Clique em "Cancelar" para pular - você sempre pode analisar mais tarde pelo menu Ferramentas
 
 ## Onboarding
-onboarding-welcome-title = Bem-vindo ao Verificador de Replicações!
+onboarding-welcome-title = Bem-vindo ao Replication Checker!
 onboarding-welcome-content =
-    Obrigado por instalar o Verificador de Replicações do Zotero!
+    Obrigado por instalar o Zotero Replication Checker!
 
     Este plugin ajuda você a descobrir estudos de replicação verificando automaticamente os itens da sua biblioteca na Base de Dados de Literatura FORRT (FLoRA).
 
@@ -164,7 +164,7 @@ onboarding-context-content =
     • Impede que replicações indesejadas sejam readicionadas
 
     ⚙️ Preferências:
-    Editar → Configurações → Verificador de Replicações
+    Editar → Configurações → Replication Checker
     • Frequência de verificação automática
     • Verificação automática de novos itens
 
@@ -178,7 +178,7 @@ onboarding-scan-content =
     • Clique em "Não" para pular - você sempre pode analisar mais tarde pelo menu Ferramentas
 
     💡 Acesse este guia a qualquer momento:
-    Ajuda → Guia do Usuário do Verificador de Replicações
+    Ajuda → Guia do Usuário do Replication Checker
 
 ## Reproduction Feature - Menu Items
 reproduction-checker-context-menu-ban = Banir reprodução
@@ -186,7 +186,7 @@ reproduction-checker-context-menu-ban = Banir reprodução
 ## Reproduction Feature - Tags
 reproduction-checker-tag = Tem Reprodução
 reproduction-checker-tag-is-reproduction = É uma Reprodução
-reproduction-checker-tag-added-by-checker = Adicionado pelo Verificador de Replicações
+reproduction-checker-tag-added-by-checker = Adicionado pelo Replication Checker
 reproduction-checker-tag-readonly-origin = Original presente em biblioteca (somente leitura)
 
 ## Reproduction Feature - Outcome Tags
@@ -203,7 +203,7 @@ reproduction-checker-note-warning = Esta nota é gerada automaticamente. Se voc�
 reproduction-checker-note-intro = Este estudo foi reproduzido:
 reproduction-checker-note-feedback = Achou este resultado útil? Forneça feedback <a href="{ $url }" target="_blank">aqui</a>!
 reproduction-checker-note-data-issues = Encontrou algum problema nos dados? Por favor, reporte-o <a href="{ $url }" target="_blank">aqui</a>!
-reproduction-checker-note-footer = Gerado pelo Verificador de Replicações do Zotero usando a Base de Dados de Literatura FORRT (FLoRA)
+reproduction-checker-note-footer = Gerado pelo Zotero Replication Checker usando a Base de Dados de Literatura FORRT (FLoRA)
 
 ## Reproduction Feature - Item Details
 reproduction-checker-li-no-title = Nenhum título disponível

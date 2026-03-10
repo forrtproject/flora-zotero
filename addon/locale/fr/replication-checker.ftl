@@ -21,7 +21,7 @@ replication-checker-progress-match-count = { $count } élément(s) avec des rép
 replication-checker-progress-copying-readonly = Copie des éléments de la bibliothèque en lecture seule vers la bibliothèque personnelle...
 
 ## Alerts
-replication-checker-alert-title = Vérificateur de réplication Zotero
+replication-checker-alert-title = Zotero Replication Checker
 replication-checker-alert-no-dois-selected = Aucun DOI trouvé dans les éléments sélectionnés.
 replication-checker-alert-no-collection = Veuillez sélectionner une collection avant d'exécuter cette vérification.
 replication-checker-alert-no-originals-available = Aucune étude originale disponible pour cette réplication.
@@ -29,7 +29,7 @@ replication-checker-alert-no-doi = L'élément sélectionné n'a pas de DOI.
 replication-checker-add-original-success = Étude originale ajoutée avec succès : { $title }
 replication-checker-add-original-confirm = { $count } étude(s) originale(s) trouvée(s) pour cette réplication. Voulez-vous toutes les ajouter à votre bibliothèque ?
 replication-checker-add-original-batch-success = { $count } étude(s) originale(s) ajoutée(s) avec succès à votre bibliothèque.
-replication-checker-error-title = Vérificateur de réplication - Erreur
+replication-checker-error-title = Replication Checker - Erreur
 replication-checker-error-api = Impossible de récupérer les données depuis l'API - vérifiez votre connexion Internet ou réessayez plus tard.
 replication-checker-error-body =
     Échec de la vérification de { $target } pour les réplications :
@@ -67,7 +67,7 @@ replication-checker-readonly-dialog-title = Bibliothèque en lecture seule déte
 replication-checker-readonly-dialog-message =
     Cette bibliothèque est en lecture seule. Nous avons trouvé { $itemCount } élément(s) avec { $replicationCount } réplication(s).
 
-    Souhaitez-vous copier les articles originaux et leurs réplications dans le "dossier de réplication" de votre bibliothèque personnelle ?
+    Souhaitez-vous copier les articles originaux et leurs réplications dans le "dossier réplications" de votre bibliothèque personnelle ?
 
 ## Results Messages
 replication-checker-results-title-library = Analyse de la bibliothèque terminée
@@ -84,10 +84,10 @@ replication-checker-results-footer = Consultez les notes pour plus de détails o
 ## Tags
 replication-checker-tag = A une réplication
 replication-checker-tag-is-replication = Est une réplication
-replication-checker-tag-added-by-checker = Ajouté par le vérificateur de réplication
+replication-checker-tag-added-by-checker = Ajouté par Replication Checker
 replication-checker-tag-success = Réplication : Réussie
 replication-checker-tag-failure = Réplication : Échouée
-replication-checker-tag-mixed = Réplication : Mixte
+replication-checker-tag-mixed = Réplication : Mitigée
 replication-checker-tag-readonly-origin = Original présent dans une bibliothèque en lecture seule
 replication-checker-tag-has-been-replicated = A été répliqué
 replication-checker-tag-has-been-reproduced = A été reproduit
@@ -99,7 +99,7 @@ replication-checker-note-warning = Cette note est générée automatiquement. Si
 replication-checker-note-intro = Cette étude a été répliquée :
 replication-checker-note-feedback = Avez-vous trouvé ce résultat utile ? Donnez votre avis <a href="{ $url }" target="_blank">ici</a> !
 replication-checker-note-data-issues = Avez-vous trouvé des problèmes dans les données ? Veuillez les signaler <a href="{ $url }" target="_blank">ici</a> !
-replication-checker-note-footer = Généré par le Vérificateur de réplication Zotero en utilisant la base de données de littérature FORRT (FLoRA)
+replication-checker-note-footer = Généré par Zotero Replication Checker en utilisant la base de données de littérature FORRT (FLoRA)
 
 ## Replication Item Details
 replication-checker-li-no-title = Aucun titre disponible
@@ -111,11 +111,11 @@ replication-checker-li-outcome = Résultat rapporté par l'auteur :
 replication-checker-li-link = Cette étude a un rapport lié :
 
 ## First Run Prompt
-replication-checker-prompt-title = Bienvenue dans le Vérificateur de réplication Zotero !
+replication-checker-prompt-title = Bienvenue dans Zotero Replication Checker !
 replication-checker-prompt-first-run =
-    Merci d'avoir installé le Vérificateur de réplication Zotero !
+    Merci d'avoir installé Zotero Replication Checker !
 
-    Ce plugin vous aide à découvrir des études de réplication pour votre recherche en vérifiant vos éléments de bibliothèque dans la base de données de littérature FORRT (FLoRA).
+    Ce plugin vous aide à découvrir des études de réplication en vérifiant automatiquement vos éléments de bibliothèque avec la base de données de littérature FORRT (FLoRA).
 
     Souhaitez-vous analyser votre bibliothèque pour les réplications maintenant ?
 
@@ -123,21 +123,21 @@ replication-checker-prompt-first-run =
     • Cliquez sur "Annuler" pour ignorer - vous pouvez toujours analyser plus tard depuis le menu Outils
 
 ## Onboarding
-onboarding-welcome-title = Bienvenue dans le Vérificateur de réplication !
+onboarding-welcome-title = Bienvenue dans Replication Checker !
 onboarding-welcome-content =
-    Merci d'avoir installé le Vérificateur de réplication Zotero !
+    Merci d'avoir installé Zotero Replication Checker !
 
-    Ce plugin vous aide à découvrir des études de réplication en vérifiant automatiquement vos éléments de bibliothèque dans la base de données de littérature FORRT (FLoRA).
+    Ce plugin vous aide à découvrir des études de réplication en vérifiant automatiquement vos éléments de bibliothèque avec la base de données de littérature FORRT (FLoRA).
 
     ✨ Fonctionnalités clés :
     • Vérification automatique des DOI dans la base de données de réplication
-    • Fonctionne avec toute la bibliothèque, des collections ou des éléments individuels
+    • Fonctionne avec toute la bibliothèque, les collections ou les éléments individuels
     • Crée des notes liées avec des informations de réplication
     • Étiquette les éléments avec leur statut de réplication
     • Ajoute des études originales lorsque vous avez des réplications
     • Bannit les réplications indésirables des vérifications futures
 
-    Faisons un tour rapide pour vous démarrer !
+    Astuce: Cela prend quelques minutes selon la taille de votre bibliothèque.
 
 onboarding-tools-title = Vérifier toute votre bibliothèque
 onboarding-tools-content =
@@ -164,7 +164,7 @@ onboarding-context-content =
     • Empêche les réplications indésirables d'être rajoutées
 
     ⚙️ Préférences :
-    Édition → Paramètres → Vérificateur de réplication
+    Édition → Paramètres → Replication Checker
     • Fréquence de vérification automatique
     • Vérification automatique des nouveaux éléments
 
@@ -178,7 +178,7 @@ onboarding-scan-content =
     • Cliquez sur "Non" pour ignorer - vous pouvez toujours analyser plus tard depuis le menu Outils
 
     💡 Accédez à ce guide à tout moment :
-    Aide → Guide d'utilisation du Vérificateur de réplication
+    Aide → Guide d'utilisation de Replication Checker
 
 ## Reproduction Feature - Menu Items
 reproduction-checker-context-menu-ban = Bannir la reproduction
@@ -186,7 +186,7 @@ reproduction-checker-context-menu-ban = Bannir la reproduction
 ## Reproduction Feature - Tags
 reproduction-checker-tag = A une reproduction
 reproduction-checker-tag-is-reproduction = Est une reproduction
-reproduction-checker-tag-added-by-checker = Ajouté par le vérificateur de réplication
+reproduction-checker-tag-added-by-checker = Ajouté par Replication Checker
 reproduction-checker-tag-readonly-origin = Original présent dans une bibliothèque en lecture seule
 
 ## Reproduction Feature - Outcome Tags
@@ -203,7 +203,7 @@ reproduction-checker-note-warning = Cette note est générée automatiquement. S
 reproduction-checker-note-intro = Cette étude a été reproduite :
 reproduction-checker-note-feedback = Avez-vous trouvé ce résultat utile ? Donnez votre avis <a href="{ $url }" target="_blank">ici</a> !
 reproduction-checker-note-data-issues = Avez-vous trouvé des problèmes dans les données ? Veuillez les signaler <a href="{ $url }" target="_blank">ici</a> !
-reproduction-checker-note-footer = Généré par le Vérificateur de réplication Zotero en utilisant la base de données de littérature FORRT (FLoRA)
+reproduction-checker-note-footer = Généré par Zotero Replication Checker en utilisant la base de données de littérature FORRT (FLoRA)
 
 ## Reproduction Feature - Item Details
 reproduction-checker-li-no-title = Aucun titre disponible
