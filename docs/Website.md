@@ -33,6 +33,6 @@ Do you have feedback for us? Open an issue [here](https://github.com/forrtprojec
 
 ## Funding
 
-The development of the Zotero replication Checker was funded by UKRI as part of the [Making Replications Count](https://forrt.org/marco/) project. 
+The development of the Zotero Replication Checker was funded by UKRI as part of the [Making Replications Count](https://forrt.org/marco/) project. 
 
 <img src="logo/ukri_logo.png" alt="UKRI logo" height="60" style="background-color:#fff;">
