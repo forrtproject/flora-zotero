@@ -1,9 +1,7 @@
 # Zotero Replication Checker
 A privacy-first Zotero 7 plugin that discovers replication studies for items in your library using the [FORRT Library of Reproduction and Replication Attempts (FLoRA)](). It scans your local library for DOIs, checks against FLoRA using privacy-preserving prefix matching, notifies you when reproductions and replications exist, and allows easy addition to your library — all without sending identifiable data off your machine.
 
-This plugin was developed as a [FORRT](https://forrt.org/) project to build a working prototype for the open science community. It helps researchers discover replication studies by identifying items with known replications and unobtrusively notifying them via tags and notes. 
-
-The development was funded by UKRI as part of the [Making Replications Count](https://forrt.org/marco/) project.  
+This plugin was developed as a [FORRT](https://forrt.org/) project to build a working prototype for the open science community. It helps researchers discover replication studies by identifying items with known replications and unobtrusively notifying them via tags and notes.  
 
 ## Features
 
@@ -32,3 +30,9 @@ For more information on usage and functionality, head to [Documentation](https:/
 ## Feedback
 
 Do you have feedback for us? Open an issue [here](https://github.com/forrtproject/flora_zotero/issues) if you encounter bugs or documentation issues. You can also [contact us anonymously about the Replication Checker](https://tinyurl.com/y5evebv9).
+
+## Funding
+
+The development of the Zotero replication Checker was funded by UKRI as part of the [Making Replications Count](https://forrt.org/marco/) project. 
+
+<img src="logo/UKRI_logo.png" alt="UKRI logo" height="28">
