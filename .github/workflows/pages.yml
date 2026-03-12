@@ -133,17 +133,21 @@ jobs:
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown.min.css">
             <link rel="preconnect" href="https://fonts.googleapis.com">
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Domine:400,400italic,700&display=swap" type="text/css">
             <style>
-              /* FORRT color scheme - exact match */
+              /* FORRT color scheme - matched to forrt.org */
               :root {
-                --primary-color: #3e3e3e;      /* Dark teal from FORRT */
+                --navbar-color: #3e3e3e;       /* Dark gray - FORRT navbar */
+                --primary-color: #004055;      /* Dark teal - FORRT primary (links, buttons) */
                 --primary-hover: #003344;      /* Darker teal for hover */
-                --background-cream: #fefdf6;   /* Cream background from FORRT */
+                --accent-color: #b8336a;       /* Magenta - FORRT active/accent */
+                --brand-color: #69b3a2;        /* Sage green - FORRT brand */
+                --background-cream: #fefdf6;   /* Cream background - FORRT body bg */
                 --section-gray: #f8f9fa;       /* Light gray sections */
                 --text-dark: #212529;          /* Dark text */
                 --text-muted: #6c757d;         /* Muted text */
                 --border-color: #dee2e6;       /* Border color */
-                --shadow-color: rgba(0, 64, 85, 0.1);  /* Shadow with FORRT blue tint */
+                --shadow-color: rgba(0, 64, 85, 0.1);  /* Shadow with FORRT teal tint */
               }
 
               * {
@@ -151,21 +155,21 @@ jobs:
               }
 
               body {
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, "Helvetica Neue", Arial, sans-serif;
+                font-family: Domine, serif;
                 margin: 0;
                 padding: 0;
                 background: var(--background-cream);
-                color: var(--text-dark);
-                line-height: 1.6;
+                color: rgba(0, 0, 0, 0.8);
+                line-height: 1.65;
                 font-size: 16px;
               }
 
               /* Top banner with FORRT branding */
               .forrt-banner {
-                background: var(--primary-color);
+                background: var(--navbar-color);
                 color: white;
-                padding: 1rem 0;
-                border-bottom: 1px solid var(--primary-hover);
+                padding: 0.75rem 0;
+                border-bottom: none;
               }
 
               .forrt-banner-content {
@@ -185,50 +189,51 @@ jobs:
 
               .forrt-title {
                 font-size: 1.8rem;
-                font-weight: 700;
+                font-weight: 400;
                 letter-spacing: 0.5px;
                 margin: 0;
-                color: white;
+                color: var(--brand-color);
+                font-family: Domine, serif;
               }
 
               /* Page header */
               .header {
                 background: var(--background-cream);
                 color: var(--text-dark);
-                padding: 4rem 0 3rem;
+                padding: 3rem 0 2.5rem;
                 text-align: center;
                 border-bottom: 1px solid var(--border-color);
               }
 
               .header h1 {
                 margin: 0 0 1rem 0;
-                font-size: 2.75rem;
-                font-weight: 700;
+                font-size: 2.5rem;
+                font-weight: 400;
                 letter-spacing: -0.5px;
-                color: #3e3e3e;
+                color: #313131;
+                font-family: Domine, serif;
               }
 
               .header p {
                 margin: 0;
-                font-size: 1.25rem;
+                font-size: 1.15rem;
                 font-weight: 400;
                 max-width: 900px;
                 margin-left: auto;
                 margin-right: auto;
                 padding: 0 1rem;
-                color: #6c757d;
-                line-height: 1.7;
+                color: var(--text-muted);
+                line-height: 1.65;
               }
 
               /* Navigation bar */
               .nav {
-                background: white;
-                box-shadow: 0 2px 8px var(--shadow-color);
+                background: var(--navbar-color);
+                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.11);
                 padding: 0;
                 position: sticky;
                 top: 0;
                 z-index: 1000;
-                border-bottom: 1px solid var(--border-color);
               }
 
               .nav-container {
@@ -242,25 +247,27 @@ jobs:
               }
 
               .nav a {
-                color: #3e3e3e !important;
+                color: #fff !important;
                 text-decoration: none;
-                font-weight: 500;
-                padding: 1.1rem 1.75rem;
+                font-weight: 400;
+                padding: 0.75rem 1.5rem;
                 display: block;
                 border-bottom: 3px solid transparent;
                 transition: all 0.2s ease;
                 font-size: 0.95rem;
+                font-family: Domine, serif;
                 position: relative;
               }
 
               .nav a:hover {
-                background: var(--section-gray);
-                border-bottom-color: #3e3e3e;
+                color: rgba(255, 255, 255, 0.7) !important;
+                border-bottom-color: var(--brand-color);
               }
 
               .nav a.active {
-                border-bottom-color: #3e3e3e;
-                font-weight: 600;
+                color: var(--accent-color) !important;
+                font-weight: 700;
+                border-bottom-color: var(--accent-color);
               }
 
               /* Main content area */
@@ -269,13 +276,6 @@ jobs:
                 margin: 3rem auto 4rem;
                 padding: 0 2rem;
                 background: transparent !important;
-              }
-
-              /* Override any dark backgrounds */
-              article,
-              section,
-              div:not(.forrt-banner):not(.forrt-banner-content):not(.header):not(.nav):not(.nav-container):not(.footer) {
-                background-color: transparent !important;
               }
 
               .content {
@@ -311,10 +311,11 @@ jobs:
                 min-width: 200px;
                 max-width: 980px;
                 margin: 0 auto;
+                font-family: Domine, serif;
                 font-size: 16px;
-                line-height: 1.75;
+                line-height: 1.65;
                 background: transparent !important;
-                color: var(--text-dark) !important;
+                color: rgba(0, 0, 0, 0.8) !important;
               }
 
               .markdown-body * {
@@ -330,12 +331,14 @@ jobs:
               .markdown-body h2,
               .markdown-body h3,
               .markdown-body h4 {
-                color: #3e3e3e !important;
+                color: #313131 !important;
                 background: transparent !important;
                 border-bottom-color: var(--section-gray);
-                font-weight: 600;
-                margin-top: 2rem;
-                margin-bottom: 1rem;
+                font-family: Domine, serif;
+                font-weight: 400;
+                margin-top: 1.5rem;
+                margin-bottom: 0.5rem;
+                line-height: 1.25;
               }
 
               .markdown-body h1 {
@@ -353,7 +356,7 @@ jobs:
               }
 
               .markdown-body a {
-                color: #3e3e3e !important;
+                color: var(--primary-color) !important;
                 background: transparent !important;
                 text-decoration: none;
                 border-bottom: 1px solid transparent;
@@ -361,7 +364,8 @@ jobs:
               }
 
               .markdown-body a:hover {
-                border-bottom-color: #3e3e3e;
+                color: var(--accent-color) !important;
+                border-bottom-color: var(--accent-color);
                 background: transparent !important;
               }
 
@@ -370,8 +374,8 @@ jobs:
                 padding: 0.2em 0.5em;
                 border-radius: 4px;
                 font-size: 0.9em;
-                color: #e83e8c;
-                font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+                color: #c7254e;
+                font-family: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
               }
 
               .markdown-body pre {
@@ -389,7 +393,7 @@ jobs:
 
               .markdown-body p {
                 background: transparent !important;
-                color: var(--text-dark);
+                color: rgba(0, 0, 0, 0.8);
               }
 
               .markdown-body ul,
@@ -401,11 +405,11 @@ jobs:
               .markdown-body li {
                 margin: 0.5rem 0;
                 background: transparent !important;
-                color: var(--text-dark);
+                color: rgba(0, 0, 0, 0.8);
               }
 
               .markdown-body blockquote {
-                border-left: 4px solid #3e3e3e;
+                border-left: 4px solid var(--primary-color);
                 padding-left: 1rem;
                 margin-left: 0;
                 color: var(--text-muted);
@@ -435,6 +439,7 @@ jobs:
                 box-shadow: 0 4px 12px rgba(0, 64, 85, 0.2);
                 transition: all 0.3s ease;
                 font-size: 1rem;
+                font-family: Domine, serif;
                 border: none;
                 border-bottom: none !important;
               }
@@ -448,37 +453,60 @@ jobs:
 
               /* Footer with FORRT colors */
               .footer {
-                background: var(--primary-color);
+                background: var(--navbar-color);
                 text-align: center;
                 padding: 3rem 2rem;
                 color: rgba(255, 255, 255, 0.9);
                 margin-top: 5rem;
-                border-top: 3px solid var(--primary-hover);
+                border-top: none;
               }
 
               .footer p {
                 margin: 0.5rem 0;
                 font-size: 0.95rem;
+                font-family: Domine, serif;
               }
 
               .footer a {
                 color: white;
                 text-decoration: none;
-                font-weight: 500;
+                font-weight: 400;
                 margin: 0 0.75rem;
                 border-bottom: 1px solid transparent;
                 transition: all 0.2s ease;
               }
 
               .footer a:hover {
-                border-bottom-color: white;
+                color: var(--brand-color);
+                border-bottom-color: var(--brand-color);
               }
 
               .footer-branding {
                 font-size: 1.05rem;
-                font-weight: 600;
+                font-weight: 700;
                 margin-bottom: 1rem;
                 opacity: 1;
+              }
+
+              /* Hamburger toggle button */
+              .nav-toggle {
+                display: none;
+                background: none;
+                border: none;
+                color: #fff;
+                font-size: 1.5rem;
+                cursor: pointer;
+                padding: 0.5rem 1rem;
+                line-height: 1;
+              }
+
+              .nav-toggle span {
+                display: block;
+                width: 22px;
+                height: 2px;
+                background: #fff;
+                margin: 5px 0;
+                transition: all 0.3s ease;
               }
 
               /* Responsive design */
@@ -503,18 +531,35 @@ jobs:
                   font-size: 1.05rem;
                 }
 
+                .nav {
+                  position: relative;
+                }
+
+                .nav-toggle {
+                  display: block;
+                  width: 100%;
+                  text-align: left;
+                  padding: 0.75rem 1rem;
+                }
+
                 .nav-container {
                   flex-direction: column;
                   padding: 0;
                   gap: 0;
+                  display: none;
+                }
+
+                .nav-container.open {
+                  display: flex;
                 }
 
                 .nav a {
                   width: 100%;
                   text-align: center;
-                  border-bottom: 1px solid var(--border-color);
+                  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
                   border-left: none;
                   border-right: none;
+                  padding: 0.75rem 1rem;
                 }
 
                 .content {
@@ -545,14 +590,11 @@ jobs:
               </div>
             </div>
 
-            <!-- Page Header -->
-            <div class="header">
-              <h1>{{ site.title }}</h1>
-              <p>{{ site.description }}</p>
-            </div>
-
             <!-- Navigation -->
             <nav class="nav">
+              <button class="nav-toggle" aria-label="Toggle navigation" onclick="document.querySelector('.nav-container').classList.toggle('open')">
+                <span></span><span></span><span></span>
+              </button>
               <div class="nav-container">
                 <a href="{{ site.baseurl }}/" {% if page.url == "/" or page.url == "/index.html" %}class="active"{% endif %}>Home</a>
                 <a href="{{ site.baseurl }}/documentation" {% if page.url contains "documentation" %}class="active"{% endif %}>Documentation</a>
@@ -561,6 +603,12 @@ jobs:
                 <a href="https://forrt.org/">FORRT Project</a>
               </div>
             </nav>
+
+            <!-- Page Header -->
+            <div class="header">
+              <h1>{{ site.title }}</h1>
+              <p>{{ site.description }}</p>
+            </div>
 
             <div class="container">
               <div class="content">
