@@ -498,6 +498,7 @@ jobs:
                 cursor: pointer;
                 padding: 0.5rem 1rem;
                 line-height: 1;
+                margin-left: auto;
               }
 
               .nav-toggle span {
@@ -537,9 +538,7 @@ jobs:
 
                 .nav-toggle {
                   display: block;
-                  width: 100%;
-                  text-align: left;
-                  padding: 0.75rem 1rem;
+                  padding: 0.5rem 1rem;
                 }
 
                 .nav-container {
@@ -587,14 +586,14 @@ jobs:
               <div class="forrt-banner-content">
                 <img src="{{ site.baseurl }}/assets/favicon.png" alt="FORRT Logo" class="forrt-logo">
                 <h1 class="forrt-title">FORRT</h1>
+                <button class="nav-toggle" aria-label="Toggle navigation" onclick="document.querySelector('.nav-container').classList.toggle('open')">
+                  <span></span><span></span><span></span>
+                </button>
               </div>
             </div>
 
             <!-- Navigation -->
             <nav class="nav">
-              <button class="nav-toggle" aria-label="Toggle navigation" onclick="document.querySelector('.nav-container').classList.toggle('open')">
-                <span></span><span></span><span></span>
-              </button>
               <div class="nav-container">
                 <a href="{{ site.baseurl }}/" {% if page.url == "/" or page.url == "/index.html" %}class="active"{% endif %}>Home</a>
                 <a href="{{ site.baseurl }}/documentation" {% if page.url contains "documentation" %}class="active"{% endif %}>Documentation</a>
