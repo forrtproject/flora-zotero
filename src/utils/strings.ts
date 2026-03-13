@@ -59,7 +59,7 @@ export const strings = {
 
   // Read-Only Library Handling
   "replication-checker-readonly-dialog-title": "Read-Only Library Detected",
-  "replication-checker-readonly-dialog-message": "This library is read-only. We found { $itemCount } item(s) with { $replicationCount } replication(s).\n\nWould you like to copy the original articles and their replications to your Personal library's \"Replication folder\"?",
+  "replication-checker-readonly-dialog-message": "This library is read-only. We found { $itemCount } item(s) with { $replicationCount } replication(s).\n\nWould you like to copy the original articles and their replications to your Personal library's replication folder?",
 
   // Results Messages
   "replication-checker-results-title-library": "Library Scan Complete",
@@ -158,6 +158,9 @@ export const strings = {
   "pref-autocheck-new-items": "Automatically check newly added library items (recommended)",
   "pref-autocheck-new-items-hint": "Disable this option if you prefer to run all replication checks manually.",
   "pref-autocheck-note": "Auto-check runs in the background when Zotero is open. You can still manually check using the Tools menu.",
+  "pref-folder-title": "Replication Folder Name",
+  "pref-folder-description": "Name of the Zotero collection where replication items are stored",
+  "pref-folder-hint": "Changing this will create a new collection for future checks. Existing items will remain in the old collection.",
   "pref-blacklist-title": "Banned Replications",
   "pref-blacklist-description": "Manage replications you've banned from appearing in your library",
   "pref-blacklist-col-replication": "Replication Article",

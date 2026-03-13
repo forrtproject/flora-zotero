@@ -67,7 +67,7 @@ replication-checker-readonly-dialog-title = Read-Only Library Detected
 replication-checker-readonly-dialog-message =
     This library is read-only. We found { $itemCount } item(s) with { $replicationCount } replication(s).
 
-    Would you like to copy the original articles and their replications to your Personal library's "Replication folder"?
+    Would you like to copy the original articles and their replications to your Personal library's replication folder?
 
 ## Results Messages
 replication-checker-results-title-library = Library Scan Complete

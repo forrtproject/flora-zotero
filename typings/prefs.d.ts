@@ -10,6 +10,7 @@ declare namespace _ZoteroTypes {
       "autoCheckFrequency": string;
       "autoCheckNewItems": boolean;
       "blacklist": string;
+      "folderName": string;
     };
   }
 }
