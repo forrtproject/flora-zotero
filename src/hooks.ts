@@ -744,19 +744,9 @@ export async function onShutdown() {
       Zotero.debug("[ReplicationChecker] Could not unregister preference observer: " + e);
     }
 
-    // Clear all plugin preferences on uninstall/disable
-    // This ensures fresh onboarding on reinstall
-    try {
-      Zotero.debug("[ReplicationChecker] Clearing plugin preferences");
-      Zotero.Prefs.clear("replication-checker.autoCheckFrequency");
-      Zotero.Prefs.clear("replication-checker.autoCheckNewItems");
-      Zotero.Prefs.clear("replication-checker.blacklist");
-      Zotero.Prefs.clear("replication-checker.onboardingVersion");
-      Zotero.Prefs.clear("replication-checker.firstRunDone");
-      Zotero.debug("[ReplicationChecker] Plugin preferences cleared");
-    } catch (e) {
-      Zotero.debug("[ReplicationChecker] Error clearing preferences: " + e);
-    }
+    // Note: We intentionally do NOT clear preferences on shutdown.
+    // Zotero calls onShutdown during auto-updates before reloading the new version,
+    // so clearing prefs here would reset user settings and re-trigger onboarding.
 
     // Cleanup global reference
     delete (Zotero as any).ReplicationChecker;

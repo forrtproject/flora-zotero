@@ -19,6 +19,20 @@ import { reproductionHandler } from "./reproductionHandler";
 
 const AUTO_CHECK_PREF = "replication-checker.autoCheckFrequency";
 const NEW_ITEM_PREF = "replication-checker.autoCheckNewItems";
+const FOLDER_NAME_PREF = "replication-checker.folderName";
+const DEFAULT_FOLDER_NAME = "FLoRA Replications";
+
+function getReplicationFolderName(): string {
+  try {
+    const prefValue = Zotero.Prefs.get(FOLDER_NAME_PREF);
+    if (typeof prefValue === "string" && prefValue.trim().length > 0) {
+      return prefValue.trim();
+    }
+  } catch (e) {
+    // Fall through to default
+  }
+  return DEFAULT_FOLDER_NAME;
+}
 
 type LocaleParams = Record<string, string | number>;
 const FEEDBACK_URL = "https://tinyurl.com/y5evebv9";
@@ -717,6 +731,11 @@ export class ReplicationCheckerPlugin {
 
       const collection = Zotero.getActiveZoteroPane().getSelectedCollection();
       if (!collection) {
+        // If a library is selected (not a collection), run the full library check
+        const selectedLibraryID = Zotero.getActiveZoteroPane().getSelectedLibraryID();
+        if (selectedLibraryID !== undefined) {
+          return this.checkEntireLibrary();
+        }
         this.showInfoAlert("replication-checker-alert-no-collection");
         return;
       }
@@ -1607,7 +1626,7 @@ export class ReplicationCheckerPlugin {
   }
 
   /**
-   * Add replications to the "Replication folder" collection
+   * Add replications to the replication folder collection
    */
   private async addReplicationsToFolder(itemID: number, replications: any[]): Promise<void> {
     try {
@@ -1654,17 +1673,18 @@ export class ReplicationCheckerPlugin {
       // Get or create replication collection
       const libraryID = item.libraryID;
       let collections = Zotero.Collections.getByLibrary(libraryID, true);
+      const folderName = getReplicationFolderName();
       let replicationCollection = collections.find(
-        (c: any) => c.name === "Replication folder" && !c.parentID
+        (c: any) => c.name === folderName && !c.parentID
       );
 
       if (!replicationCollection) {
         replicationCollection = new Zotero.Collection({
           libraryID: libraryID,
-          name: "Replication folder",
+          name: folderName,
         });
         await replicationCollection.saveTx();
-        Zotero.debug(`Created new "Replication folder" collection in library ${libraryID}`);
+        Zotero.debug(`Created new "${folderName}" collection in library ${libraryID}`);
       }
 
       // Process replications in transaction
@@ -1698,7 +1718,7 @@ export class ReplicationCheckerPlugin {
           }
 
           // If the replication item already exists in the library, don't create a duplicate.
-          // Instead, (a) make sure it's in the "Replication folder" collection and
+          // Instead, (a) make sure it's in the replication folder collection and
           // (b) link it as a related item to the original.
           if (existingIDs.length > 0) {
             Zotero.debug(
@@ -1713,11 +1733,11 @@ export class ReplicationCheckerPlugin {
               try {
                 await replicationCollection.addItem(existingID);
                 Zotero.debug(
-                  `Ensured existing replication item ${existingID} is in "Replication folder"`
+                  `Ensured existing replication item ${existingID} is in "${folderName}"`
                 );
               } catch (collectionError) {
                 Zotero.debug(
-                  `Failed to add existing replication item ${existingID} to "Replication folder": ${collectionError}`
+                  `Failed to add existing replication item ${existingID} to "${folderName}": ${collectionError}`
                 );
               }
 
@@ -1893,7 +1913,7 @@ export class ReplicationCheckerPlugin {
 
             // Add to collection
             await replicationCollection.addItem(newItemID);
-            Zotero.debug(`Added replication item ${newItemID} to "Replication folder"`);
+            Zotero.debug(`Added replication item ${newItemID} to "${folderName}"`);
           } catch (error) {
             Zotero.debug(`Error creating replication item for DOI ${doi_r}: ${error}`);
           }
@@ -2379,19 +2399,20 @@ export class ReplicationCheckerPlugin {
       const sourceLibrary = Zotero.Libraries.get(sourceLibraryID);
       const sourceLibraryName = sourceLibrary ? sourceLibrary.name : "Unknown Library";
 
-      // Get or create "Replication folder" in Personal library (for replications)
+      // Get or create replication folder in Personal library (for replications)
+      const folderName = getReplicationFolderName();
       let collections = Zotero.Collections.getByLibrary(personalLibraryID, true);
       let replicationCollection = collections.find(
-        (c: any) => c.name === "Replication folder" && !c.parentID
+        (c: any) => c.name === folderName && !c.parentID
       );
 
       if (!replicationCollection) {
         replicationCollection = new Zotero.Collection({
           libraryID: personalLibraryID,
-          name: "Replication folder",
+          name: folderName,
         });
         await replicationCollection.saveTx();
-        Zotero.debug(`[ReplicationChecker] Created "Replication folder" in Personal library`);
+        Zotero.debug(`[ReplicationChecker] Created "${folderName}" in Personal library`);
       }
 
       // Get or create collection for originals named "{LibraryName} [Read-Only]"
@@ -2462,7 +2483,7 @@ export class ReplicationCheckerPlugin {
             copiedOriginal.addTag(TAG_READONLY_ORIGIN);
             await copiedOriginal.save();
 
-            // Add original to the read-only library collection (not to Replication folder)
+            // Add original to the read-only library collection (not to replication folder)
             await originalsCollection.addItem(copiedOriginalID);
 
             // Deduplicate replications by DOI, URL, or title
@@ -2565,7 +2586,7 @@ export class ReplicationCheckerPlugin {
               await copiedOriginal.save();
               await replicationItem.save();
 
-              // Add to Replication folder
+              // Add to replication folder
               await replicationCollection.addItem(replicationItemID);
             }
 

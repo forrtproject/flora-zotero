@@ -28,7 +28,8 @@
     "lint:fix": "prettier --write . && eslint . --fix",
     "release": "zotero-plugin release",
     "test": "zotero-plugin test",
-    "update-deps": "npm update --save"
+    "update-deps": "npm update --save",
+    "postinstall": "node scripts/patch-scaffold.mjs"
   },
   "dependencies": {
     "crypto-js": "^4.2.0",

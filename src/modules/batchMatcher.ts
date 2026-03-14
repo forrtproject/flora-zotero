@@ -19,14 +19,11 @@ export class BatchMatcher {
   private dataSource: ReplicationDataSource;
 
   /**
-   * Number of hash prefixes to send per API request
-   * Optimized for balance between payload size and number of requests:
-   * - 500 prefixes = ~2KB payload (well within limits)
-   * - Reduces API calls by 80% compared to batch size of 100
-   * - 1,000 items: 2 requests instead of 10 (60% faster)
-   * - 10,000 items: 20 requests instead of 97 (68% faster)
+   * Number of hash prefixes to send per API request.
+   * The FLoRA API processes at most 200 prefixes per request,
+   * silently ignoring any beyond that limit.
    */
-  private readonly BATCH_SIZE = 500;
+  private readonly BATCH_SIZE = 200;
 
   constructor(dataSource: ReplicationDataSource) {
     this.dataSource = dataSource;
