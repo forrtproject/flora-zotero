@@ -161,8 +161,8 @@ onboarding-context-content =
     📄 Para itens individuais:
     Clique com o botão direito nos itens → Verificar replicações
 
-    🚫 Banir replicações:
-    Clique com o botão direito nos itens de replicação → Banir replicação
+    🚫 Excluir replicações:
+    Clique com o botão direito nos itens de replicação → Excluir replicação
     • Impede que replicações indesejadas voltem a ser adicionadas
 
     ⚙️ Preferências:
