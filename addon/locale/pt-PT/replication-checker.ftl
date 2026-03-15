@@ -231,32 +231,42 @@ com sucesso.
 ## Reproduction Feature - Dialog
 reproduction-checker-dialog-title = Estudos de Reprodução encontrados
 reproduction-checker-dialog-intro = Estudos de reprodução encontrados para:\n"{ $title }"
-reproduction-checker-dialog-count = { $count } reprodução(ões) encontrada(s):
+reproduction-checker-dialog-count = Encontrada(s) { $count } reprodução(ões):
 reproduction-checker-dialog-item = { $index }. { $title }\n({ $year })\n   Resultado: { $outcome }
 reproduction-checker-dialog-more = ...e mais { $count } reprodução(ões)
-reproduction-checker-dialog-question = Deseja adicionar informações de reprodução?
-reproduction-checker-dialog-progress-title = Informações de Reprodução Adicionadas
-reproduction-checker-dialog-progress-line = Informações de reprodução adicionadas a "{ $title }"
+reproduction-checker-dialog-question = Pretende adicionar informação sobre reprodução?
+reproduction-checker-dialog-progress-title = Informação de reprodução adicionadas
+reproduction-checker-dialog-progress-line = Informação de reprodução adicionadas a "{ $title }"
 
 ## Reproduction Feature - Progress
-reproduction-checker-progress-reproductions-found = { $count } item(ns) com reproduções encontrado(s)
+reproduction-checker-progress-reproductions-found = Encontrado(s) { $count } item(ns) com reproduções
 
 ## Preference Pane
-pref-autocheck-title = Verificação Automática da Biblioteca para Replicações
-pref-autocheck-description = Verificar automaticamente estudos de replicação em sua biblioteca em intervalos regulares
-pref-autocheck-disabled = Desativado (somente verificação manual)
-pref-autocheck-daily = Diário (verificar a cada 24 horas)
-pref-autocheck-weekly = Semanal (verificar a cada 7 dias)
+pref-autocheck-title = Verificar automaticamente a biblioteca para replicações
+pref-autocheck-description = Verifica automaticamente a sua biblioteca quanto a estudos de replicação em intervalos regulares
+pref-autocheck-disabled = Desativado (apenas verificação manual)
+pref-autocheck-daily = Diária (verificação a cada 24 horas)
+pref-autocheck-weekly = Semanal (verificação a cada 7 dias)
 pref-autocheck-monthly = Mensal (verificar a cada 30 dias)
 pref-autocheck-new-items = Verificar automaticamente novos itens adicionados à biblioteca (recomendado)
-pref-autocheck-new-items-hint = Desative esta opção se preferir executar todas as verificações de replicação manualmente.
-pref-autocheck-note = A verificação automática é executada em segundo plano quando o Zotero está aberto. Você ainda pode verificar manualmente pelo menu Ferramentas.
+pref-autocheck-new-items-hint = Desative esta opção se preferir executar manualmente todas as verificações de replicação.
+pref-autocheck-note = A verificação automática decorre em segundo plano quando o Zotero está aberto. Continua a poder verificar manualmente através do menu Ferramentas.
+
+#################
+pref-folder-title = Nome da pasta de replicações
+pref-folder-description = Nome da coleção do Zotero onde os itens de replicação são armazenados
+pref-folder-hint = Alterar isto irá renomear automaticamente a coleção existente. Todos os itens permanecerão na mesma coleção.
+pref-repro-folder-title = Nome da pasta de reproduções
+pref-repro-folder-description = Nome da coleção do Zotero onde os itens de reprodução são armazenados
+pref-repro-folder-hint = Alterar isto irá renomear automaticamente a coleção existente. Todos os itens permanecerão na mesma coleção.
+
+#################
 pref-blacklist-title = Replicações excluídas
 pref-blacklist-description = Gerir as replicações que excluiu para que não apareçam na sua biblioteca
 pref-blacklist-col-replication = Artigo de Replicação
 pref-blacklist-col-original = Artigo Original
 pref-blacklist-col-type = Tipo
-pref-blacklist-col-banned = Banido em
+pref-blacklist-col-banned = Excluído em
 pref-blacklist-empty = Não existem replicações excluídas
 pref-blacklist-remove = Remover selecionado
 pref-blacklist-clear = Limpar todas as replicações excluídas
