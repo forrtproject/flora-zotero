@@ -125,7 +125,7 @@ replication-checker-prompt-first-run =
     • Clique em "Cancel" para ignorar por agora - poderá sempre analisar mais tarde a partir do menu Ferramentas.
 
 ## Onboarding
-onboarding-welcome-title = Boas-vindas ao Replication Checker!
+onboarding-welcome-title = Boas-vindas ao Zotero Replication Checker!
 onboarding-welcome-content =
     Obrigado por instalar o Zotero Replication Checker!
 
@@ -166,7 +166,7 @@ onboarding-context-content =
     • Impede que replicações indesejadas voltem a ser adicionadas
 
     ⚙️ Preferências:
-    Editar → Configurações → Replication Checker
+    Editar → Configurações → Zotero Replication Checker
     • Frequência de verificação automática
     • Verificação automática de novos itens
 
