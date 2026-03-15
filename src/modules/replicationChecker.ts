@@ -34,6 +34,34 @@ function getReplicationFolderName(): string {
   return DEFAULT_FOLDER_NAME;
 }
 
+/**
+ * Find an existing replication collection by the current folder name, renaming the
+ * old default-named collection if needed. Returns null if none exists (caller should create one).
+ */
+async function findOrRenameReplicationCollection(
+  collections: any[],
+  targetName: string,
+  libraryID: number
+): Promise<any | null> {
+  // 1. Exact match with current name
+  const exact = collections.find((c: any) => c.name === targetName && !c.parentID);
+  if (exact) return exact;
+
+  // 2. Fall back to default name so we can rename it instead of creating a duplicate
+  if (targetName !== DEFAULT_FOLDER_NAME) {
+    const old = collections.find((c: any) => c.name === DEFAULT_FOLDER_NAME && !c.parentID);
+    if (old) {
+      old.name = targetName;
+      await old.saveTx();
+      Zotero.debug(
+        `[ReplicationChecker] Renamed collection "${DEFAULT_FOLDER_NAME}" → "${targetName}" in library ${libraryID}`
+      );
+      return old;
+    }
+  }
+  return null;
+}
+
 type LocaleParams = Record<string, string | number>;
 const FEEDBACK_URL = "https://tinyurl.com/y5evebv9";
 const DATA_ISSUES_URL = "https://forms.gle/Tn2eqasUU1WE86Dq8";
@@ -1674,8 +1702,10 @@ export class ReplicationCheckerPlugin {
       const libraryID = item.libraryID;
       let collections = Zotero.Collections.getByLibrary(libraryID, true);
       const folderName = getReplicationFolderName();
-      let replicationCollection = collections.find(
-        (c: any) => c.name === folderName && !c.parentID
+      let replicationCollection = await findOrRenameReplicationCollection(
+        collections,
+        folderName,
+        libraryID
       );
 
       if (!replicationCollection) {
@@ -2402,8 +2432,10 @@ export class ReplicationCheckerPlugin {
       // Get or create replication folder in Personal library (for replications)
       const folderName = getReplicationFolderName();
       let collections = Zotero.Collections.getByLibrary(personalLibraryID, true);
-      let replicationCollection = collections.find(
-        (c: any) => c.name === folderName && !c.parentID
+      let replicationCollection = await findOrRenameReplicationCollection(
+        collections,
+        folderName,
+        personalLibraryID
       );
 
       if (!replicationCollection) {

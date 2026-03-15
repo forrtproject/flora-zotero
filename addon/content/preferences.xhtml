@@ -22,6 +22,11 @@
     name="extensions.zotero.replication-checker.folderName"
     type="string"
   />
+  <preference
+    id="pref-reproductionFolderName"
+    name="extensions.zotero.replication-checker.reproductionFolderName"
+    type="string"
+  />
 </preferences>
 
 <groupbox>
@@ -89,7 +94,26 @@
   </html:div>
 
   <html:p id="pref-folder-hint-label" style="margin-top: 8px; font-size: 0.85em; color: #999;">
-    Changing this will create a new collection for future checks. Existing items will remain in the old collection.
+    Changing this will rename the existing collection automatically. All items will remain in the same collection.
+  </html:p>
+</groupbox>
+
+<groupbox>
+  <label>
+    <html:h2 id="pref-repro-folder-title-label">Reproduction Folder Name</html:h2>
+  </label>
+
+  <html:p id="pref-repro-folder-description-label" style="margin: 0 0 12px 0; font-size: 0.9em; color: #666;">
+    Name of the Zotero collection where reproduction items are stored
+  </html:p>
+
+  <html:div style="display: flex; align-items: center; gap: 8px;">
+    <html:input id="pref-repro-folder-name-input" type="text" preference="pref-reproductionFolderName"
+      style="flex: 1; padding: 4px 8px; font-size: 0.9em;" placeholder="FLoRA Reproductions" />
+  </html:div>
+
+  <html:p id="pref-repro-folder-hint-label" style="margin-top: 8px; font-size: 0.85em; color: #999;">
+    Changing this will rename the existing collection automatically. All items will remain in the same collection.
   </html:p>
 </groupbox>
 
@@ -183,10 +207,15 @@ function localizePrefs() {
     noteEl.appendChild(document.createTextNode(noteText.substring(noteText.indexOf(":") + 2)));
   }
 
-  // Folder name section
+  // Replication folder name section
   setText("pref-folder-title-label", "pref-folder-title");
   setText("pref-folder-description-label", "pref-folder-description");
   setText("pref-folder-hint-label", "pref-folder-hint");
+
+  // Reproduction folder name section
+  setText("pref-repro-folder-title-label", "pref-repro-folder-title");
+  setText("pref-repro-folder-description-label", "pref-repro-folder-description");
+  setText("pref-repro-folder-hint-label", "pref-repro-folder-hint");
 
   // Blacklist section
   setText("pref-blacklist-title-label", "pref-blacklist-title");

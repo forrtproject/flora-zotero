@@ -22,6 +22,54 @@ import {
 const FEEDBACK_URL = "https://tinyurl.com/y5evebv9";
 const DATA_ISSUES_URL = "https://forms.gle/Tn2eqasUU1WE86Dq8";
 
+const REPRODUCTION_FOLDER_NAME_PREF = "replication-checker.reproductionFolderName";
+const DEFAULT_REPRODUCTION_FOLDER_NAME = "FLoRA Reproductions";
+// Legacy hardcoded name used before the configurable preference was introduced
+const LEGACY_REPRODUCTION_FOLDER_NAME = "Reproduction folder";
+
+function getReproductionFolderName(): string {
+  try {
+    const prefValue = Zotero.Prefs.get(REPRODUCTION_FOLDER_NAME_PREF);
+    if (typeof prefValue === "string" && prefValue.trim().length > 0) {
+      return prefValue.trim();
+    }
+  } catch (e) {
+    // Fall through to default
+  }
+  return DEFAULT_REPRODUCTION_FOLDER_NAME;
+}
+
+/**
+ * Find an existing reproduction collection by the current folder name, renaming an
+ * old-named collection if needed. Returns null if none exists (caller should create one).
+ */
+async function findOrRenameReproductionCollection(
+  collections: any[],
+  targetName: string,
+  libraryID: number
+): Promise<any | null> {
+  // 1. Exact match with current name
+  const exact = collections.find((c: any) => c.name === targetName && !c.parentID);
+  if (exact) return exact;
+
+  // 2. Fall back to old names (new default first, then legacy hardcoded name)
+  const fallbackNames = [DEFAULT_REPRODUCTION_FOLDER_NAME, LEGACY_REPRODUCTION_FOLDER_NAME].filter(
+    (n) => n !== targetName
+  );
+  for (const oldName of fallbackNames) {
+    const old = collections.find((c: any) => c.name === oldName && !c.parentID);
+    if (old) {
+      old.name = targetName;
+      await old.saveTx();
+      Zotero.debug(
+        `[ReproductionHandler] Renamed collection "${oldName}" → "${targetName}" in library ${libraryID}`
+      );
+      return old;
+    }
+  }
+  return null;
+}
+
 /**
  * Map reproduction outcome to tag name (always English constants)
  * Note: Include both "computionally" (typo in some API responses) and "computationally" (correct)
@@ -309,17 +357,20 @@ export class ReproductionHandler {
       // Get or create reproduction collection
       const libraryID = item.libraryID;
       let collections = Zotero.Collections.getByLibrary(libraryID, true);
-      let reproductionCollection = collections.find(
-        (c: any) => c.name === "Reproduction folder" && !c.parentID
+      const reproductionFolderName = getReproductionFolderName();
+      let reproductionCollection = await findOrRenameReproductionCollection(
+        collections,
+        reproductionFolderName,
+        libraryID
       );
 
       if (!reproductionCollection) {
         reproductionCollection = new Zotero.Collection({
           libraryID: libraryID,
-          name: "Reproduction folder",
+          name: reproductionFolderName,
         });
         await reproductionCollection.saveTx();
-        Zotero.debug(`[ReproductionHandler] Created new "Reproduction folder" collection in library ${libraryID}`);
+        Zotero.debug(`[ReproductionHandler] Created new "${reproductionFolderName}" collection in library ${libraryID}`);
       }
 
       // Process reproductions in transaction
@@ -742,19 +793,22 @@ export class ReproductionHandler {
       const sourceLibrary = Zotero.Libraries.get(sourceLibraryID);
       const sourceLibraryName = sourceLibrary ? sourceLibrary.name : "Unknown Library";
 
-      // Get or create "Reproduction folder" in Personal library
+      // Get or create reproduction folder in Personal library
+      const reproductionFolderName = getReproductionFolderName();
       let collections = Zotero.Collections.getByLibrary(personalLibraryID, true);
-      let reproductionCollection = collections.find(
-        (c: any) => c.name === "Reproduction folder" && !c.parentID
+      let reproductionCollection = await findOrRenameReproductionCollection(
+        collections,
+        reproductionFolderName,
+        personalLibraryID
       );
 
       if (!reproductionCollection) {
         reproductionCollection = new Zotero.Collection({
           libraryID: personalLibraryID,
-          name: "Reproduction folder",
+          name: reproductionFolderName,
         });
         await reproductionCollection.saveTx();
-        Zotero.debug(`[ReproductionHandler] Created "Reproduction folder" in Personal library`);
+        Zotero.debug(`[ReproductionHandler] Created "${reproductionFolderName}" in Personal library`);
       }
 
       // Get or create collection for originals

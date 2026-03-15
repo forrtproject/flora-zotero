@@ -11,6 +11,7 @@ declare namespace _ZoteroTypes {
       "autoCheckNewItems": boolean;
       "blacklist": string;
       "folderName": string;
+      "reproductionFolderName": string;
     };
   }
 }
