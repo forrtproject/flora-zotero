@@ -134,7 +134,7 @@ onboarding-welcome-content =
     ✨ Funcionalidades principais:
     • Verificação automática de DOIs na base de dados de replicações
     • Funciona com a biblioteca inteira, coleções ou itens individuais
-    • Cria notas associadas com informações sobre replicação
+    • Cria notas associadas com informação sobre replicação
     • Assinala e atribui etiquetas aos itens de acordo com o estado da replicação
     • Adiciona estudos originais quando existirem replicações
     • Permite excluir replicações indesejadas de verificações futuras
@@ -149,7 +149,7 @@ onboarding-tools-content =
     • Analisa todos os itens com DOI
     • Consulta a base de dados FLoRA
     • Cria notas com detalhes
-    • Etiqueta os itens por resultado
+    • Atribui etiquetas aos itens de acordo com o resultado
 
     💡 Sugestão: Pode demorar alguns minutos, dependendo do tamanho da biblioteca.
 
@@ -170,14 +170,14 @@ onboarding-context-content =
     • Frequência de verificação automática
     • Verificação automática de novos itens
 
-onboarding-scan-title = Está pronto/a para analisar a sua biblioteca?
+onboarding-scan-title = Pretende analisar a sua biblioteca?
 onboarding-scan-content =
     Pretende analisar agora a sua biblioteca para procurar replicações?
 
     • Clique em "Sim" para iniciar a análise
       (isto pode demorar alguns minutos)
 
-    • Clique em "Não" para ignorar por agora -poderá analisar mais tarde a partir do menu Ferramentas.
+    • Clique em "Não" para ignorar por agora - poderá analisar mais tarde a partir do menu Ferramentas.
 
 
     💡 Pode aceder a este guia a qualquer momento:
@@ -267,6 +267,6 @@ pref-blacklist-col-original = Artigo original
 pref-blacklist-col-type = Tipo
 pref-blacklist-col-banned = Excluído em
 pref-blacklist-empty = Não existem replicações excluídas
-pref-blacklist-remove = Remover selecionado
+pref-blacklist-remove = Remover selecionado(s)
 pref-blacklist-clear = Limpar todas as replicações excluídas
 pref-blacklist-hint = As replicações excluídas não voltarão a ser adicionadas em verificações futuras. Pode excluir replicações através do menu contextual.
