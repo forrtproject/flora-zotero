@@ -47,6 +47,7 @@ replication-checker-ban-confirm =
     Tem a certeza de que pretende excluir { $count } replicação(ões)?
 
     Estes itens serão movidos para o lixo e não voltarão a ser adicionados em verificações futuras.
+
 replication-checker-ban-success = { $count } reprodução(ões) excluída(s) com sucesso.
 replication-checker-alert-no-replications-selected = Não foram selecionados itens de replicação.
 
@@ -116,7 +117,7 @@ replication-checker-prompt-title = Boas-vindas ao Zotero Replication Checker!
 replication-checker-prompt-first-run =
    Obrigado por instalar o Zotero Replication Checker!
 
-   Este plugin ajuda a descobrir estudos de replicação para a sua investigação, ao verificar os itens da sua biblioteca na FORRT Literature Database (FLoRA).
+   Este plugin ajuda a encontrar estudos de replicação para a sua investigação, ao verificar os itens da sua biblioteca na FORRT Literature Database (FLoRA).
 
    Pretende analisar agora a sua biblioteca para procurar replicações?
 
@@ -128,7 +129,7 @@ onboarding-welcome-title = Boas-vindas ao Replication Checker!
 onboarding-welcome-content =
     Obrigado por instalar o Zotero Replication Checker!
 
-    Este plugin ajuda a descobrir estudos de replicação para a sua investigação, ao verificar os itens da sua biblioteca na FORRT Literature Database (FLoRA).
+    Este plugin ajuda a encontrar estudos de replicação para a sua investigação, ao verificar os itens da sua biblioteca na FORRT Literature Database (FLoRA).
 
     ✨ Funcionalidades principais:
     • Verificação automática de DOIs na base de dados de replicações
@@ -146,14 +147,14 @@ onboarding-tools-content =
  (Verifique a biblioteca atual para replicações)
 
     🔍 O que faz:
-    • Analisa todos os itens com DOIs
-    • Consulta o banco de dados FLoRA
+    • Analisa todos os itens com DOI
+    • Consulta a base de dados FLoRA
     • Cria notas com detalhes
-    • Marca itens por resultado
+    • Etiqueta os itens por resultado
 
-    💡 Dica: Leva alguns minutos dependendo do tamanho da biblioteca.
+    💡 Sugestão: Pode demorar alguns minutos, dependendo do tamanho da biblioteca.
 
-onboarding-context-title = Verificar coleções e itens
+onboarding-context-title = Verifique coleções e itens
 onboarding-context-content =
     📚 Para coleções:
     Clique com o botão direito na coleção → Verificar replicações
@@ -163,33 +164,33 @@ onboarding-context-content =
 
     🚫 Banir replicações:
     Clique com o botão direito nos itens de replicação → Banir replicação
-    • Impede que replicações indesejadas sejam readicionadas
+    • Impede que replicações indesejadas voltem a ser adicionadas
 
     ⚙️ Preferências:
     Editar → Configurações → Replication Checker
     • Frequência de verificação automática
     • Verificação automática de novos itens
 
-onboarding-scan-title = Pronto para analisar sua biblioteca?
+onboarding-scan-title = Está pronto/a para analisar sua biblioteca?
 onboarding-scan-content =
-    Deseja analisar sua biblioteca em busca de replicações agora?
+    Pretende analisar agora a sua biblioteca para procurar replicações?
 
     • Clique em "Sim" para iniciar a análise
-      (isso pode levar alguns minutos)
+      (isto pode demorar alguns minutos)
 
-    • Clique em "Não" para pular - você sempre pode analisar mais tarde pelo menu Ferramentas
+    • Clique em "Não" para pular - para ignorar por agora - poderá sempre analisar mais tarde a partir do menu Ferramentas
 
-    💡 Acesse este guia a qualquer momento:
-    Ajuda → Guia do Usuário do Replication Checker
+    💡 Pode aceder a este guia a qualquer momento:
+    Ajuda → Guia do Utilizador do Replication Checker
 
 ## Reproduction Feature - Menu Items
-reproduction-checker-context-menu-ban = Banir reprodução
+reproduction-checker-context-menu-ban = Excluir reprodução
 
 ## Reproduction Feature - Tags
 reproduction-checker-tag = Tem Reprodução
-reproduction-checker-tag-is-reproduction = É uma Reprodução
+reproduction-checker-tag-is-reproduction = É uma reprodução
 reproduction-checker-tag-added-by-checker = Adicionado pelo Replication Checker
-reproduction-checker-tag-readonly-origin = Original presente em biblioteca (somente leitura)
+reproduction-checker-tag-readonly-origin = Original presente em biblioteca só de leitura
 
 ## Reproduction Feature - Outcome Tags
 reproduction-checker-tag-outcome-cs-robust = Reprodução: Computacionalmente bem-sucedida, Robusta
