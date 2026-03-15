@@ -41,107 +41,109 @@ replication-checker-target-library = a biblioteca atual
 replication-checker-target-selected = os itens selecionados
 replication-checker-target-collection = a coleção selecionada
 
-## Ban Feature
+## Ban Feature / Exclusão 
 replication-checker-ban-title = Excluir replicações
 replication-checker-ban-confirm =
     Tem a certeza de que pretende excluir { $count } replicação(ões)?
 
     Estes itens serão movidos para o lixo e não voltarão a ser adicionados em verificações futuras.
 replication-checker-ban-success = { $count } reprodução(ões) excluída(s) com sucesso.
-replication-checker-alert-no-replications-selected = Nenhum item de replicação selecionado.
+replication-checker-alert-no-replications-selected = Não foram selecionados itens de replicação.
+
 
 ## Dialog
-replication-checker-dialog-title = Estudos de Replicação Encontrados
+replication-checker-dialog-title = Estudos de replicação encontrados
 replication-checker-dialog-intro = Estudos de replicação encontrados para:\n"{ $title }"
-replication-checker-dialog-count = { $count } replicação(ões) encontrada(s):
+replication-checker-dialog-count = Encontrada(s) { $count } replicação(ões):
 replication-checker-dialog-item = { $index }. { $title }\n({ $year })\n   Resultado: { $outcome }
 replication-checker-dialog-more = ...e mais { $count } replicação(ões)
-replication-checker-dialog-question = Deseja adicionar informações de replicação?
-replication-checker-dialog-progress-title = Informações de Replicação Adicionadas
-replication-checker-dialog-progress-line = Informações de replicação adicionadas a "{ $title }"
-replication-checker-dialog-is-replication-title = Estudo Original Encontrado
-replication-checker-dialog-is-replication-message = Nenhuma replicação encontrada, mas este parece ser um estudo de replicação.\n\nDeseja adicionar o(s) artigo(s) original(is)?
+replication-checker-dialog-question = Pretende adicionar a informação sobre replicação?
+replication-checker-dialog-progress-title = Informação de replicação adicionada
+replication-checker-dialog-progress-line = Informação de replicação adicionada a "{ $title }"
+replication-checker-dialog-is-replication-title = Estudo original encontrado
+replication-checker-dialog-is-replication-message = Não foram encontradas replicações, mas este parece ser um estudo de replicação.\n\nPretende adicionar o(s) artigo(s) original(is)?
 
 ## Read-Only Library Handling
-replication-checker-readonly-dialog-title = Biblioteca detectada (somente leitura)
+replication-checker-readonly-dialog-title = Biblioteca só de leitura detetada
 replication-checker-readonly-dialog-message =
-    Esta biblioteca tem acesso somente leitura. Encontramos { $itemCount } item(ns) com { $replicationCount } replicação(ões).
+    Esta biblioteca é só de leitura. Foram encontrados { $itemCount } item(ns) com { $replicationCount } replicação(ões).
 
-    Deseja copiar os artigos originais e suas replicações para a "pasta de replicações" da sua biblioteca pessoal?
+    Pretende copiar os artigos originais e as respetivas replicações para a pasta de replicações da sua biblioteca pessoal?
 
-## Results Messages
-replication-checker-results-title-library = Análise da Biblioteca Concluída
-replication-checker-results-title-selected = Análise dos Itens Selecionados Concluída
-replication-checker-results-title-collection = Análise da Coleção Concluída
+## Results Messages / Mensagens de Resultado
+replication-checker-results-title-library = Análise da biblioteca concluída
+replication-checker-results-title-selected = Análise dos itens selecionados concluída
+replication-checker-results-title-collection = Análise da coleção concluída
 replication-checker-results-total = Total de itens verificados: { $count }
-replication-checker-results-dois = Itens com DOIs: { $count }
-replication-checker-results-found = { $count } item(ns) tem/têm replicações.
+replication-checker-results-dois = Itens com DOI: { $count }
+replication-checker-results-found = { $count } item(ns) com replicações.
 replication-checker-results-none = Nenhuma replicação encontrada.
-replication-checker-results-reproductions-found = { $count } item(ns) tem/têm reproduções.
-replication-checker-results-reproductions-none = Nenhuma reprodução encontrada.
-replication-checker-results-footer = Veja as notas para detalhes ou selecione itens para reverificar.
+replication-checker-results-reproductions-found = { $count } item(ns) com reproduções.
+replication-checker-results-reproductions-none = Não foram encontradas reproduções..
+replication-checker-results-footer = Consulte as notas para mais detalhes ou selecione itens para nova verificação.
 
 ## Tags
-replication-checker-tag = Tem Replicação
-replication-checker-tag-is-replication = É uma Replicação
+replication-checker-tag = Tem replicação
+replication-checker-tag-is-replication = É replicação
 replication-checker-tag-added-by-checker = Adicionado pelo Replication Checker
 replication-checker-tag-success = Replicação: Bem-sucedida
-replication-checker-tag-failure = Replicação: Falhou
+replication-checker-tag-failure = Replicação: Falhou (Sem sucesso)
 replication-checker-tag-mixed = Replicação: Mista
-replication-checker-tag-readonly-origin = Original presente em biblioteca (somente leitura)
+replication-checker-tag-readonly-origin = Original presente em biblioteca só de leitura
 replication-checker-tag-has-been-replicated = Foi Replicado
 replication-checker-tag-has-been-reproduced = Foi Reproduzido
 replication-checker-tag-in-flora = Em FLoRA
 
 ## Note Template
-replication-checker-note-title = Replicações Encontradas
-replication-checker-note-warning = Esta nota é gerada automaticamente. Se você editá-la, uma nova nota será criada na próxima verificação e esta versão será mantida como está.
+replication-checker-note-title = Replicações encontradas
+replication-checker-note-warning = Esta nota é gerada automaticamente. Se a editar, será criada uma nova nota na próxima verificação e esta versão será mantida tal como está.
 replication-checker-note-intro = Este estudo foi replicado:
-replication-checker-note-feedback = Achou este resultado útil? Forneça feedback <a href="{ $url }" target="_blank">aqui</a>!
+replication-checker-note-feedback = Este resultado foi útil? Envie o seu feedback <a href="{ $url }" target="_blank">aqui</a>!
 replication-checker-note-data-issues = Encontrou algum problema nos dados? Por favor, reporte-o <a href="{ $url }" target="_blank">aqui</a>!
-replication-checker-note-footer = Gerado pelo Zotero Replication Checker usando a Base de Dados de Literatura FORRT (FLoRA)
+replication-checker-note-footer = Gerado pelo Zotero Replication Checker com base na FORRT Literature Database (FLoRA)
 
 ## Replication Item Details
-replication-checker-li-no-title = Nenhum título disponível
-replication-checker-li-no-authors = Nenhum autor disponível
+replication-checker-li-no-title = Sem título disponível
+replication-checker-li-no-authors = Sem autores disponíveis
 replication-checker-li-no-journal = Sem revista
-replication-checker-li-na = N/D
+replication-checker-li-na = N/A
 replication-checker-li-doi-label = DOI:
-replication-checker-li-outcome = Resultado Relatado pelo Autor:
-replication-checker-li-link = Este estudo tem um relatório vinculado:
+replication-checker-li-outcome = Resultado reportado pelos autores:
+replication-checker-li-link = Este estudo tem um relatório associado:
 
 ## First Run Prompt
-replication-checker-prompt-title = Bem-vindo ao Zotero Replication Checker!
+replication-checker-prompt-title = Boas-vindas ao Zotero Replication Checker!
 replication-checker-prompt-first-run =
-    Obrigado por instalar o Zotero Replication Checker!
+   Obrigado por instalar o Zotero Replication Checker!
 
-    Este plugin ajuda você a descobrir estudos de replicação para sua pesquisa verificando os itens da sua biblioteca na Base de Dados de Literatura FORRT (FLoRA).
+   Este plugin ajuda a descobrir estudos de replicação para a sua investigação, ao verificar os itens da sua biblioteca na FORRT Literature Database (FLoRA).
 
-    Deseja analisar sua biblioteca em busca de replicações agora?
+   Pretende analisar agora a sua biblioteca para procurar replicações?
 
-    • Clique em "OK" para iniciar a análise (isso pode levar alguns minutos)
-    • Clique em "Cancelar" para pular - você sempre pode analisar mais tarde pelo menu Ferramentas
+    • Clique em "OK" para iniciar a análise (isso pode demorar alguns minutos)
+    • Clique em "Cancel" ignorar por agora - poderá sempre analisar mais tarde a partir do menu Tools
 
 ## Onboarding
-onboarding-welcome-title = Bem-vindo ao Replication Checker!
+onboarding-welcome-title = Boas-vindas ao Replication Checker!
 onboarding-welcome-content =
     Obrigado por instalar o Zotero Replication Checker!
 
-    Este plugin ajuda você a descobrir estudos de replicação verificando automaticamente os itens da sua biblioteca na Base de Dados de Literatura FORRT (FLoRA).
+    Este plugin ajuda a descobrir estudos de replicação para a sua investigação, ao verificar os itens da sua biblioteca na FORRT Literature Database (FLoRA).
 
-    ✨ Recursos principais:
-    • Verificação automática de DOIs no banco de dados de replicações
-    • Funciona com toda a biblioteca, coleções ou itens individuais
-    • Cria notas vinculadas a informações de replicação
-    • Marca itens com status de replicação
-    • Adiciona estudos originais quando você tem replicações
-    • Bane replicações indesejadas em verificações futuras
+    ✨ Funcionalidades principais:
+    • Verificação automática de DOIs na base de dados de replicações
+    • Funciona com a biblioteca inteira, coleções ou itens individuais
+    • Cria notas associadas com informações sobre replicação
+    • Assinala e atribui etiquetas aos itens de acordo com o estado da replicação
+    • Adiciona estudos originais quando existirem replicações
+    • Permite excluir replicações indesejadas de verificações futuras
 
-    Vamos fazer um tour rápido para começar!
+    Vamos fazer uma visita rápida para começar!
 
-onboarding-tools-title = Verificar toda a sua biblioteca
+onboarding-tools-title = Verifique toda a sua biblioteca
 onboarding-tools-content =
-    📍 Local: Ferramentas → Verificar biblioteca atual para replicações
+    📍 Localização: Tools (Ferramentas) → Check Current Library for Replications
+ (Verifique a biblioteca atual para replicações)
 
     🔍 O que faz:
     • Analisa todos os itens com DOIs
