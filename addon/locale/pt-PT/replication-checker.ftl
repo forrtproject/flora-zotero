@@ -48,7 +48,7 @@ replication-checker-ban-confirm =
 
     Estes itens serão movidos para o lixo e não voltarão a ser adicionados em verificações futuras.
 
-replication-checker-ban-success = { $count } reprodução(ões) excluída(s) com sucesso.
+replication-checker-ban-success = { $count } replicação(ões) excluída(s) com sucesso.
 replication-checker-alert-no-replications-selected = Não foram selecionados itens de replicação.
 
 
@@ -139,7 +139,7 @@ onboarding-welcome-content =
     • Adiciona estudos originais quando existirem replicações
     • Permite excluir replicações indesejadas de verificações futuras
 
-    Vamos fazer uma visita rápida para começar!
+    Vamos fazer uma visita rápida para iniciar!
 
 onboarding-tools-title = Verifique toda a sua biblioteca
 onboarding-tools-content =
@@ -178,7 +178,7 @@ onboarding-scan-content =
     • Clique em "Sim" para iniciar a análise
       (isto pode demorar alguns minutos)
 
-    • Clique em "Não" para pular - para ignorar por agora - poderá sempre analisar mais tarde a partir do menu Ferramentas
+    • Clique em "Não" para para ignorar por agora - poderá analisar mais tarde a partir do menu Ferramentas
 
     💡 Pode aceder a este guia a qualquer momento:
     Ajuda → Guia do Utilizador do Replication Checker
@@ -187,47 +187,49 @@ onboarding-scan-content =
 reproduction-checker-context-menu-ban = Excluir reprodução
 
 ## Reproduction Feature - Tags
-reproduction-checker-tag = Tem Reprodução
-reproduction-checker-tag-is-reproduction = É uma reprodução
+reproduction-checker-tag = Tem reprodução
+reproduction-checker-tag-is-reproduction = É reprodução
 reproduction-checker-tag-added-by-checker = Adicionado pelo Replication Checker
 reproduction-checker-tag-readonly-origin = Original presente em biblioteca só de leitura
 
 ## Reproduction Feature - Outcome Tags
-reproduction-checker-tag-outcome-cs-robust = Reprodução: Computacionalmente bem-sucedida, Robusta
-reproduction-checker-tag-outcome-cs-challenges = Reprodução: Computacionalmente bem-sucedida, Desafios de robustez
-reproduction-checker-tag-outcome-cs-not-checked = Reprodução: Computacionalmente bem-sucedida, Robustez não verificada
-reproduction-checker-tag-outcome-ci-robust = Reprodução: Problemas computacionais, Robusta
-reproduction-checker-tag-outcome-ci-challenges = Reprodução: Problemas computacionais, Desafios de robustez
-reproduction-checker-tag-outcome-ci-not-checked = Reprodução: Problemas computacionais, Robustez não verificada
+reproduction-checker-tag-outcome-cs-robust = Reprodução: Execução computacional bem-sucedida, robusta
+reproduction-checker-tag-outcome-cs-challenges = Reprodução: Execução computacional bem-sucedida, com desafios de robustez
+reproduction-checker-tag-outcome-cs-not-checked = Reprodução: Execução computacional bem-sucedida, robustez não verificada
+reproduction-checker-tag-outcome-ci-robust = Reprodução: Problemas computacionais, robusta
+reproduction-checker-tag-outcome-ci-challenges = Reprodução: Problemas computacionais, com desafios de robustez
+reproduction-checker-tag-outcome-ci-not-checked = Reprodução: Problemas computacionais, robustez não verificada
 
 ## Reproduction Feature - Note Template
-reproduction-checker-note-title = Reproduções Encontradas
-reproduction-checker-note-warning = Esta nota é gerada automaticamente. Ao editá-la será criada uma mova nota na próxima verificação e esta versão será mantida como está.
+reproduction-checker-note-title = Reproduções encontradas
+reproduction-checker-note-warning = Esta nota é gerada automaticamente. Se a editar, será criada uma nova nota na próxima verificação e esta versão será mantida tal como está.
 reproduction-checker-note-intro = Este estudo foi reproduzido:
-reproduction-checker-note-feedback = Achou este resultado útil? Forneça feedback <a href="{ $url }" target="_blank">aqui</a>!
+reproduction-checker-note-feedback = Este resultado foi útil? Envie o seu feedback <a href="{ $url }" target="_blank">aqui</a>!
 reproduction-checker-note-data-issues = Encontrou algum problema nos dados? Por favor, reporte-o <a href="{ $url }" target="_blank">aqui</a>!
-reproduction-checker-note-footer = Gerado pelo Zotero Replication Checker usando a Base de Dados de Literatura FORRT (FLoRA)
+reproduction-checker-note-footer = Gerado pelo Zotero Replication Checker com base na na FORRT Literature Database (FLoRA)
 
 ## Reproduction Feature - Item Details
-reproduction-checker-li-no-title = Nenhum título disponível
-reproduction-checker-li-no-authors = Nenhum autor disponível
+reproduction-checker-li-no-title = Sem título disponível
+reproduction-checker-li-no-authors = Sem autores disponíveis
 reproduction-checker-li-no-journal = Sem revista
-reproduction-checker-li-na = N/D
+reproduction-checker-li-na = N/A
 reproduction-checker-li-doi-label = DOI:
-reproduction-checker-li-outcome = Resultado da Reprodução:
-reproduction-checker-li-link = Este estudo tem um relatório vinculado:
+reproduction-checker-li-outcome = Resultado da reprodução:
+reproduction-checker-li-link = Este estudo tem um relatório associado:
 
-## Reproduction Feature - Alerts
-reproduction-checker-alert-no-reproductions-selected = Nenhum item de reprodução selecionado.
-reproduction-checker-ban-title = Banir reproduções
+## Reproduction Feature - Alerts / Alertas
+reproduction-checker-alert-no-reproductions-selected = Não foram selecionados itens de reprodução.
+reproduction-checker-ban-title = Excluir reproduções
 reproduction-checker-ban-confirm =
-    Tem certeza de que deseja banir { $count } reprodução(ões)?
+    Tem a certeza de que pretende excluir { $count } reprodução(ões)?
 
-    Estes itens serão movidos para a lixeira e não serão readicionados em verificações futuras.
-reproduction-checker-ban-success = { $count } reprodução(ões) banida(s) com sucesso.
+    Estes itens serão movidos para o lixo e não voltarão a ser adicionados em verificações futuras.
+
+reproduction-checker-ban-success = { $count } reprodução(ões) excluída(s) com sucesso.
+com sucesso.
 
 ## Reproduction Feature - Dialog
-reproduction-checker-dialog-title = Estudos de Reprodução Encontrados
+reproduction-checker-dialog-title = Estudos de Reprodução encontrados
 reproduction-checker-dialog-intro = Estudos de reprodução encontrados para:\n"{ $title }"
 reproduction-checker-dialog-count = { $count } reprodução(ões) encontrada(s):
 reproduction-checker-dialog-item = { $index }. { $title }\n({ $year })\n   Resultado: { $outcome }
