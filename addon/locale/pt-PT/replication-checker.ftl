@@ -1,53 +1,53 @@
-# Zotero Replication Checker Locale File - European Portuguese (Português de Portugal)
+# Zotero Replication Checker Locale File - European Portuguese (Português Europeu, Portugal)
 # Modern Fluent format (.ftl)
 
-## Menu Items
+## Menu Items / Itens do Menú 
 replication-checker-tools-menu = Verificar replicações na biblioteca atual
 replication-checker-context-menu = Verificar replicações
-replication-checker-context-menu-ban = Banir replicação
+replication-checker-context-menu-ban = Excluir replicação
 replication-checker-context-menu-add-original = Adicionar original
 
-## Progress Messages
-replication-checker-progress-checking-library = Verificando replicações
-replication-checker-progress-checking-collection = Verificando replicações na coleção
-replication-checker-progress-scanning-library = Analisando biblioteca...
-replication-checker-progress-scanning-collection = Analisando coleção...
-replication-checker-progress-found-dois = { $itemCount } itens com DOIs encontrados ({ $uniqueCount } únicos)
-replication-checker-progress-checking-database = Consultando banco de dados de replicações...
-replication-checker-progress-no-dois = Nenhum item com DOI encontrado na coleção
+## Progress Messages / Mensagens de progresso
+replication-checker-progress-checking-library = A verificar replicações
+replication-checker-progress-checking-collection = A verificar replicações na coleção
+replication-checker-progress-scanning-library = A analisar a biblioteca...
+replication-checker-progress-scanning-collection = A analisar a coleção...
+replication-checker-progress-found-dois = Encontrados { $itemCount } itens com DOI ({ $uniqueCount } únicos)
+replication-checker-progress-checking-database = A verificar na base de dados de replicações...
+replication-checker-progress-no-dois = Não foram encontrados itens com DOI na coleção
 replication-checker-progress-complete = Verificação concluída
-replication-checker-progress-failed = Verificação falhou
-replication-checker-progress-match-count = { $count } item(ns) com replicações encontrado(s)
-replication-checker-progress-copying-readonly = Copiando itens da biblioteca (somente leitura) para a biblioteca pessoal...
+replication-checker-progress-failed = Falha na verificação
+replication-checker-progress-match-count = Encontrado(s) { $count } item(ns) com replicações
+replication-checker-progress-copying-readonly = A copiar itens da biblioteca só de leitura para a biblioteca pessoal...
 
-## Alerts
+## Alerts / Alertas
 replication-checker-alert-title = Zotero Replication Checker
-replication-checker-alert-no-dois-selected = Nenhum DOI encontrado nos itens selecionados.
+replication-checker-alert-no-dois-selected = Não foram encontrados DOIs nos itens selecionados.
 replication-checker-alert-no-collection = Selecione uma coleção antes de executar esta verificação.
-replication-checker-alert-no-originals-available = Nenhum estudo original disponível para esta replicação.
-replication-checker-alert-no-doi = O item selecionado não possui DOI.
+replication-checker-alert-no-originals-available = Não há estudos originais disponíveis para esta replicação.
+replication-checker-alert-no-doi = O item selecionado não tem DOI.
 replication-checker-add-original-success = Estudo original adicionado com sucesso: { $title }
-replication-checker-add-original-confirm = { $count } estudo(s) original(is) encontrado(s) para esta replicação. Deseja adicionar todos à sua biblioteca?
-replication-checker-add-original-batch-success = { $count } estudo(s) original(is) adicionado(s) com sucesso à sua biblioteca.
+replication-checker-add-original-confirm = Foram encontrado(s) { $count } estudo(s) original(is) para esta replicação. Pretende adicioná-los todos à sua biblioteca?
+replication-checker-add-original-batch-success = Foram adicionados com sucesso { $count } estudo(s) original(is) à sua biblioteca.
 replication-checker-error-title = Replication Checker - Erro
-replication-checker-error-api = Não foi possível recuperar dados da API - verifique sua conexão com a Internet ou tente novamente mais tarde.
+replication-checker-error-api = Não foi possível obter dados da API - verifique a sua ligação à Internet ou tente novamente mais tarde.
 replication-checker-error-body =
-    Falha ao verificar { $target } para replicações:
+    Falha ao verificar { $target } quanto a replicações:
 
     { $details }
 
-    Não foi possível recuperar dados da API - verifique sua conexão com a Internet ou tente novamente mais tarde.
+    Não foi possível obter dados da API - verifique a sua ligação à Internet ou tente novamente mais tarde.
 replication-checker-target-library = a biblioteca atual
 replication-checker-target-selected = os itens selecionados
 replication-checker-target-collection = a coleção selecionada
 
 ## Ban Feature
-replication-checker-ban-title = Banir replicações
+replication-checker-ban-title = Excluir replicações
 replication-checker-ban-confirm =
-    Tem certeza de que deseja banir { $count } replicação(ões)?
+    Tem a certeza de que pretende excluir { $count } replicação(ões)?
 
-    Estes itens serão movidos para a lixeira e não serão readicionados em verificações futuras.
-replication-checker-ban-success = { $count } replicação(ões) banida(s) com sucesso.
+    Estes itens serão movidos para o lixo e não voltarão a ser adicionados em verificações futuras.
+replication-checker-ban-success = { $count } reprodução(ões) excluída(s) com sucesso.
 replication-checker-alert-no-replications-selected = Nenhum item de replicação selecionado.
 
 ## Dialog
@@ -246,13 +246,13 @@ pref-autocheck-monthly = Mensal (verificar a cada 30 dias)
 pref-autocheck-new-items = Verificar automaticamente novos itens adicionados à biblioteca (recomendado)
 pref-autocheck-new-items-hint = Desative esta opção se preferir executar todas as verificações de replicação manualmente.
 pref-autocheck-note = A verificação automática é executada em segundo plano quando o Zotero está aberto. Você ainda pode verificar manualmente pelo menu Ferramentas.
-pref-blacklist-title = Replicações Banidas
-pref-blacklist-description = Gerenciar a exibição de replicações banidas na sua biblioteca
+pref-blacklist-title = Replicações excluídas
+pref-blacklist-description = Gerir as replicações que excluiu para que não apareçam na sua biblioteca
 pref-blacklist-col-replication = Artigo de Replicação
 pref-blacklist-col-original = Artigo Original
 pref-blacklist-col-type = Tipo
 pref-blacklist-col-banned = Banido em
-pref-blacklist-empty = Nenhuma replicação banida
+pref-blacklist-empty = Não existem replicações excluídas
 pref-blacklist-remove = Remover selecionado
-pref-blacklist-clear = Limpar todas as replicações banidas
-pref-blacklist-hint = Replicações banidas não serão readicionadas em verificações futuras. Você pode banir replicações usando o menu de contexto.
+pref-blacklist-clear = Limpar todas as replicações excluídas
+pref-blacklist-hint = As replicações excluídas não voltarão a ser adicionadas em verificações futuras. Pode excluir replicações através do menu contextual.
