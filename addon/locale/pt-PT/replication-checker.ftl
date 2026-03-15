@@ -202,7 +202,7 @@ reproduction-checker-tag-outcome-ci-not-checked = Reprodução: Problemas comput
 
 ## Reproduction Feature - Note Template
 reproduction-checker-note-title = Reproduções Encontradas
-reproduction-checker-note-warning = Esta nota é gerada automaticamente. Se você editá-la, uma nova nota será criada na próxima verificação e esta versão será mantida como está.
+reproduction-checker-note-warning = Esta nota é gerada automaticamente. Ao editá-la será criada uma mova nota na próxima verificação e esta versão será mantida como está.
 reproduction-checker-note-intro = Este estudo foi reproduzido:
 reproduction-checker-note-feedback = Achou este resultado útil? Forneça feedback <a href="{ $url }" target="_blank">aqui</a>!
 reproduction-checker-note-data-issues = Encontrou algum problema nos dados? Por favor, reporte-o <a href="{ $url }" target="_blank">aqui</a>!
