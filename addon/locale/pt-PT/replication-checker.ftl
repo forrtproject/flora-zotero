@@ -1,7 +1,7 @@
 # Zotero Replication Checker Locale File - European Portuguese (Português Europeu, Portugal)
 # Modern Fluent format (.ftl)
 
-## Menu Items / Itens do Menú 
+## Menu Items / Itens do menu 
 replication-checker-tools-menu = Verificar replicações na biblioteca atual
 replication-checker-context-menu = Verificar replicações
 replication-checker-context-menu-ban = Excluir replicação
@@ -80,7 +80,7 @@ replication-checker-results-dois = Itens com DOI: { $count }
 replication-checker-results-found = { $count } item(ns) com replicações.
 replication-checker-results-none = Nenhuma replicação encontrada.
 replication-checker-results-reproductions-found = { $count } item(ns) com reproduções.
-replication-checker-results-reproductions-none = Não foram encontradas reproduções..
+replication-checker-results-reproductions-none = Não foram encontradas reproduções.
 replication-checker-results-footer = Consulte as notas para mais detalhes ou selecione itens para nova verificação.
 
 ## Tags
@@ -88,11 +88,11 @@ replication-checker-tag = Tem replicação
 replication-checker-tag-is-replication = É replicação
 replication-checker-tag-added-by-checker = Adicionado pelo Replication Checker
 replication-checker-tag-success = Replicação: Bem-sucedida
-replication-checker-tag-failure = Replicação: Falhou (Sem sucesso)
+replication-checker-tag-failure = Replicação: Falhou
 replication-checker-tag-mixed = Replicação: Mista
 replication-checker-tag-readonly-origin = Original presente em biblioteca só de leitura
-replication-checker-tag-has-been-replicated = Foi Replicado
-replication-checker-tag-has-been-reproduced = Foi Reproduzido
+replication-checker-tag-has-been-replicated = Foi replicado
+replication-checker-tag-has-been-reproduced = Foi reproduzido
 replication-checker-tag-in-flora = Em FLoRA
 
 ## Note Template
@@ -121,8 +121,8 @@ replication-checker-prompt-first-run =
 
    Pretende analisar agora a sua biblioteca para procurar replicações?
 
-    • Clique em "OK" para iniciar a análise (isso pode demorar alguns minutos)
-    • Clique em "Cancel" ignorar por agora - poderá sempre analisar mais tarde a partir do menu Tools
+    • Clique em "OK" para iniciar a análise (pode demorar alguns minutos)
+    • Clique em "Cancel" para ignorar por agora - poderá sempre analisar mais tarde a partir do menu Ferramentas.
 
 ## Onboarding
 onboarding-welcome-title = Boas-vindas ao Replication Checker!
@@ -139,12 +139,11 @@ onboarding-welcome-content =
     • Adiciona estudos originais quando existirem replicações
     • Permite excluir replicações indesejadas de verificações futuras
 
-    Vamos fazer uma visita rápida para iniciar!
+    Vamos fazer uma visita rápida para começar!
 
 onboarding-tools-title = Verifique toda a sua biblioteca
 onboarding-tools-content =
-    📍 Localização: Tools (Ferramentas) → Check Current Library for Replications
- (Verifique a biblioteca atual para replicações)
+    📍 Localização: Ferramentas → Verificar replicações na biblioteca atual
 
     🔍 O que faz:
     • Analisa todos os itens com DOI
@@ -171,14 +170,15 @@ onboarding-context-content =
     • Frequência de verificação automática
     • Verificação automática de novos itens
 
-onboarding-scan-title = Está pronto/a para analisar sua biblioteca?
+onboarding-scan-title = Está pronto/a para analisar a sua biblioteca?
 onboarding-scan-content =
     Pretende analisar agora a sua biblioteca para procurar replicações?
 
     • Clique em "Sim" para iniciar a análise
       (isto pode demorar alguns minutos)
 
-    • Clique em "Não" para para ignorar por agora - poderá analisar mais tarde a partir do menu Ferramentas
+    • Clique em "Não" para ignorar por agora -poderá analisar mais tarde a partir do menu Ferramentas.
+
 
     💡 Pode aceder a este guia a qualquer momento:
     Ajuda → Guia do Utilizador do Replication Checker
@@ -206,7 +206,7 @@ reproduction-checker-note-warning = Esta nota é gerada automaticamente. Se a ed
 reproduction-checker-note-intro = Este estudo foi reproduzido:
 reproduction-checker-note-feedback = Este resultado foi útil? Envie o seu feedback <a href="{ $url }" target="_blank">aqui</a>!
 reproduction-checker-note-data-issues = Encontrou algum problema nos dados? Por favor, reporte-o <a href="{ $url }" target="_blank">aqui</a>!
-reproduction-checker-note-footer = Gerado pelo Zotero Replication Checker com base na na FORRT Literature Database (FLoRA)
+reproduction-checker-note-footer = Gerado pelo Zotero Replication Checker com base na FORRT Literature Database (FLoRA)
 
 ## Reproduction Feature - Item Details
 reproduction-checker-li-no-title = Sem título disponível
@@ -226,17 +226,16 @@ reproduction-checker-ban-confirm =
     Estes itens serão movidos para o lixo e não voltarão a ser adicionados em verificações futuras.
 
 reproduction-checker-ban-success = { $count } reprodução(ões) excluída(s) com sucesso.
-com sucesso.
 
 ## Reproduction Feature - Dialog
-reproduction-checker-dialog-title = Estudos de Reprodução encontrados
+reproduction-checker-dialog-title = Estudos de reprodução encontrados
 reproduction-checker-dialog-intro = Estudos de reprodução encontrados para:\n"{ $title }"
 reproduction-checker-dialog-count = Encontrada(s) { $count } reprodução(ões):
 reproduction-checker-dialog-item = { $index }. { $title }\n({ $year })\n   Resultado: { $outcome }
 reproduction-checker-dialog-more = ...e mais { $count } reprodução(ões)
 reproduction-checker-dialog-question = Pretende adicionar informação sobre reprodução?
-reproduction-checker-dialog-progress-title = Informação de reprodução adicionadas
-reproduction-checker-dialog-progress-line = Informação de reprodução adicionadas a "{ $title }"
+reproduction-checker-dialog-progress-title = Informação de reprodução adicionada
+reproduction-checker-dialog-progress-line = Informação de reprodução adicionada a "{ $title }"
 
 ## Reproduction Feature - Progress
 reproduction-checker-progress-reproductions-found = Encontrado(s) { $count } item(ns) com reproduções
@@ -263,8 +262,8 @@ pref-repro-folder-hint = Alterar isto irá renomear automaticamente a coleção 
 #################
 pref-blacklist-title = Replicações excluídas
 pref-blacklist-description = Gerir as replicações que excluiu para que não apareçam na sua biblioteca
-pref-blacklist-col-replication = Artigo de Replicação
-pref-blacklist-col-original = Artigo Original
+pref-blacklist-col-replication = Artigo de replicação
+pref-blacklist-col-original = Artigo original
 pref-blacklist-col-type = Tipo
 pref-blacklist-col-banned = Excluído em
 pref-blacklist-empty = Não existem replicações excluídas
