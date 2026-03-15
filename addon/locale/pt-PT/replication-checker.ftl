@@ -251,7 +251,7 @@ pref-autocheck-new-items = Verificar automaticamente novos itens adicionados à 
 pref-autocheck-new-items-hint = Desative esta opção se preferir executar manualmente todas as verificações de replicação.
 pref-autocheck-note = A verificação automática decorre em segundo plano quando o Zotero está aberto. Continua a poder verificar manualmente através do menu Ferramentas.
 
-#################
+##
 pref-folder-title = Nome da pasta de replicações
 pref-folder-description = Nome da coleção do Zotero onde os itens de replicação são armazenados
 pref-folder-hint = Alterar isto irá renomear automaticamente a coleção existente. Todos os itens permanecerão na mesma coleção.
@@ -259,7 +259,7 @@ pref-repro-folder-title = Nome da pasta de reproduções
 pref-repro-folder-description = Nome da coleção do Zotero onde os itens de reprodução são armazenados
 pref-repro-folder-hint = Alterar isto irá renomear automaticamente a coleção existente. Todos os itens permanecerão na mesma coleção.
 
-#################
+##
 pref-blacklist-title = Replicações excluídas
 pref-blacklist-description = Gerir as replicações que excluiu para que não apareçam na sua biblioteca
 pref-blacklist-col-replication = Artigo de replicação
