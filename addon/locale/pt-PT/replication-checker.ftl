@@ -1,4 +1,4 @@
-# Zotero Replication Checker Locale File - Portuguese Brazil (Português do Brasil)
+# Zotero Replication Checker Locale File - European Portuguese (Português de Portugal)
 # Modern Fluent format (.ftl)
 
 ## Menu Items
