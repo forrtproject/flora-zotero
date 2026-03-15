@@ -12,6 +12,8 @@ declare namespace _ZoteroTypes {
       "blacklist": string;
       "folderName": string;
       "reproductionFolderName": string;
+      "collectionIDs": string;
+      "reproductionCollectionIDs": string;
     };
   }
 }

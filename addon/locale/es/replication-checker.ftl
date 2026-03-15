@@ -127,14 +127,17 @@ onboarding-welcome-title = ¡Bienvenido a Replication Checker!
 onboarding-welcome-content =
     ¡Gracias por instalar Zotero Replication Checker!
 
-    Este complemento le ayuda a descubrir estudios de replicación verificando automáticamente los elementos de su biblioteca en la Base de datos de literatura FORRT (FLoRA).
+    Este complemento le ayuda a descubrir estudios de replicación y reproducción verificando automáticamente los elementos de su biblioteca en la Base de datos de literatura FORRT (FLoRA).
 
     ✨ Características principales:
-    • Verificación automática de DOI en la base de datos de replicaciones
-    • Funciona con toda la biblioteca, colecciones o elementos individuales
-    • Crea notas vinculadas con información de replicación
-    • Etiqueta elementos con estado de replicación
-    • Añade estudios originales cuando tiene replicaciones
+    • Verifica toda la biblioteca, colecciones o elementos individuales
+    • Detecta tanto replicaciones como reproducciones computacionales
+    • Gestiona artículos con múltiples estudios originales
+    • Añade notas con etiquetas de resultado y enlaces DOI
+    • Etiqueta elementos automáticamente (p. ej. «Tiene replicación», «Es replicación»)
+    • Ofrece añadir el estudio original cuando se detecta una replicación
+    • Soporte para bibliotecas de grupo de solo lectura — copia elementos a la biblioteca personal
+    • Nombres de carpetas configurables para replicaciones y reproducciones
     • Bloquea replicaciones no deseadas de futuras verificaciones
 
     ¡Hagamos un recorrido rápido para comenzar!

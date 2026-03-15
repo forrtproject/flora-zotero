@@ -8,7 +8,8 @@
  * - Banning reproductions
  */
 
-import type { RelatedStudy } from "../types/replication";
+import type { RelatedStudy, DOICheckResult } from "../types/replication";
+import type { BatchMatcher } from "./batchMatcher";
 import * as ZoteroIntegration from "../utils/zoteroIntegration";
 import { blacklistManager } from "./blacklistManager";
 import { getString } from "../utils/strings";
@@ -17,6 +18,7 @@ import {
   TAG_READONLY_ORIGIN,
   TAG_REPRO_CS_ROBUST, TAG_REPRO_CS_CHALLENGES, TAG_REPRO_CS_NOT_CHECKED,
   TAG_REPRO_CI_ROBUST, TAG_REPRO_CI_CHALLENGES, TAG_REPRO_CI_NOT_CHECKED,
+  TAG_REPRODUCTION_MULTIPLE_ORIGINALS,
 } from "../utils/tags";
 
 const FEEDBACK_URL = "https://tinyurl.com/y5evebv9";
@@ -26,6 +28,7 @@ const REPRODUCTION_FOLDER_NAME_PREF = "replication-checker.reproductionFolderNam
 const DEFAULT_REPRODUCTION_FOLDER_NAME = "FLoRA Reproductions";
 // Legacy hardcoded name used before the configurable preference was introduced
 const LEGACY_REPRODUCTION_FOLDER_NAME = "Reproduction folder";
+const REPRODUCTION_COLLECTION_IDS_PREF = "replication-checker.reproductionCollectionIDs";
 
 function getReproductionFolderName(): string {
   try {
@@ -39,9 +42,26 @@ function getReproductionFolderName(): string {
   return DEFAULT_REPRODUCTION_FOLDER_NAME;
 }
 
+/** Read stored reproduction collectionID map from prefs */
+function getStoredReproductionCollectionIDs(): Record<string, number> {
+  try {
+    const json = Zotero.Prefs.get(REPRODUCTION_COLLECTION_IDS_PREF) as string;
+    if (json) return JSON.parse(json);
+  } catch { /* ignore */ }
+  return {};
+}
+
+/** Persist a reproduction collectionID for a given libraryID */
+function saveReproductionCollectionID(libraryID: number, collectionID: number): void {
+  const map = getStoredReproductionCollectionIDs();
+  map[String(libraryID)] = collectionID;
+  try { Zotero.Prefs.set(REPRODUCTION_COLLECTION_IDS_PREF, JSON.stringify(map)); } catch { /* ignore */ }
+}
+
 /**
  * Find an existing reproduction collection by the current folder name, renaming an
  * old-named collection if needed. Returns null if none exists (caller should create one).
+ * Uses the stored collection ID to handle repeated renames correctly.
  */
 async function findOrRenameReproductionCollection(
   collections: any[],
@@ -50,9 +70,27 @@ async function findOrRenameReproductionCollection(
 ): Promise<any | null> {
   // 1. Exact match with current name
   const exact = collections.find((c: any) => c.name === targetName && !c.parentID);
-  if (exact) return exact;
+  if (exact) {
+    saveReproductionCollectionID(libraryID, exact.id);
+    return exact;
+  }
 
-  // 2. Fall back to old names (new default first, then legacy hardcoded name)
+  // 2. Find by stored collection ID (handles repeated renames — the collection may have
+  //    already been renamed away from any known fallback name)
+  const storedIDs = getStoredReproductionCollectionIDs();
+  const storedID = storedIDs[String(libraryID)];
+  if (storedID) {
+    const byID = Zotero.Collections.get(storedID);
+    if (byID && byID.libraryID === libraryID) {
+      const oldName = byID.name;
+      byID.name = targetName;
+      await byID.saveTx();
+      Zotero.debug(`[ReproductionHandler] Renamed collection "${oldName}" → "${targetName}" (ID ${storedID})`);
+      return byID;
+    }
+  }
+
+  // 3. Fall back to old names (new default first, then legacy hardcoded name)
   const fallbackNames = [DEFAULT_REPRODUCTION_FOLDER_NAME, LEGACY_REPRODUCTION_FOLDER_NAME].filter(
     (n) => n !== targetName
   );
@@ -61,6 +99,7 @@ async function findOrRenameReproductionCollection(
     if (old) {
       old.name = targetName;
       await old.saveTx();
+      saveReproductionCollectionID(libraryID, old.id);
       Zotero.debug(
         `[ReproductionHandler] Renamed collection "${oldName}" → "${targetName}" in library ${libraryID}`
       );
@@ -95,6 +134,14 @@ const REPRODUCTION_OUTCOME_TAGS: { [key: string]: string } = {
  */
 export class ReproductionHandler {
   private pluginAddedItems: Set<number> = new Set(); // Track items added by the handler
+  private matcher: BatchMatcher | null = null;
+
+  /**
+   * Set the batch matcher (called from ReplicationCheckerPlugin.init())
+   */
+  setMatcher(matcher: BatchMatcher): void {
+    this.matcher = matcher;
+  }
 
   /**
    * Initialize the reproduction handler
@@ -103,6 +150,162 @@ export class ReproductionHandler {
     Zotero.debug("[ReproductionHandler] Initializing...");
     await blacklistManager.init();
     Zotero.debug("[ReproductionHandler] Initialized successfully");
+  }
+
+  /**
+   * Batch-check DOIs and return map of normalized DOI → originals[]
+   * for entries where originals.length > 1.
+   */
+  private async buildMultipleOriginalsMap(dois: string[]): Promise<Map<string, RelatedStudy[]>> {
+    const map = new Map<string, RelatedStudy[]>();
+    if (!this.matcher || dois.length === 0) return map;
+    const validDois = dois.filter((d) => d && d.startsWith("10."));
+    if (validDois.length === 0) return map;
+    try {
+      const results = await this.matcher.checkBatch(validDois);
+      for (const result of results) {
+        if (result.originals.length > 1) {
+          map.set(result.doi, result.originals);
+        }
+      }
+    } catch (e) {
+      Zotero.debug(`[ReproductionHandler] buildMultipleOriginalsMap failed: ${e}`);
+    }
+    return map;
+  }
+
+  /**
+   * Enrich a batch of {itemID, originals} entries with per-original outcomes.
+   *
+   * Checks each ORIGINAL's DOI via the API and locates the reproduction item
+   * (by DOI) inside result.reproductions to read the recorded outcome.
+   * All original DOIs are sent in ONE batch call so no extra latency is added
+   * to the main item-creation flow.
+   */
+  private async enrichOriginalsWithOutcomes(
+    items: Array<{ itemID: number; originals: RelatedStudy[] }>
+  ): Promise<Array<{ itemID: number; originals: RelatedStudy[] }>> {
+    if (!this.matcher || items.length === 0) return items;
+    const matcher = this.matcher;
+
+    // 1. Collect unique original DOIs across all entries
+    const uniqueOriginalDois = [...new Set(
+      items
+        .flatMap(({ originals }) => originals.map(o => (o.doi || "").trim()))
+        .filter(d => d.startsWith("10."))
+    )];
+    if (uniqueOriginalDois.length === 0) return items;
+
+    // 2. Resolve reproduction DOI for each entry (from the saved Zotero item)
+    const repDoisMap = new Map<number, string>();
+    for (const { itemID } of items) {
+      const repItem = await Zotero.Items.getAsync(itemID);
+      if (!repItem) continue;
+      const rawDoi = ZoteroIntegration.extractDOI(repItem);
+      const normDoi = rawDoi != null ? matcher.normalizeDoi(rawDoi) : null;
+      if (normDoi) repDoisMap.set(itemID, normDoi);
+    }
+
+    // 3. ONE batch API call for all original DOIs
+    let originalResults: DOICheckResult[] = [];
+    try {
+      originalResults = await matcher.checkBatch(uniqueOriginalDois);
+    } catch (e) {
+      Zotero.debug(`[ReproductionHandler] enrichOriginalsWithOutcomes batch check failed: ${e}`);
+      return items;
+    }
+
+    // 4. Build lookup: normOrigDoi → { normRepDoi → outcome }
+    //    Outcome lives on result.reproductions (not .replications) for reproductions
+    const outcomeIndex = new Map<string, Map<string, string>>();
+    for (const result of originalResults) {
+      const byRep = new Map<string, string>();
+      for (const rep of result.reproductions) {
+        const normRepDoi = matcher.normalizeDoi(rep.doi || "");
+        if (normRepDoi && rep.outcome) byRep.set(normRepDoi, rep.outcome);
+      }
+      if (byRep.size > 0) outcomeIndex.set(result.doi, byRep);
+    }
+
+    // 5. Enrich each entry
+    return items.map(({ itemID, originals }) => {
+      const normRepDoi = repDoisMap.get(itemID);
+      if (!normRepDoi) return { itemID, originals };
+      const enrichedOriginals = originals.map(orig => {
+        const normOrigDoi = orig.doi ? matcher.normalizeDoi(orig.doi) : "";
+        if (!normOrigDoi) return orig;
+        const outcome = outcomeIndex.get(normOrigDoi)?.get(normRepDoi);
+        return outcome ? { ...orig, outcome } : orig;
+      });
+      return { itemID, originals: enrichedOriginals };
+    });
+  }
+
+  /**
+   * Build HTML for the "Original Articles" note on a reproduction item
+   * that reproduced multiple originals.
+   */
+  private createOriginalArticlesNoteHtml(originals: RelatedStudy[]): string {
+    const warning = "*This note is automatically generated. If you edit it, a new note will be created on the next check and this version will be kept as-is.*";
+    const feedbackHtml = getString("replication-checker-note-feedback", { url: FEEDBACK_URL });
+    const dataIssuesHtml = getString("replication-checker-note-data-issues", { url: DATA_ISSUES_URL });
+    const footer = this.escapeHtml(getString("replication-checker-note-footer"));
+
+    let html = "<h2>Original Articles</h2>";
+    html += `<i>${this.escapeHtml(warning)}</i><br>`;
+    html += "<p>This study has multiple original articles</p>";
+    html += "<ul>";
+    for (const orig of originals) {
+      html += "<li>";
+      html += `<strong>${this.escapeHtml(orig.title || "Unknown Title")}</strong><br>`;
+      if (orig.doi && orig.doi.startsWith("10.")) {
+        html += `DOI: <a href="https://doi.org/${this.escapeHtml(orig.doi)}">${this.escapeHtml(orig.doi)}</a><br>`;
+      }
+      const outcomeText = orig.outcome
+        ? orig.outcome.charAt(0).toUpperCase() + orig.outcome.slice(1)
+        : "N/A";
+      html += `Reproduction: <strong>${this.escapeHtml(outcomeText)}</strong><br>`;
+      html += "</li>";
+    }
+    html += "</ul>";
+    html += `
+      <hr/>
+      <div style="padding:10px; border-radius:5px; margin-top:15px;">
+        <p><strong>${feedbackHtml}</strong></p>
+        <p><strong>${dataIssuesHtml}</strong></p>
+      </div>
+    `;
+    html += `<p><small>${footer}</small></p>`;
+    return html;
+  }
+
+  /**
+   * Add "Original Articles" note to a reproduction item that has multiple originals.
+   * Skips creation if the note already exists (keeps user edits as-is).
+   */
+  private async addOriginalArticlesNote(itemID: number, originals: RelatedStudy[]): Promise<void> {
+    try {
+      const item = await Zotero.Items.getAsync(itemID);
+      if (!item) return;
+      const HEADING = "<h2>Original Articles</h2>";
+      const noteIDs = item.getNotes();
+      for (const noteID of noteIDs) {
+        const note = await Zotero.Items.getAsync(noteID);
+        if (!note) continue;
+        if (note.getNote().startsWith(HEADING)) {
+          return; // Already exists — keep as-is
+        }
+      }
+      const noteHTML = this.createOriginalArticlesNoteHtml(originals);
+      await ZoteroIntegration.addNote(itemID, noteHTML);
+      Zotero.debug(`[ReproductionHandler] Created Original Articles note for item ${itemID}`);
+    } catch (error) {
+      Zotero.logError(new Error(
+        `Error adding Original Articles note to item ${itemID}: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      ));
+    }
   }
 
   /**
@@ -354,6 +557,14 @@ export class ReproductionHandler {
         return;
       }
 
+      // Pre-check: which reproduction DOIs have multiple originals (batch API call)
+      const repDoisForCheck = nonBlacklistedReproductions
+        .map((rep: any) => (rep.doi_rep || "").trim())
+        .filter((doi: string) => doi && doi.startsWith("10."));
+      const multipleOriginalsMap = await this.buildMultipleOriginalsMap(repDoisForCheck);
+      // Track reproduction items that need an "Original Articles" note
+      const itemsNeedingOriginalNotes: Array<{ itemID: number; originals: RelatedStudy[] }> = [];
+
       // Get or create reproduction collection
       const libraryID = item.libraryID;
       let collections = Zotero.Collections.getByLibrary(libraryID, true);
@@ -372,6 +583,7 @@ export class ReproductionHandler {
         await reproductionCollection.saveTx();
         Zotero.debug(`[ReproductionHandler] Created new "${reproductionFolderName}" collection in library ${libraryID}`);
       }
+      saveReproductionCollectionID(libraryID, reproductionCollection.id);
 
       // Process reproductions in transaction
       await Zotero.DB.executeTransaction(async () => {
@@ -439,11 +651,23 @@ export class ReproductionHandler {
                 );
               }
 
-              // Add "Is Reproduction" tag to the existing reproduction item
+              // Add "Is Reproduction" and outcome/multiple-originals tags to existing item
               try {
                 existingItem.addTag(TAG_IS_REPRODUCTION);
+                const normDoi = doi_rep && this.matcher
+                  ? this.matcher.normalizeDoi(doi_rep)
+                  : doi_rep.toLowerCase();
+                const multipleOriginals = multipleOriginalsMap.get(normDoi);
+                if (multipleOriginals) {
+                  existingItem.addTag(TAG_REPRODUCTION_MULTIPLE_ORIGINALS);
+                  itemsNeedingOriginalNotes.push({ itemID: existingID, originals: multipleOriginals });
+                } else if (rep.outcome) {
+                  const outcomeKey = rep.outcome.toLowerCase().trim();
+                  const tagKey = REPRODUCTION_OUTCOME_TAGS[outcomeKey];
+                  if (tagKey) existingItem.addTag(tagKey);
+                }
                 await existingItem.save();
-                Zotero.debug(`[ReproductionHandler] Added "Is Reproduction" tag to existing item ${existingID}`);
+                Zotero.debug(`[ReproductionHandler] Added tags to existing reproduction item ${existingID}`);
               } catch (tagError) {
                 Zotero.debug(`[ReproductionHandler] Failed to add tag to existing reproduction item ${existingID}: ${tagError}`);
               }
@@ -488,13 +712,21 @@ export class ReproductionHandler {
               newItem.setField("DOI", doi_rep);
             }
 
-            // Add extra info including URL for searchability
+            // Add extra info — for multiple-originals items use a redirect message
+            const normDoi = doi_rep && this.matcher
+              ? this.matcher.normalizeDoi(doi_rep)
+              : doi_rep.toLowerCase();
+            const multipleOriginals = multipleOriginalsMap.get(normDoi);
             let extraInfo = "";
-            if (rep.outcome) {
-              extraInfo += `Reproduction Outcome: ${rep.outcome}\n`;
-            }
-            if (rep.outcome_quote) {
-              extraInfo += `Outcome Quote: ${rep.outcome_quote}\n`;
+            if (multipleOriginals) {
+              extraInfo = "For more details read the Original Article.";
+            } else {
+              if (rep.outcome) {
+                extraInfo += `Reproduction Outcome: ${rep.outcome}\n`;
+              }
+              if (rep.outcome_quote) {
+                extraInfo += `Outcome Quote: ${rep.outcome_quote}\n`;
+              }
             }
             if (extraInfo) {
               newItem.setField("extra", extraInfo.trim());
@@ -552,13 +784,15 @@ export class ReproductionHandler {
               }
             }
 
-            // Add "Is Reproduction" tag to the new reproduction item
+            // Add "Is Reproduction" and outcome/multiple-originals tags
             try {
               newItem.addTag(TAG_IS_REPRODUCTION);
               newItem.addTag(TAG_ADDED_BY_CHECKER);
 
-              // Add outcome-specific tag
-              if (rep.outcome) {
+              if (multipleOriginals) {
+                newItem.addTag(TAG_REPRODUCTION_MULTIPLE_ORIGINALS);
+                itemsNeedingOriginalNotes.push({ itemID: newItemID, originals: multipleOriginals });
+              } else if (rep.outcome) {
                 const outcomeKey = rep.outcome.toLowerCase().trim();
                 const tagKey = REPRODUCTION_OUTCOME_TAGS[outcomeKey];
                 if (tagKey) {
@@ -580,6 +814,14 @@ export class ReproductionHandler {
           }
         }
       });
+
+      // Create "Original Articles" notes OUTSIDE the transaction (addNote uses saveTx)
+      if (itemsNeedingOriginalNotes.length > 0) {
+        const enriched = await this.enrichOriginalsWithOutcomes(itemsNeedingOriginalNotes);
+        for (const { itemID: repItemID, originals } of enriched) {
+          await this.addOriginalArticlesNote(repItemID, originals);
+        }
+      }
     } catch (error) {
       Zotero.logError(
         new Error(
@@ -810,6 +1052,7 @@ export class ReproductionHandler {
         await reproductionCollection.saveTx();
         Zotero.debug(`[ReproductionHandler] Created "${reproductionFolderName}" in Personal library`);
       }
+      saveReproductionCollectionID(personalLibraryID, reproductionCollection.id);
 
       // Get or create collection for originals
       const originalsCollectionName = `${sourceLibraryName} [Read-Only]`;
@@ -826,8 +1069,20 @@ export class ReproductionHandler {
         collections = Zotero.Collections.getByLibrary(personalLibraryID, true);
       }
 
+      // Pre-check: which reproduction DOIs (across all items) have multiple originals
+      const allReadOnlyRepDois: string[] = [];
+      for (const reproductions of itemsWithReproductions.values()) {
+        const reps = this.convertRelatedStudiesToInternalFormat(reproductions);
+        for (const rep of reps) {
+          const doi_rep = (rep.doi_rep || "").trim();
+          if (doi_rep.startsWith("10.")) allReadOnlyRepDois.push(doi_rep);
+        }
+      }
+      const readOnlyMultipleOriginalsMap = await this.buildMultipleOriginalsMap(allReadOnlyRepDois);
+
       // Track items that need notes (created outside transaction to avoid nested saveTx)
       const itemsNeedingNotes: Array<{ itemID: number; reproductions: any[] }> = [];
+      const itemsNeedingOriginalNotes: Array<{ itemID: number; originals: RelatedStudy[] }> = [];
 
       // Process each item
       await Zotero.DB.executeTransaction(async () => {
@@ -943,8 +1198,17 @@ export class ReproductionHandler {
               reproductionItem.addTag(TAG_ADDED_BY_CHECKER);
               reproductionItem.addTag(TAG_READONLY_ORIGIN);
 
-              // Add outcome tag
-              if (rep.outcome) {
+              // Add outcome or multiple-originals tag
+              const normRepDoi = doi_rep && this.matcher
+                ? this.matcher.normalizeDoi(doi_rep)
+                : doi_rep.toLowerCase();
+              const readOnlyMultipleOriginals = readOnlyMultipleOriginalsMap.get(normRepDoi);
+              if (readOnlyMultipleOriginals) {
+                reproductionItem.addTag(TAG_REPRODUCTION_MULTIPLE_ORIGINALS);
+                // Override extra set by createReproductionItemInLibrary
+                try { reproductionItem.setField("extra", "For more details read the Original Article."); } catch { /* field not valid */ }
+                itemsNeedingOriginalNotes.push({ itemID: reproductionItemID, originals: readOnlyMultipleOriginals });
+              } else if (rep.outcome) {
                 const outcomeKey = rep.outcome.toLowerCase().trim();
                 const tagKey = REPRODUCTION_OUTCOME_TAGS[outcomeKey];
                 if (tagKey) {
@@ -981,6 +1245,14 @@ export class ReproductionHandler {
           Zotero.debug(`[ReproductionHandler] Created reproduction note for copied original ${itemID}`);
         } catch (noteError) {
           Zotero.debug(`[ReproductionHandler] Failed to create note for item ${itemID}: ${noteError}`);
+        }
+      }
+
+      // Create "Original Articles" notes for reproduction items with multiple originals
+      if (itemsNeedingOriginalNotes.length > 0) {
+        const enriched = await this.enrichOriginalsWithOutcomes(itemsNeedingOriginalNotes);
+        for (const { itemID: repItemID, originals } of enriched) {
+          await this.addOriginalArticlesNote(repItemID, originals);
         }
       }
 

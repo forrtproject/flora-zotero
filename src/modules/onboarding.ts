@@ -5,6 +5,27 @@
 
 import { getString } from "../utils/strings";
 
+/**
+ * ONBOARDING VERSION HISTORY
+ * ─────────────────────────────────────────────────────────────────────────────
+ * The onboarding is shown when the user's stored version is less than
+ * ONBOARDING_VERSION. This means:
+ *
+ *   • First install: pref doesn't exist → onboarding shown automatically.
+ *   • Regular updates: pref equals current version → onboarding NOT shown.
+ *   • Major release: bump ONBOARDING_VERSION → onboarding shown once for all
+ *     existing users, then suppressed again until the next bump.
+ *
+ * HOW TO TRIGGER ONBOARDING FOR A MAJOR RELEASE:
+ *   1. Increment ONBOARDING_VERSION below (e.g. 1 → 2).
+ *   2. Update the onboarding screen content in the locale .ftl files to
+ *      highlight what is new in this release.
+ *   3. Add an entry to the version history below so it is self-documenting.
+ *
+ * VERSION HISTORY:
+ *   v1 — Initial release: basic replication checking, tagging, notes.
+ *   v2 — (next major release) Update ONBOARDING_VERSION to 2 and document here.
+ */
 const ONBOARDING_VERSION = 1;
 const ONBOARDING_PREF = "replication-checker.onboardingVersion";
 

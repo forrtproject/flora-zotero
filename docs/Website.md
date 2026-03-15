@@ -25,6 +25,8 @@ For more information on usage and functionality, head to [Documentation](https:/
 
 - English (en-US) ✅
 - German (de) ✅
+- Spanish (es) ✅
+- Portuguese / Brazil (pt-BR) ✅
 
 
 ## Feedback
@@ -33,6 +35,12 @@ Do you have feedback for us? Open an issue [here](https://github.com/forrtprojec
 
 ## Funding
 
-The development of the Zotero Replication Checker was funded by UKRI as part of the [Making Replications Count](https://forrt.org/marco/) project. 
+The development of the Zotero Replication Checker was funded by UKRI as part of the [Making Replications Count](https://forrt.org/marco/) project.
 
 <img src="logo/ukri_logo.png" alt="UKRI logo" height="60" style="background-color:#fff;">
+
+## Contributors
+
+This plugin is built and maintained by the FORRT community. View all contributors at:
+
+[forrt.org/contributors](https://forrt.org/contributors/?project=flora-zotero-plugin&&collapse-filter)

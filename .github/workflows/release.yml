@@ -113,22 +113,31 @@ jobs:
           echo "Created update.json:"
           cat update.json
 
+      - name: Read release notes
+        id: release_notes
+        run: |
+          if [ -f "docs/Release.md" ]; then
+            # Strip comment lines (lines starting with <!--) before inserting
+            NOTES=$(grep -v '^\s*<!--' docs/Release.md | grep -v '^\s*-->' | sed '/^[[:space:]]*$/d')
+          else
+            NOTES="See commit history for changes in this release."
+          fi
+          echo "NOTES<<EOF" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.VERSION }}
-          name: Release ${{ steps.version.outputs.VERSION }}
+          name: Zotero Replication Checker ${{ steps.version.outputs.VERSION }}
           draft: false
           prerelease: ${{ contains(steps.version.outputs.VERSION, 'beta') || contains(steps.version.outputs.VERSION, 'alpha') }}
-          generate_release_notes: true
+          generate_release_notes: false
           body: |
             ## Zotero Replication Checker ${{ steps.version.outputs.VERSION }}
 
             Privacy-first plugin to discover replications from the FORRT Literature Database (FLoRA).
-
-            ---
-
-            ## 📥 **[⬇️ CLICK HERE TO DOWNLOAD](https://github.com/forrtproject/flora_zotero/releases/download/${{ steps.version.outputs.VERSION }}/${{ env.XPI_NAME }})**
 
             **Direct Download:** [`${{ env.XPI_NAME }}`](https://github.com/forrtproject/flora_zotero/releases/download/${{ steps.version.outputs.VERSION }}/${{ env.XPI_NAME }})
 
@@ -136,62 +145,45 @@ jobs:
 
             ### ✨ New in This Release
 
-            Check the release notes below for all changes.
-
-            ### 📥 Installation
-
-            1. **Click the download link above** or download `${{ env.XPI_NAME }}` from Assets below
-            2. In Zotero: **Tools → Add-ons** (or **Edit → Settings → Advanced → Settings Editor**)
-            3. Click gear icon ⚙️ → **Install Add-on From File**
-            4. Select the downloaded XPI file
-            5. Restart Zotero
-
-            ### 🎯 Features
-
-            - ✅ **3-Screen Interactive Onboarding** - Get started with a guided tour
-            - ✅ **User Guide in Help Menu** - Access onboarding anytime from Help → Replication Checker User Guide
-            - ✅ **Auto-Tag Replication Studies** - Items added to library are tagged "Added by Replication Checker"
-            - ✅ **Check Entire Library** - Scan all items via Tools menu
-            - ✅ **Check Collections** - Right-click any collection to check for replications
-            - ✅ **Check Individual Items** - Right-click items to check selected ones
-            - ✅ **Automatic Tagging** - Original studies get "Has Replication" tag with outcome tags
-            - ✅ **Detailed Notes** - Replication info added as child notes with DOI links
-            - ✅ **Privacy-First Design** - Hash-based lookup protects your DOIs
-            - ✅ **Auto-Cleanup** - Preferences cleared on uninstall
-
-            ### ⚙️ Configuration
-
-            **Settings:** Edit → Settings → Replication Checker
-            - Auto-check frequency (disabled/daily/weekly/monthly)
-            - Auto-check newly added items
-
-            **Menu Locations:**
-            - **Tools** → Check Current Library for Replications
-            - **Help** → Replication Checker User Guide
-            - **Right-click** items/collections → Check for Replications
-
-            ### 📋 Requirements
-
-            - Zotero 7.0 or later
-            - Items must have DOIs to be checked
-            - Internet connection for API queries
-
-            ### 🐛 Troubleshooting
-
-            If you encounter issues:
-            1. **Help** → **Debug Output Logging** → **View Output**
-            2. Look for messages starting with `[ReplicationChecker]:`
-            3. Report issues at: https://github.com/forrtproject/flora_zotero/issues
-
-            ### 🙏 Credits
-
-            - **FORRT Project** - For the comprehensive Replication Database
-            - **FLoRA Team** - For maintaining the replication data
-            - **Contributors** - Everyone who helped improve this plugin
+            ${{ steps.release_notes.outputs.NOTES }}
 
             ---
 
-            **📦 Download the XPI file below to install the plugin.**
+            ### 📥 Installation
+
+            1. Click the **Direct Download** link above, or download the `.xpi` file from **Assets** below
+            2. In Zotero: **Tools → Add-ons**
+            3. Click gear icon ⚙️ → **Install Add-on From File**
+            4. Select the downloaded XPI file
+
+            ---
+
+            ### 🎯 Features
+
+            - ✅ **Replication Detection** - Finds replication studies and tags originals with "Has Replication" and outcome tags
+            - ✅ **Reproduction Detection** - Finds computational reproductions with dedicated notes and "Has Reproduction" tags
+            - ✅ **Multiple Originals Support** - Items with more than one original get an "Original Articles" note with titles, DOIs, and outcomes
+            - ✅ **Check Entire Library** - Scan all items via Tools → Check Current Library for Replications
+            - ✅ **Check Collections** - Right-click any collection to check for replications
+            - ✅ **Check Individual Items** - Right-click items to check selected ones
+            - ✅ **Auto-Check New Items** - Automatically checks items when added to your library
+            - ✅ **Detailed Notes** - Replication/reproduction info added as child notes with DOI links and outcomes
+            - ✅ **Read-Only Library Support** - Copies originals and replications to Personal library for read-only group libraries
+            - ✅ **Configurable Folder Names** - Customize collection names for replications and reproductions in Preferences
+            - ✅ **Blacklist Management** - Ban unwanted replications from being re-added in future checks
+            - ✅ **Privacy-First Design** - Hash-based lookup protects your DOIs — no raw identifiers sent
+            - ✅ **Multi-Language Support** - Available in 8 languages (English, German, French, Spanish, Portuguese, Korean, Chinese, Arabic)
+            - ✅ **3-Screen Interactive Onboarding** - Guided tour on first install
+            - ✅ **User Guide in Help Menu** - Access onboarding anytime from Help → Replication Checker User Guide
+            - ✅ **Auto-Cleanup** - Preferences cleared on uninstall
+
+            ---
+
+            ### 👥 Contributors
+
+            [View all Zotero Replication Checker Plugin contributors](https://forrt.org/contributors/?project=flora-zotero-plugin&&collapse-filter)
+
+            ---
 
             The plugin will automatically check for updates using `update.json`.
           files: |

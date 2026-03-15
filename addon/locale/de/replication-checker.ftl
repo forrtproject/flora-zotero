@@ -127,14 +127,17 @@ onboarding-welcome-title = Willkommen beim Replication Checker!
 onboarding-welcome-content =
     Vielen Dank für die Installation des Zotero Replication Checkers!
 
-    Dieses Plugin hilft Ihnen, Replikationsstudien zu entdecken, indem es Ihre Bibliothekseinträge automatisch mit der FORRT Literaturdatenbank (FLoRA) abgleicht.
+    Dieses Plugin hilft Ihnen, Replikations- und Reproduktionsstudien zu entdecken, indem es Ihre Bibliothekseinträge automatisch mit der FORRT Literaturdatenbank (FLoRA) abgleicht.
 
     ✨ Hauptfunktionen:
-    • Automatische Prüfung von DOIs gegen die Replikationsdatenbank
-    • Funktioniert mit der gesamten Bibliothek, Sammlungen oder einzelnen Einträgen
-    • Erstellt verknüpfte Notizen mit Replikationsinformationen
-    • Markiert Einträge mit Replikationsstatus
-    • Fügt Originalstudien hinzu, wenn Replikationen vorhanden sind
+    • Prüft die gesamte Bibliothek, Sammlungen oder einzelne Einträge
+    • Erkennt sowohl Replikationen als auch computergestützte Reproduktionen
+    • Verarbeitet Artikel mit mehreren Originalstudien
+    • Fügt ergebnisgetaggte Notizen mit DOI-Links hinzu
+    • Markiert Einträge automatisch (z. B. „Hat Replikation", „Ist Replikation")
+    • Bietet an, die Originalstudie hinzuzufügen, wenn eine Replikation erkannt wird
+    • Unterstützt schreibgeschützte Gruppenbiblotheken — kopiert Einträge in die Persönliche Bibliothek
+    • Konfigurierbare Ordnernamen für Replikationen und Reproduktionen
     • Sperrt unerwünschte Replikationen für zukünftige Prüfungen
 
     Lassen Sie uns eine kurze Tour machen!
