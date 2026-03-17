@@ -140,7 +140,7 @@ jobs:
             <style>
               /* FORRT color scheme - matched to forrt.org */
               :root {
-                --navbar-color: #3e3e3e;       /* Dark gray - FORRT navbar */
+                --navbar-color: #5a5a5a;       /* Dark gray - FORRT navbar */
                 --primary-color: #004055;      /* Dark teal - FORRT primary (links, buttons) */
                 --primary-hover: #003344;      /* Darker teal for hover */
                 --accent-color: #b8336a;       /* Magenta - FORRT active/accent */
@@ -171,7 +171,7 @@ jobs:
               .forrt-banner {
                 background: var(--navbar-color);
                 color: white;
-                padding: 0.75rem 0;
+                padding: 0.5rem 0 0;
                 border-bottom: none;
               }
 
@@ -181,13 +181,17 @@ jobs:
                 padding: 0 2rem;
                 display: flex;
                 align-items: center;
-                gap: 1rem;
+                gap: 2rem;
               }
 
+
               .forrt-logo {
-                height: 70px;
+                height: 110px;
                 width: auto;
                 display: block;
+                position: relative;
+                z-index: 1001;
+                margin-bottom: -42px;
               }
 
               .forrt-title {
@@ -242,7 +246,7 @@ jobs:
               .nav-container {
                 max-width: 1200px;
                 margin: 0 auto;
-                padding: 0 2rem;
+                padding: 0 2rem 0 220px;
                 display: flex;
                 gap: 0;
                 align-items: center;
@@ -520,7 +524,7 @@ jobs:
                 }
 
                 .forrt-logo {
-                  height: 40px;
+                  height: 55px;
                 }
 
                 .forrt-title {
@@ -601,7 +605,7 @@ jobs:
                 <a href="{{ site.baseurl }}/documentation" {% if page.url contains "documentation" %}class="active"{% endif %}>Documentation</a>
                 <a href="{{ site.github.repository_url }}/releases">Download</a>
                 <a href="{{ site.github.repository_url }}/issues">Report Issue</a>
-                <a href="https://forrt.org/">FORRT Project</a>
+                <a href="https://forrt.org/about">About FORRT</a>
               </div>
             </nav>
 
@@ -621,14 +625,13 @@ jobs:
 
             <!-- Footer -->
             <footer class="footer">
-              <p class="footer-branding">Part of the FORRT Project</p>
-              <p>Framework for Open and Reproducible Research Training</p>
+              <p><strong>FORRT</strong> | Framework for Open and Reproducible Research Training</p>
               <p style="margin-top: 1.5rem;">
                 <a href="https://forrt.org/">FORRT Website</a>
                 <a href="{{ site.github.repository_url }}">GitHub</a>
                 <a href="{{ site.github.repository_url }}/releases">Releases</a>
                 <a href="{{ site.github.repository_url }}/issues">Issues</a>
-                <a href="">FLoRA Database</a>
+                <a href="https://forrt.org/flora">FLoRA Database</a>
               </p>
             </footer>
           </body>
