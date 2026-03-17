@@ -524,7 +524,9 @@ jobs:
                 }
 
                 .forrt-logo {
-                  height: 55px;
+                  height: 65px;
+                  margin-bottom: 0;
+                  position: static;
                 }
 
                 .forrt-title {
