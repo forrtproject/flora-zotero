@@ -46,9 +46,9 @@ jobs:
           # Copy Website.md as index
           cp docs/Website.md docs/index.md
 
-          # Copy README.md as the Documentation page
+          # Copy README.md as the Documentation page (strip the logo block)
           if [ -f "README.md" ]; then
-            cp README.md docs/documentation.md
+            sed '/<p align="center">/,/<\/p>/d' README.md > docs/documentation.md
           fi
 
           # Copy other documentation
@@ -65,8 +65,8 @@ jobs:
           if [ -f "addon/content/icons/favicon.png" ]; then
             cp addon/content/icons/favicon.png docs/assets/favicon.png
           fi
-          if [ -f "docs/logo/replication-checker-logo.svg" ]; then
-            cp docs/logo/replication-checker-logo.svg docs/assets/replication-checker-logo.svg
+          if [ -f "docs/logo/replication-checker-logo.png" ]; then
+            cp docs/logo/replication-checker-logo.png docs/assets/replication-checker-logo.png
           fi
 
           # Download update.json from the latest GitHub release
@@ -593,7 +593,7 @@ jobs:
             <!-- FORRT Branding Banner -->
             <div class="forrt-banner">
               <div class="forrt-banner-content">
-                <img src="{{ site.baseurl }}/assets/replication-checker-logo.svg" alt="Replication Checker for Zotero by FORRT" class="forrt-logo">
+                <img src="{{ site.baseurl }}/assets/replication-checker-logo.png" alt="Replication Checker for Zotero by FORRT" class="forrt-logo">
                 <button class="nav-toggle" aria-label="Toggle navigation" onclick="document.querySelector('.nav-container').classList.toggle('open')">
                   <span></span><span></span><span></span>
                 </button>

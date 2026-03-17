@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/logo/replication-checker-logo.svg" alt="Replication Checker for Zotero by FORRT" width="600">
+  <img src="docs/logo/replication-checker-logo.png" alt="Replication Checker for Zotero by FORRT" width="600">
 </p>
 
 A privacy-first Zotero 7 plugin that discovers replication studies for items in your library using the [FORRT Library of Reproduction and Replication Attempts (FLoRA)](). It scans your local library for DOIs, checks against FLoRA using privacy-preserving prefix matching, notifies you when reproductions and replications exist, and allows easy addition to your library — all without sending identifiable data off your machine.
