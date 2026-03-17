@@ -65,6 +65,9 @@ jobs:
           if [ -f "addon/content/icons/favicon.png" ]; then
             cp addon/content/icons/favicon.png docs/assets/favicon.png
           fi
+          if [ -f "docs/logo/replication-checker-logo.svg" ]; then
+            cp docs/logo/replication-checker-logo.svg docs/assets/replication-checker-logo.svg
+          fi
 
           # Download update.json from the latest GitHub release
           # The release workflow creates update.json with the correct hash for the release XPI
@@ -182,7 +185,7 @@ jobs:
               }
 
               .forrt-logo {
-                height: 50px;
+                height: 70px;
                 width: auto;
                 display: block;
               }
@@ -584,8 +587,7 @@ jobs:
             <!-- FORRT Branding Banner -->
             <div class="forrt-banner">
               <div class="forrt-banner-content">
-                <img src="{{ site.baseurl }}/assets/favicon.png" alt="FORRT Logo" class="forrt-logo">
-                <h1 class="forrt-title">FORRT</h1>
+                <img src="{{ site.baseurl }}/assets/replication-checker-logo.svg" alt="Replication Checker for Zotero by FORRT" class="forrt-logo">
                 <button class="nav-toggle" aria-label="Toggle navigation" onclick="document.querySelector('.nav-container').classList.toggle('open')">
                   <span></span><span></span><span></span>
                 </button>
