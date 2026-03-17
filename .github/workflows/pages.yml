@@ -143,7 +143,7 @@ jobs:
                 --navbar-color: #5a5a5a;       /* Dark gray - FORRT navbar */
                 --primary-color: #004055;      /* Dark teal - FORRT primary (links, buttons) */
                 --primary-hover: #003344;      /* Darker teal for hover */
-                --accent-color: #b8336a;       /* Magenta - FORRT active/accent */
+                --accent-color: #981D1F;       /* Red - matching logo accent */
                 --brand-color: #69b3a2;        /* Sage green - FORRT brand */
                 --background-cream: #fefdf6;   /* Cream background - FORRT body bg */
                 --section-gray: #f8f9fa;       /* Light gray sections */
