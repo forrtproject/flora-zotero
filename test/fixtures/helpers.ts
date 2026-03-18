@@ -10,6 +10,11 @@ export function getChecker() {
   return (Zotero as any)[config.addonInstance].checker;
 }
 
+/** Access the ReproductionHandler instance */
+export function getReproductionHandler() {
+  return (Zotero as any)[config.addonInstance].reproductionHandler;
+}
+
 /** Create a test journal article with a DOI */
 export async function createTestItem(
   doi: string,

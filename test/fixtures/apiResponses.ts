@@ -199,6 +199,38 @@ export const noBibtexMatch = buildPrefixLookupResponse([
   }),
 ]);
 
+/** Original with a reproduction (computationally successful, robust) */
+export const singleReproductionMatch = buildPrefixLookupResponse([
+  makeArticle({
+    doi: TEST_DOIS.originalA,
+    title: "The Original Study A",
+    reproductions: [
+      {
+        doi: "10.6666/test.reproduction.001",
+        doi_hash: CryptoJS.MD5("10.6666/test.reproduction.001").toString(),
+        title: "A Computational Reproduction of Study A",
+        authors: [
+          { given: "Repro", family: "Author", sequence: "first" as const },
+        ],
+        journal: "Journal of Reproducibility",
+        year: 2023,
+        apa_ref:
+          "Author, R. (2023). A Computational Reproduction of Study A. Journal of Reproducibility.",
+        bibtex_ref: `@article{reproAuthor2023,
+  title={A Computational Reproduction of Study A},
+  author={Author, Repro},
+  journal={Journal of Reproducibility},
+  year={2023},
+  doi={10.6666/test.reproduction.001}}`,
+        outcome: "computationally successful, robust",
+        url: "https://osf.io/test123",
+      },
+    ],
+  }),
+]);
+
+export const TEST_REPRODUCTION_DOI = "10.6666/test.reproduction.001";
+
 /** Empty response */
 export const emptyResponse: PrefixLookupResponse = { results: {} };
 

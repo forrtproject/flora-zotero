@@ -228,6 +228,7 @@ export async function onStartup() {
     // Expose plugin internals globally for preference pane and test access
     (Zotero as any).ReplicationChecker.checker = replicationChecker;
     (Zotero as any).ReplicationChecker.blacklistManager = blacklistManager;
+    (Zotero as any).ReplicationChecker.reproductionHandler = reproductionHandler;
 
     // Expose preference pane UI initializer globally
     (Zotero as any).ReplicationChecker.initBlacklistUI = initBlacklistUI;
