@@ -251,7 +251,7 @@ export function parseBibtex(bibtex: string | null | undefined): ParsedBibtex | n
 
     // Extract fields using regex - handles both single-line and multiline values
     // Match field = {value} or field = "value" patterns
-    const fieldRegex = /(\w+)\s*=\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/g;
+    const fieldRegex = /(\w+)\s*=\s*\{([^{}]*(?:\{[^}]*\}[^{}]*)*)\}/g;
     let match;
 
     while ((match = fieldRegex.exec(bibtex)) !== null) {

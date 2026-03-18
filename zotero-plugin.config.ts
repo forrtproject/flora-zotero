@@ -40,7 +40,13 @@ export default defineConfig({
   },
 
   test: {
+    entries: "test/integration",
     waitForPlugin: `() => Zotero.${pkg.config.addonInstance}.data.initialized`,
+    prefs: {
+      // Skip onboarding modal in test profile
+      "extensions.zotero.replication-checker.onboardingVersion": 1,
+      "extensions.zotero.replication-checker.firstRunDone": true,
+    },
   },
 
   // If you need to see a more detailed log, uncomment the following line:

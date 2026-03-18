@@ -3,10 +3,10 @@ name: Build and Test
 on:
   push:
     branches:
-      - '**'  # Build on push to any branch
+      - "**"
   pull_request:
     branches:
-      - '**'  # Build on PR to any branch
+      - "**"
 
 jobs:
   build:
@@ -19,13 +19,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Install dependencies
         run: npm install
 
+      - name: Run unit tests
+        run: npm run test:unit
+
       - name: Build plugin
         run: npm run build
+
+      - name: Run integration tests
+        run: npm run test:integration
 
       - name: Verify build
         run: |

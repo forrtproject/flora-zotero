@@ -50,8 +50,7 @@ dist/
 .scaffold/
 *.log
 
-# Test files
-tests/
+# Test output
 *.test.js
 
 # Environment files

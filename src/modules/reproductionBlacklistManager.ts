@@ -3,7 +3,11 @@
  * Manages banned reproduction items that should not be re-added during checks
  */
 
-import type { ReproductionBlacklistEntry, ReproductionBlacklistData } from "../types/replication";
+import type {
+  ReproductionBlacklistEntry,
+  ReproductionBlacklistData,
+} from "../types/replication";
+import { normalizeDoi } from "../utils/doi";
 
 const REPRODUCTION_BLACKLIST_PREF = "replication-checker.reproductionBlacklist";
 
@@ -30,8 +34,10 @@ class ReproductionBlacklistManager {
     try {
       const prefValue = Zotero.Prefs.get(REPRODUCTION_BLACKLIST_PREF);
 
-      if (!prefValue || typeof prefValue !== 'string' || prefValue === '') {
-        Zotero.debug("ReproductionBlacklistManager: No existing blacklist, initializing empty");
+      if (!prefValue || typeof prefValue !== "string" || prefValue === "") {
+        Zotero.debug(
+          "ReproductionBlacklistManager: No existing blacklist, initializing empty",
+        );
         this.blacklist = { version: 1, entries: [] };
         this.initialized = true;
         return;
@@ -41,20 +47,23 @@ class ReproductionBlacklistManager {
 
       // Validate structure
       if (!this.blacklist.entries || !Array.isArray(this.blacklist.entries)) {
-        throw new Error('Invalid blacklist structure: entries is not an array');
+        throw new Error("Invalid blacklist structure: entries is not an array");
       }
 
-      if (typeof this.blacklist.version !== 'number') {
-        throw new Error('Invalid blacklist structure: version is not a number');
+      if (typeof this.blacklist.version !== "number") {
+        throw new Error("Invalid blacklist structure: version is not a number");
       }
 
-      Zotero.debug(`ReproductionBlacklistManager: Loaded ${this.blacklist.entries.length} blacklisted entries`);
-
+      Zotero.debug(
+        `ReproductionBlacklistManager: Loaded ${this.blacklist.entries.length} blacklisted entries`,
+      );
     } catch (error) {
       Zotero.logError(
-        new Error(`ReproductionBlacklistManager: Blacklist corrupted, resetting: ${
-          error instanceof Error ? error.message : String(error)
-        }`)
+        new Error(
+          `ReproductionBlacklistManager: Blacklist corrupted, resetting: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        ),
       );
       this.blacklist = { version: 1, entries: [] };
       await this.saveBlacklist();
@@ -83,7 +92,9 @@ class ReproductionBlacklistManager {
         this.doiIndex.add(normalizedDoi);
       }
     }
-    Zotero.debug(`ReproductionBlacklistManager: Index rebuilt with ${this.urlIndex.size} URLs and ${this.doiIndex.size} DOIs`);
+    Zotero.debug(
+      `ReproductionBlacklistManager: Index rebuilt with ${this.urlIndex.size} URLs and ${this.doiIndex.size} DOIs`,
+    );
   }
 
   /**
@@ -95,32 +106,17 @@ class ReproductionBlacklistManager {
     let normalized = String(url).trim().toLowerCase();
 
     // Remove trailing slashes
-    normalized = normalized.replace(/\/+$/, '');
+    normalized = normalized.replace(/\/+$/, "");
 
     return normalized || null;
   }
 
   /**
    * Normalize DOI for consistent comparison
-   * Uses same pattern as BatchMatcher
+   * Delegates to shared normalizeDoi utility
    */
   private normalizeDOI(doi: string | null | undefined): string | null {
-    if (!doi) return null;
-
-    let normalized = String(doi).trim().toLowerCase();
-
-    // Remove common URL prefixes
-    normalized = normalized.replace(/^https?:\/\/(dx\.)?doi\.org\//i, "");
-    normalized = normalized.replace(/^doi:\s*/i, "");
-    normalized = normalized.replace(/\/+/g, "/"); // Collapse multiple slashes
-    normalized = normalized.trim();
-
-    // Validate DOI format
-    if (!normalized.startsWith("10.")) {
-      return null;
-    }
-
-    return normalized;
+    return normalizeDoi(doi);
   }
 
   /**
@@ -130,12 +126,16 @@ class ReproductionBlacklistManager {
     try {
       const jsonString = JSON.stringify(this.blacklist);
       Zotero.Prefs.set(REPRODUCTION_BLACKLIST_PREF, jsonString);
-      Zotero.debug(`ReproductionBlacklistManager: Saved ${this.blacklist.entries.length} entries to preferences`);
+      Zotero.debug(
+        `ReproductionBlacklistManager: Saved ${this.blacklist.entries.length} entries to preferences`,
+      );
     } catch (error) {
       Zotero.logError(
-        new Error(`ReproductionBlacklistManager: Failed to save blacklist: ${
-          error instanceof Error ? error.message : String(error)
-        }`)
+        new Error(
+          `ReproductionBlacklistManager: Failed to save blacklist: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        ),
       );
       throw error;
     }
@@ -146,7 +146,7 @@ class ReproductionBlacklistManager {
    */
   async addToBlacklist(entry: ReproductionBlacklistEntry): Promise<void> {
     if (!this.initialized) {
-      throw new Error('ReproductionBlacklistManager not initialized');
+      throw new Error("ReproductionBlacklistManager not initialized");
     }
 
     // Use URL as primary identifier for reproductions (since many don't have DOIs)
@@ -154,17 +154,23 @@ class ReproductionBlacklistManager {
     const normalizedDoi = this.normalizeDOI(entry.doi);
 
     if (!normalizedUrl && !normalizedDoi) {
-      Zotero.debug(`ReproductionBlacklistManager: Cannot blacklist entry - no URL or DOI: ${entry.title}`);
+      Zotero.debug(
+        `ReproductionBlacklistManager: Cannot blacklist entry - no URL or DOI: ${entry.title}`,
+      );
       return;
     }
 
     // Check if already blacklisted
     if (normalizedUrl && this.urlIndex.has(normalizedUrl)) {
-      Zotero.debug(`ReproductionBlacklistManager: URL already blacklisted: ${normalizedUrl}`);
+      Zotero.debug(
+        `ReproductionBlacklistManager: URL already blacklisted: ${normalizedUrl}`,
+      );
       return;
     }
     if (normalizedDoi && this.doiIndex.has(normalizedDoi)) {
-      Zotero.debug(`ReproductionBlacklistManager: DOI already blacklisted: ${normalizedDoi}`);
+      Zotero.debug(
+        `ReproductionBlacklistManager: DOI already blacklisted: ${normalizedDoi}`,
+      );
       return;
     }
 
@@ -179,15 +185,22 @@ class ReproductionBlacklistManager {
 
     // Persist
     await this.saveBlacklist();
-    Zotero.debug(`ReproductionBlacklistManager: Added to blacklist: ${entry.title} (${normalizedUrl || normalizedDoi})`);
+    Zotero.debug(
+      `ReproductionBlacklistManager: Added to blacklist: ${entry.title} (${normalizedUrl || normalizedDoi})`,
+    );
   }
 
   /**
    * Check if a reproduction is blacklisted by URL or DOI
    */
-  isBlacklisted(url: string | null | undefined, doi?: string | null | undefined): boolean {
+  isBlacklisted(
+    url: string | null | undefined,
+    doi?: string | null | undefined,
+  ): boolean {
     if (!this.initialized) {
-      Zotero.debug('ReproductionBlacklistManager: isBlacklisted called before initialization, returning false');
+      Zotero.debug(
+        "ReproductionBlacklistManager: isBlacklisted called before initialization, returning false",
+      );
       return false;
     }
 
@@ -209,7 +222,9 @@ class ReproductionBlacklistManager {
    */
   getEntries(): ReproductionBlacklistEntry[] {
     if (!this.initialized) {
-      Zotero.debug('ReproductionBlacklistManager: getEntries called before initialization');
+      Zotero.debug(
+        "ReproductionBlacklistManager: getEntries called before initialization",
+      );
       return [];
     }
     return [...this.blacklist.entries];
@@ -229,7 +244,7 @@ class ReproductionBlacklistManager {
       return [];
     }
 
-    return this.blacklist.entries.map(entry => ({
+    return this.blacklist.entries.map((entry) => ({
       reproductionTitle: entry.title,
       originalTitle: entry.originalTitle,
       url: entry.url,
@@ -243,31 +258,37 @@ class ReproductionBlacklistManager {
    */
   async removeFromBlacklist(url: string): Promise<void> {
     if (!this.initialized) {
-      throw new Error('ReproductionBlacklistManager not initialized');
+      throw new Error("ReproductionBlacklistManager not initialized");
     }
 
     const normalizedUrl = this.normalizeUrl(url);
     if (!normalizedUrl) {
-      Zotero.debug(`ReproductionBlacklistManager: Cannot remove - invalid URL: ${url}`);
+      Zotero.debug(
+        `ReproductionBlacklistManager: Cannot remove - invalid URL: ${url}`,
+      );
       return;
     }
 
     // Find and remove entry
     const initialLength = this.blacklist.entries.length;
-    this.blacklist.entries = this.blacklist.entries.filter(entry => {
+    this.blacklist.entries = this.blacklist.entries.filter((entry) => {
       const entryNormalizedUrl = this.normalizeUrl(entry.url);
       return entryNormalizedUrl !== normalizedUrl;
     });
 
     if (this.blacklist.entries.length === initialLength) {
-      Zotero.debug(`ReproductionBlacklistManager: URL not found in blacklist: ${normalizedUrl}`);
+      Zotero.debug(
+        `ReproductionBlacklistManager: URL not found in blacklist: ${normalizedUrl}`,
+      );
       return;
     }
 
     // Rebuild indexes and persist
     this.rebuildIndex();
     await this.saveBlacklist();
-    Zotero.debug(`ReproductionBlacklistManager: Removed from blacklist: ${normalizedUrl}`);
+    Zotero.debug(
+      `ReproductionBlacklistManager: Removed from blacklist: ${normalizedUrl}`,
+    );
   }
 
   /**
@@ -275,7 +296,7 @@ class ReproductionBlacklistManager {
    */
   async clearBlacklist(): Promise<void> {
     if (!this.initialized) {
-      throw new Error('ReproductionBlacklistManager not initialized');
+      throw new Error("ReproductionBlacklistManager not initialized");
     }
 
     const count = this.blacklist.entries.length;
@@ -284,7 +305,9 @@ class ReproductionBlacklistManager {
     this.doiIndex.clear();
 
     await this.saveBlacklist();
-    Zotero.debug(`ReproductionBlacklistManager: Cleared ${count} entries from blacklist`);
+    Zotero.debug(
+      `ReproductionBlacklistManager: Cleared ${count} entries from blacklist`,
+    );
   }
 
   /**
@@ -297,3 +320,4 @@ class ReproductionBlacklistManager {
 
 // Export singleton instance
 export const reproductionBlacklistManager = new ReproductionBlacklistManager();
+export { ReproductionBlacklistManager };

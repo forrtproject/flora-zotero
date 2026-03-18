@@ -52,15 +52,23 @@ replication-checker-alert-no-replications-selected = No replication items select
 
 ## Dialog
 replication-checker-dialog-title = Replication Studies Found
-replication-checker-dialog-intro = Replication studies found for:\n"{ $title }"
+replication-checker-dialog-intro =
+    Replication studies found for:
+    "{ $title }"
 replication-checker-dialog-count = Found { $count } replication(s):
-replication-checker-dialog-item = { $index }. { $title }\n({ $year })\n   Outcome: { $outcome }
+replication-checker-dialog-item =
+    { $index }. { $title }
+    ({ $year })
+       Outcome: { $outcome }
 replication-checker-dialog-more = ...and { $count } more replication(s)
 replication-checker-dialog-question = Would you like to add replication information?
 replication-checker-dialog-progress-title = Replication Information Added
 replication-checker-dialog-progress-line = Added replication information to "{ $title }"
 replication-checker-dialog-is-replication-title = Original Study Found
-replication-checker-dialog-is-replication-message = No replications found, but this appears to be a replication study.\n\nWould you like to add the original article(s)?
+replication-checker-dialog-is-replication-message =
+    No replications found, but this appears to be a replication study.
+
+    Would you like to add the original article(s)?
 
 ## Read-Only Library Handling
 replication-checker-readonly-dialog-title = Read-Only Library Detected
@@ -228,9 +236,14 @@ reproduction-checker-ban-success = Successfully banned { $count } reproduction(s
 
 ## Reproduction Feature - Dialog
 reproduction-checker-dialog-title = Reproduction Studies Found
-reproduction-checker-dialog-intro = Reproduction studies found for:\n"{ $title }"
+reproduction-checker-dialog-intro =
+    Reproduction studies found for:
+    "{ $title }"
 reproduction-checker-dialog-count = Found { $count } reproduction(s):
-reproduction-checker-dialog-item = { $index }. { $title }\n({ $year })\n   Outcome: { $outcome }
+reproduction-checker-dialog-item =
+    { $index }. { $title }
+    ({ $year })
+       Outcome: { $outcome }
 reproduction-checker-dialog-more = ...and { $count } more reproduction(s)
 reproduction-checker-dialog-question = Would you like to add reproduction information?
 reproduction-checker-dialog-progress-title = Reproduction Information Added

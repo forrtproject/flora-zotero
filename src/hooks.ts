@@ -225,7 +225,8 @@ export async function onStartup() {
     await reproductionHandler.init();
     Zotero.debug("[ReplicationChecker] Reproduction handler initialized");
 
-    // Expose blacklist manager globally for preference pane access
+    // Expose plugin internals globally for preference pane and test access
+    (Zotero as any).ReplicationChecker.checker = replicationChecker;
     (Zotero as any).ReplicationChecker.blacklistManager = blacklistManager;
 
     // Expose preference pane UI initializer globally

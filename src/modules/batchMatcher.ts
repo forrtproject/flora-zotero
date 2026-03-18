@@ -6,6 +6,7 @@
 import CryptoJS from "crypto-js";
 import type { ReplicationDataSource } from "./dataSource";
 import type { DOICheckResult } from "../types/replication";
+import { normalizeDoi as normalizeDoiShared } from "../utils/doi";
 
 interface DoiPrefixMap {
   [doi: string]: string;
@@ -36,16 +37,22 @@ export class BatchMatcher {
    */
   async checkBatch(dois: string[]): Promise<DOICheckResult[]> {
     Zotero.debug(`[BatchMatcher] Checking ${dois.length} DOIs...`);
-    Zotero.debug(`[BatchMatcher] Input DOIs: ${dois.slice(0, 5).join(", ")}${dois.length > 5 ? "..." : ""}`);
+    Zotero.debug(
+      `[BatchMatcher] Input DOIs: ${dois.slice(0, 5).join(", ")}${dois.length > 5 ? "..." : ""}`,
+    );
 
     // Normalize and filter DOIs
     const normalizedDois = dois
       .map((doi) => this.normalizeDoi(doi))
       .filter((doi) => doi !== null) as string[];
 
-    Zotero.debug(`[BatchMatcher] Normalized to ${normalizedDois.length} valid DOIs`);
+    Zotero.debug(
+      `[BatchMatcher] Normalized to ${normalizedDois.length} valid DOIs`,
+    );
     if (normalizedDois.length > 0) {
-      Zotero.debug(`[BatchMatcher] First few normalized: ${normalizedDois.slice(0, 3).join(", ")}`);
+      Zotero.debug(
+        `[BatchMatcher] First few normalized: ${normalizedDois.slice(0, 3).join(", ")}`,
+      );
     }
 
     // Create DOI to prefix map
@@ -58,12 +65,18 @@ export class BatchMatcher {
       }
     });
 
-    Zotero.debug(`[BatchMatcher] Generated ${Object.keys(doiToPrefixMap).length} unique DOIs with prefixes`);
+    Zotero.debug(
+      `[BatchMatcher] Generated ${Object.keys(doiToPrefixMap).length} unique DOIs with prefixes`,
+    );
 
     // Get unique prefixes
     const uniquePrefixes = Array.from(new Set(Object.values(doiToPrefixMap)));
-    Zotero.debug(`[BatchMatcher] Unique prefixes count: ${uniquePrefixes.length}`);
-    Zotero.debug(`[BatchMatcher] Unique prefixes: ${uniquePrefixes.join(", ")}`);
+    Zotero.debug(
+      `[BatchMatcher] Unique prefixes count: ${uniquePrefixes.length}`,
+    );
+    Zotero.debug(
+      `[BatchMatcher] Unique prefixes: ${uniquePrefixes.join(", ")}`,
+    );
 
     let allResults: DOICheckResult[] = [];
 
@@ -72,32 +85,49 @@ export class BatchMatcher {
     for (let i = 0; i < uniquePrefixes.length; i += this.BATCH_SIZE) {
       const batchPrefixes = uniquePrefixes.slice(i, i + this.BATCH_SIZE);
       Zotero.debug(
-        `[BatchMatcher] Querying batch ${Math.floor(i / this.BATCH_SIZE) + 1} with ${batchPrefixes.length} prefixes: ${batchPrefixes.join(", ")}`
+        `[BatchMatcher] Querying batch ${Math.floor(i / this.BATCH_SIZE) + 1} with ${batchPrefixes.length} prefixes: ${batchPrefixes.join(", ")}`,
       );
       const batchResults = await this.dataSource.queryByPrefixes(batchPrefixes);
-      Zotero.debug(`[BatchMatcher] Batch returned ${batchResults.length} DOI results`);
+      Zotero.debug(
+        `[BatchMatcher] Batch returned ${batchResults.length} DOI results`,
+      );
       allResults = allResults.concat(batchResults);
     }
     const queryTime = Date.now() - startTime;
 
-    Zotero.debug(`[BatchMatcher] Received ${allResults.length} total DOI results from data source in ${queryTime}ms`);
+    Zotero.debug(
+      `[BatchMatcher] Received ${allResults.length} total DOI results from data source in ${queryTime}ms`,
+    );
 
     // Verify matches locally (privacy-preserving step)
-    const results = this.verifyMatches(normalizedDois, doiToPrefixMap, allResults);
+    const results = this.verifyMatches(
+      normalizedDois,
+      doiToPrefixMap,
+      allResults,
+    );
 
-    const matchCount = results.filter((r) =>
-      r.replications.length > 0 || r.originals.length > 0 || r.reproductions.length > 0
+    const matchCount = results.filter(
+      (r) =>
+        r.replications.length > 0 ||
+        r.originals.length > 0 ||
+        r.reproductions.length > 0,
     ).length;
-    Zotero.debug(`[BatchMatcher] Found ${matchCount} DOIs with related studies out of ${results.length} checked`);
+    Zotero.debug(
+      `[BatchMatcher] Found ${matchCount} DOIs with related studies out of ${results.length} checked`,
+    );
 
     // Log details of matches found
     for (const result of results) {
-      if (result.replications.length > 0 || result.originals.length > 0 || result.reproductions.length > 0) {
+      if (
+        result.replications.length > 0 ||
+        result.originals.length > 0 ||
+        result.reproductions.length > 0
+      ) {
         Zotero.debug(
           `[BatchMatcher] Match: ${result.doi} -> ` +
-          `${result.replications.length} replications, ` +
-          `${result.originals.length} originals, ` +
-          `${result.reproductions.length} reproductions`
+            `${result.replications.length} replications, ` +
+            `${result.originals.length} originals, ` +
+            `${result.reproductions.length} reproductions`,
         );
       }
     }
@@ -116,11 +146,13 @@ export class BatchMatcher {
   private verifyMatches(
     ourDois: string[],
     doiToPrefixMap: DoiPrefixMap,
-    apiResults: DOICheckResult[]
+    apiResults: DOICheckResult[],
   ): DOICheckResult[] {
     const results: DOICheckResult[] = [];
 
-    Zotero.debug(`[BatchMatcher] Starting verifyMatches: ${ourDois.length} DOIs, ${apiResults.length} API results`);
+    Zotero.debug(
+      `[BatchMatcher] Starting verifyMatches: ${ourDois.length} DOIs, ${apiResults.length} API results`,
+    );
 
     // For each of our DOIs
     for (const doi of ourDois) {
@@ -128,7 +160,9 @@ export class BatchMatcher {
       const normalizedOurDoi = this.normalizeDoi(doi);
 
       if (ourDois.indexOf(doi) < 3) {
-        Zotero.debug(`[BatchMatcher] Verifying DOI: ${doi} (normalized: ${normalizedOurDoi}, prefix: ${ourPrefix})`);
+        Zotero.debug(
+          `[BatchMatcher] Verifying DOI: ${doi} (normalized: ${normalizedOurDoi}, prefix: ${ourPrefix})`,
+        );
       }
 
       // Find API results that match this DOI
@@ -141,9 +175,9 @@ export class BatchMatcher {
         if (ourDois.indexOf(doi) < 3) {
           Zotero.debug(
             `[BatchMatcher] Found match for ${doi}: ` +
-            `${matchingResult.replications.length} replications, ` +
-            `${matchingResult.originals.length} originals, ` +
-            `${matchingResult.reproductions.length} reproductions`
+              `${matchingResult.replications.length} replications, ` +
+              `${matchingResult.originals.length} originals, ` +
+              `${matchingResult.reproductions.length} reproductions`,
           );
         }
 
@@ -164,36 +198,26 @@ export class BatchMatcher {
       }
     }
 
-    Zotero.debug(`[BatchMatcher] verifyMatches complete: ${results.filter(r =>
-      r.replications.length > 0 || r.originals.length > 0 || r.reproductions.length > 0
-    ).length} matches found`);
+    Zotero.debug(
+      `[BatchMatcher] verifyMatches complete: ${
+        results.filter(
+          (r) =>
+            r.replications.length > 0 ||
+            r.originals.length > 0 ||
+            r.reproductions.length > 0,
+        ).length
+      } matches found`,
+    );
 
     return results;
   }
 
   /**
    * Normalize DOI to standard format
-   * Removes URL prefixes, lowercases, and validates format
-   * @param doi The DOI to normalize
-   * @returns Normalized DOI or null if invalid
+   * Delegates to shared normalizeDoi utility
    */
   normalizeDoi(doi: string | null | undefined): string | null {
-    if (!doi) return null;
-
-    let normalized = String(doi).trim().toLowerCase();
-
-    // Remove common URL prefixes
-    normalized = normalized.replace(/^https?:\/\/(dx\.)?doi\.org\//i, "");
-    normalized = normalized.replace(/^doi:\s*/i, "");
-    normalized = normalized.replace(/\/+/g, "/"); // Collapse multiple slashes
-    normalized = normalized.trim();
-
-    // Validate DOI format
-    if (!normalized.startsWith("10.")) {
-      return null;
-    }
-
-    return normalized;
+    return normalizeDoiShared(doi);
   }
 
   /**
@@ -201,7 +225,7 @@ export class BatchMatcher {
    * @param doi The DOI to hash
    * @returns 3-character hash prefix
    */
-  private generatePrefix(doi: string): string {
+  generatePrefix(doi: string): string {
     const hash = CryptoJS.MD5(doi).toString();
     return hash.substring(0, 3);
   }
