@@ -33,6 +33,11 @@ jobs:
       - name: Run integration tests
         run: npm run test:integration
 
+      # Rebuild in production mode — integration tests rebuild in test mode,
+      # overwriting the XPI. We need a clean production build for the artifact.
+      - name: Rebuild plugin for release artifact
+        run: npm run build
+
       - name: Verify build
         run: |
           echo "Build verification:"
