@@ -673,19 +673,6 @@ export class ReplicationCheckerPlugin {
         return;
       }
 
-      // First, check for items that are replications (have originals but no replications)
-      for (const result of results) {
-        if (result.replications.length === 0 && result.originals.length > 0) {
-          const matchingItems = selectedItems.filter(
-            (item) => this.matcher!.normalizeDoi(item.doi) === result.doi
-          );
-
-          for (const libraryItem of matchingItems) {
-            await this.showIsReplicationDialog(libraryItem.itemID, result);
-          }
-        }
-      }
-
       // Process results - group items by library and check permissions
       const itemsByLibrary = new Map<number, Map<number, any[]>>();
       const itemsWithReproductionsByLibrary = new Map<number, Map<number, RelatedStudy[]>>();
@@ -851,19 +838,6 @@ export class ReplicationCheckerPlugin {
         progressWin.startCloseTimer(4000);
         this.handleMatchError(error, "collection");
         return;
-      }
-
-      // First, check for items that are replications (have originals but no replications)
-      for (const result of results) {
-        if (result.replications.length === 0 && result.originals.length > 0) {
-          const matchingItems = selectedItems.filter(
-            (item) => this.matcher!.normalizeDoi(item.doi) === result.doi
-          );
-
-          for (const libraryItem of matchingItems) {
-            await this.showIsReplicationDialog(libraryItem.itemID, result);
-          }
-        }
       }
 
       // Process results - group items by library and check permissions
