@@ -71,10 +71,11 @@ jobs:
             const xpiPath = fs.readdirSync('.scaffold/build/').find(f => f.endsWith('.xpi'));
             const xpiSize = fs.statSync(`.scaffold/build/${xpiPath}`).size;
             const sizeMB = (xpiSize / 1024 / 1024).toFixed(2);
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `✅ Build successful!\n\n**Artifact:** \`${xpiPath}\`\n**Size:** ${sizeMB} MB\n\nDownload from the artifacts section above.`
+              body: `✅ Build successful!\n\n**Artifact:** \`${xpiPath}\`\n**Size:** ${sizeMB} MB\n\n[Download from build artifacts](${runUrl}#artifacts)`
             });
