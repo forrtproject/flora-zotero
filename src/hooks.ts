@@ -10,7 +10,7 @@ import { reproductionHandler } from "./modules/reproductionHandler";
 import { config } from "../package.json";
 import { createZToolkit } from "./utils/ztoolkit";
 import { getString } from "./utils/strings";
-import { TAG_IS_REPLICATION, TAG_IS_REPRODUCTION, TAG_ADDED_BY_CHECKER } from "./utils/tags";
+import { TAG_IS_REPLICATION, TAG_IS_REPRODUCTION, TAG_ADDED_BY_CHECKER, itemHasTag } from "./utils/tags";
 import {
   initThemeObserver,
   cleanupThemeObserver,
@@ -329,9 +329,9 @@ export async function onMainWindowLoad(win: _ZoteroTypes.MainWindow) {
         // Show for replication or reproduction items
         const selectedItems = Zotero.getActiveZoteroPane().getSelectedItems();
         return selectedItems.some((item: Zotero.Item) =>
-          item.hasTag(TAG_IS_REPLICATION) ||
-          item.hasTag(TAG_IS_REPRODUCTION) ||
-          item.hasTag(TAG_ADDED_BY_CHECKER)
+          itemHasTag(item, TAG_IS_REPLICATION) ||
+          itemHasTag(item, TAG_IS_REPRODUCTION) ||
+          itemHasTag(item, TAG_ADDED_BY_CHECKER)
         );
       },
       commandListener: () => {
@@ -351,7 +351,7 @@ export async function onMainWindowLoad(win: _ZoteroTypes.MainWindow) {
         // Show for items tagged as "Is Replication" or "Is Reproduction"
         const selectedItems = Zotero.getActiveZoteroPane().getSelectedItems();
         return selectedItems.some((item: Zotero.Item) =>
-          item.hasTag(TAG_IS_REPLICATION) || item.hasTag(TAG_IS_REPRODUCTION)
+          itemHasTag(item, TAG_IS_REPLICATION) || itemHasTag(item, TAG_IS_REPRODUCTION)
         );
       },
       commandListener: () => {

@@ -96,6 +96,7 @@ replication-checker-tag-added-by-checker = Added by Replication Checker
 replication-checker-tag-success = Replication: Successful
 replication-checker-tag-failure = Replication: Failure
 replication-checker-tag-mixed = Replication: Mixed
+replication-checker-tag-multiple-originals = Replication: Multiple Originals
 replication-checker-tag-readonly-origin = Original present in Read-Only Library
 replication-checker-tag-has-been-replicated = Has Been Replicated
 replication-checker-tag-has-been-reproduced = Has Been Reproduced
@@ -210,6 +211,7 @@ reproduction-checker-tag-outcome-cs-not-checked = Reproduction: Computationally 
 reproduction-checker-tag-outcome-ci-robust = Reproduction: Computational Issues, Robust
 reproduction-checker-tag-outcome-ci-challenges = Reproduction: Computational Issues, Robustness Challenges
 reproduction-checker-tag-outcome-ci-not-checked = Reproduction: Computational Issues, Robustness Not Checked
+reproduction-checker-tag-multiple-originals = Reproduction: Multiple Originals
 
 ## Reproduction Feature - Note Template
 reproduction-checker-note-title = Reproductions Found

@@ -136,13 +136,15 @@ describe("Collection Management", function () {
     }
   });
 
-  it("handles deleted collection gracefully", async function () {
+  it("handles deleted collection gracefully (stale pref ID)", async function () {
     const checker = getChecker();
     restoreHTTP = mockHTTP(createMockHTTPHandler(singleReplicationMatch));
 
     const libraryID = Zotero.Libraries.userLibraryID;
 
-    // Create and immediately delete a collection, but store its ID in prefs
+    // Create and immediately delete a collection, but store its ID in prefs.
+    // This simulates clearing Zotero preferences or a collection being removed
+    // externally (e.g. by another Zotero client via sync).
     const tempCol = new Zotero.Collection({
       libraryID,
       name: "Temporary Collection",
@@ -160,6 +162,13 @@ describe("Collection Management", function () {
 
     await tempCol.eraseTx();
 
+    // Verify the stale ID is no longer in getByLibrary output (the premise of the test)
+    const liveCollections = Zotero.Collections.getByLibrary(libraryID, true);
+    assert.isUndefined(
+      liveCollections.find((c: any) => c.id === tempColID),
+      "Deleted collection should not appear in getByLibrary output",
+    );
+
     // Now run the check — should create a new collection without crashing
     const original = await createTestItem(
       TEST_DOIS.originalA,
@@ -176,7 +185,7 @@ describe("Collection Management", function () {
       article.record.replications,
     );
 
-    // Verify a collection was created
+    // Verify a new collection was created
     const updatedCollections = Zotero.Collections.getByLibrary(libraryID, true);
     const repCollection = updatedCollections.find(
       (c: any) => c.name.includes("Replications") || c.name.includes("FLoRA"),
@@ -186,6 +195,15 @@ describe("Collection Management", function () {
       "New collection should be created after stale one was deleted",
     );
     if (repCollection) testCollections.push(repCollection);
+
+    // Verify the stale pref ID was cleaned up
+    const updatedPref = Zotero.Prefs.get("replication-checker.collectionIDs") as string;
+    const updatedMap = updatedPref ? JSON.parse(updatedPref) : {};
+    assert.notEqual(
+      updatedMap[String(libraryID)],
+      tempColID,
+      "Stale collection ID should have been removed from preferences",
+    );
 
     // Clean up replication items
     const search = new Zotero.Search({ libraryID });

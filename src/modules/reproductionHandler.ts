@@ -28,6 +28,7 @@ import {
   TAG_REPRO_CS_ROBUST, TAG_REPRO_CS_CHALLENGES, TAG_REPRO_CS_NOT_CHECKED,
   TAG_REPRO_CI_ROBUST, TAG_REPRO_CI_CHALLENGES, TAG_REPRO_CI_NOT_CHECKED,
   TAG_REPRODUCTION_MULTIPLE_ORIGINALS,
+  getTag, itemHasTag,
 } from "../utils/tags";
 
 const FEEDBACK_URL = "https://tinyurl.com/y5evebv9";
@@ -119,7 +120,7 @@ async function findOrRenameReproductionCollection(
 }
 
 /**
- * Map reproduction outcome to tag name (always English constants)
+ * Map reproduction outcome string to its FTL tag key.
  * Note: Include both "computionally" (typo in some API responses) and "computationally" (correct)
  */
 const REPRODUCTION_OUTCOME_TAGS: { [key: string]: string } = {
@@ -297,7 +298,7 @@ export class ReproductionHandler {
       }
 
       // Add "Has Reproduction" tag
-      await ZoteroIntegration.addTag(itemID, TAG_HAS_REPRODUCTION);
+      await ZoteroIntegration.addTag(itemID, getTag(TAG_HAS_REPRODUCTION));
 
       // Add outcome tags for each unique outcome
       const uniqueOutcomes = new Set<string>(
@@ -311,7 +312,7 @@ export class ReproductionHandler {
         Array.from(uniqueOutcomes).map((outcome) => {
           const tagKey = REPRODUCTION_OUTCOME_TAGS[outcome];
           if (tagKey) {
-            return ZoteroIntegration.addTag(itemID, tagKey);
+            return ZoteroIntegration.addTag(itemID, getTag(tagKey));
           }
           return Promise.resolve();
         })
@@ -512,7 +513,7 @@ export class ReproductionHandler {
           if (existingIDs.length === 0 && rep.title_rep) {
             const titleSearch = new Zotero.Search({ libraryID });
             titleSearch.addCondition("title", "is", rep.title_rep);
-            titleSearch.addCondition("tag", "is", TAG_IS_REPRODUCTION);
+            titleSearch.addCondition("tag", "is", getTag(TAG_IS_REPRODUCTION));
             existingIDs = await titleSearch.search();
           }
 
@@ -540,18 +541,18 @@ export class ReproductionHandler {
 
               // Add "Is Reproduction" and outcome/multiple-originals tags to existing item
               try {
-                existingItem.addTag(TAG_IS_REPRODUCTION);
+                existingItem.addTag(getTag(TAG_IS_REPRODUCTION));
                 const normDoi = doi_rep && this.matcher
                   ? this.matcher.normalizeDoi(doi_rep)
                   : doi_rep.toLowerCase();
                 const multipleOriginals = multipleOriginalsMap.get(normDoi);
                 if (multipleOriginals) {
-                  existingItem.addTag(TAG_REPRODUCTION_MULTIPLE_ORIGINALS);
+                  existingItem.addTag(getTag(TAG_REPRODUCTION_MULTIPLE_ORIGINALS));
                   itemsNeedingOriginalNotes.push({ itemID: existingID, originals: multipleOriginals });
                 } else if (rep.outcome) {
                   const outcomeKey = rep.outcome.toLowerCase().trim();
                   const tagKey = REPRODUCTION_OUTCOME_TAGS[outcomeKey];
-                  if (tagKey) existingItem.addTag(tagKey);
+                  if (tagKey) existingItem.addTag(getTag(tagKey));
                 }
                 await existingItem.save();
                 Zotero.debug(`[ReproductionHandler] Added tags to existing reproduction item ${existingID}`);
@@ -673,17 +674,17 @@ export class ReproductionHandler {
 
             // Add "Is Reproduction" and outcome/multiple-originals tags
             try {
-              newItem.addTag(TAG_IS_REPRODUCTION);
-              newItem.addTag(TAG_ADDED_BY_CHECKER);
+              newItem.addTag(getTag(TAG_IS_REPRODUCTION));
+              newItem.addTag(getTag(TAG_ADDED_BY_CHECKER));
 
               if (multipleOriginals) {
-                newItem.addTag(TAG_REPRODUCTION_MULTIPLE_ORIGINALS);
+                newItem.addTag(getTag(TAG_REPRODUCTION_MULTIPLE_ORIGINALS));
                 itemsNeedingOriginalNotes.push({ itemID: newItemID, originals: multipleOriginals });
               } else if (rep.outcome) {
                 const outcomeKey = rep.outcome.toLowerCase().trim();
                 const tagKey = REPRODUCTION_OUTCOME_TAGS[outcomeKey];
                 if (tagKey) {
-                  newItem.addTag(tagKey);
+                  newItem.addTag(getTag(tagKey));
                 }
               }
 
@@ -810,8 +811,8 @@ export class ReproductionHandler {
     try {
       // Filter for reproduction items only
       const reproductionItems = selectedItems.filter((item: Zotero.Item) =>
-        item.hasTag(TAG_IS_REPRODUCTION) ||
-        (item.hasTag(TAG_ADDED_BY_CHECKER) &&
+        itemHasTag(item, TAG_IS_REPRODUCTION) ||
+        (itemHasTag(item, TAG_ADDED_BY_CHECKER) &&
          item.getField("url")?.toString().includes("osf.io"))
       );
 
@@ -834,7 +835,7 @@ export class ReproductionHandler {
           const relatedKeys = item.relatedItems || [];
           for (const relatedKey of relatedKeys) {
             const relatedItem = Zotero.Items.getByLibraryAndKey(item.libraryID, relatedKey);
-            if (relatedItem && relatedItem.hasTag(TAG_HAS_REPRODUCTION)) {
+            if (relatedItem && itemHasTag(relatedItem, TAG_HAS_REPRODUCTION)) {
               originalTitle = relatedItem.getField("title") as string;
               originalDOI = ZoteroIntegration.extractDOI(relatedItem) || undefined;
 
@@ -976,9 +977,9 @@ export class ReproductionHandler {
             if (!copiedOriginal) continue;
 
             // Add tags to copied original
-            copiedOriginal.addTag(TAG_HAS_REPRODUCTION);
-            copiedOriginal.addTag(TAG_ADDED_BY_CHECKER);
-            copiedOriginal.addTag(TAG_READONLY_ORIGIN);
+            copiedOriginal.addTag(getTag(TAG_HAS_REPRODUCTION));
+            copiedOriginal.addTag(getTag(TAG_ADDED_BY_CHECKER));
+            copiedOriginal.addTag(getTag(TAG_READONLY_ORIGIN));
             await copiedOriginal.save();
 
             // Add original to the read-only library collection
@@ -1032,7 +1033,7 @@ export class ReproductionHandler {
               if (existingRepIDs.length === 0 && rep.title_rep) {
                 const titleSearch = new Zotero.Search({ libraryID: personalLibraryID });
                 titleSearch.addCondition("title", "is", rep.title_rep);
-                titleSearch.addCondition("tag", "is", TAG_IS_REPRODUCTION);
+                titleSearch.addCondition("tag", "is", getTag(TAG_IS_REPRODUCTION));
                 existingRepIDs = await titleSearch.search();
               }
 
@@ -1051,9 +1052,9 @@ export class ReproductionHandler {
               if (!reproductionItem) continue;
 
               // Add tags
-              reproductionItem.addTag(TAG_IS_REPRODUCTION);
-              reproductionItem.addTag(TAG_ADDED_BY_CHECKER);
-              reproductionItem.addTag(TAG_READONLY_ORIGIN);
+              reproductionItem.addTag(getTag(TAG_IS_REPRODUCTION));
+              reproductionItem.addTag(getTag(TAG_ADDED_BY_CHECKER));
+              reproductionItem.addTag(getTag(TAG_READONLY_ORIGIN));
 
               // Add outcome or multiple-originals tag
               const normRepDoi = doi_rep && this.matcher
@@ -1061,7 +1062,7 @@ export class ReproductionHandler {
                 : doi_rep.toLowerCase();
               const readOnlyMultipleOriginals = readOnlyMultipleOriginalsMap.get(normRepDoi);
               if (readOnlyMultipleOriginals) {
-                reproductionItem.addTag(TAG_REPRODUCTION_MULTIPLE_ORIGINALS);
+                reproductionItem.addTag(getTag(TAG_REPRODUCTION_MULTIPLE_ORIGINALS));
                 // Override extra set by createReproductionItemInLibrary
                 try { reproductionItem.setField("extra", "For more details read the Original Article."); } catch { /* field not valid */ }
                 itemsNeedingOriginalNotes.push({ itemID: reproductionItemID, originals: readOnlyMultipleOriginals });
@@ -1069,7 +1070,7 @@ export class ReproductionHandler {
                 const outcomeKey = rep.outcome.toLowerCase().trim();
                 const tagKey = REPRODUCTION_OUTCOME_TAGS[outcomeKey];
                 if (tagKey) {
-                  reproductionItem.addTag(tagKey);
+                  reproductionItem.addTag(getTag(tagKey));
                 }
               }
 

@@ -90,6 +90,7 @@ replication-checker-tag-added-by-checker = Adicionado pelo Replication Checker
 replication-checker-tag-success = Replicação: Bem-sucedida
 replication-checker-tag-failure = Replicação: Falhou
 replication-checker-tag-mixed = Replicação: Mista
+replication-checker-tag-multiple-originals = Replicação: Múltiplos originais
 replication-checker-tag-readonly-origin = Original presente em biblioteca só de leitura
 replication-checker-tag-has-been-replicated = Foi replicado
 replication-checker-tag-has-been-reproduced = Foi reproduzido
@@ -205,6 +206,7 @@ reproduction-checker-tag-outcome-cs-not-checked = Reprodução: Execução compu
 reproduction-checker-tag-outcome-ci-robust = Reprodução: Problemas computacionais, robusta
 reproduction-checker-tag-outcome-ci-challenges = Reprodução: Problemas computacionais, com desafios de robustez
 reproduction-checker-tag-outcome-ci-not-checked = Reprodução: Problemas computacionais, robustez não verificada
+reproduction-checker-tag-multiple-originals = Reprodução: Múltiplos originais
 
 ## Reproduction Feature - Note Template
 reproduction-checker-note-title = Reproduções encontradas

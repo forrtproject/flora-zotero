@@ -14,6 +14,7 @@ import {
   TAG_REPLICATION_MULTIPLE_ORIGINALS,
   TAG_READONLY_ORIGIN, TAG_HAS_BEEN_REPLICATED, TAG_HAS_BEEN_REPRODUCED,
   TAG_IN_FLORA, TAG_IS_REPRODUCTION, TAG_HAS_REPRODUCTION,
+  getTag, itemHasTag,
 } from "../utils/tags";
 import { blacklistManager } from "./blacklistManager";
 import { reproductionHandler } from "./reproductionHandler";
@@ -82,11 +83,15 @@ async function findOrRenameReplicationCollection(
   //    Zotero — the ID tracks the right collection regardless of its current name).
   //    If the name differs from the preference, the user renamed it manually in Zotero,
   //    so we update the preference to match rather than reverting their rename.
+  //    NOTE: We search within the `collections` array (from getByLibrary) rather than
+  //    calling Zotero.Collections.get() directly. getByLibrary only returns currently
+  //    active collections, so this avoids matching stale deleted objects that may still
+  //    linger in Zotero's in-memory cache.
   const storedIDs = getStoredReplicationCollectionIDs();
   const storedID = storedIDs[String(libraryID)];
   if (storedID) {
-    const byID = Zotero.Collections.get(storedID);
-    if (byID && byID.libraryID === libraryID) {
+    const byID = collections.find((c: any) => c.id === storedID);
+    if (byID) {
       if (byID.name !== targetName) {
         // Collection was manually renamed by the user in Zotero — respect that and
         // update the stored preference to match instead of reverting their change.
@@ -98,15 +103,25 @@ async function findOrRenameReplicationCollection(
       saveReplicationCollectionID(libraryID, byID.id);
       return byID;
     }
+    // Stored ID not found in active collections — it was deleted externally or from
+    // another Zotero client. Clear the stale pref so Step 3 / creation can take over.
+    Zotero.debug(
+      `[ReplicationChecker] Stored collection ID ${storedID} not found in library ${libraryID} — clearing stale pref`
+    );
+    const freshMap = getStoredReplicationCollectionIDs();
+    delete freshMap[String(libraryID)];
+    try { Zotero.Prefs.set(COLLECTION_IDS_PREF, JSON.stringify(freshMap)); } catch { /* ignore */ }
   }
 
   // 3. Fall back to default/legacy names so we can rename instead of creating a duplicate.
+  //    Excludes targetName from the search so we never try to rename a collection to its
+  //    own name (which would have been caught by Step 1 anyway).
   //    Also recognises "Replication folder" used by older plugin versions.
   const LEGACY_FOLDER_NAMES = [DEFAULT_FOLDER_NAME, "Replication folder"];
-  if (!LEGACY_FOLDER_NAMES.includes(targetName)) {
-    const old = collections.find((c: any) => LEGACY_FOLDER_NAMES.includes(c.name) && !c.parentID);
+  const fallbackNames = LEGACY_FOLDER_NAMES.filter((n) => n !== targetName);
+  for (const legacyName of fallbackNames) {
+    const old = collections.find((c: any) => c.name === legacyName && !c.parentID);
     if (old) {
-      const legacyName = old.name;
       old.name = targetName;
       await old.saveTx();
       saveReplicationCollectionID(libraryID, old.id);
@@ -1010,8 +1025,8 @@ export class ReplicationCheckerPlugin {
       const item = selectedItems[0];
 
       // Check if item has "Is Replication" or "Is Reproduction" tag
-      const isReplication = item.hasTag(TAG_IS_REPLICATION);
-      const isReproduction = item.hasTag(TAG_IS_REPRODUCTION);
+      const isReplication = itemHasTag(item, TAG_IS_REPLICATION);
+      const isReproduction = itemHasTag(item, TAG_IS_REPRODUCTION);
       if (!isReplication && !isReproduction) {
         this.showInfoAlert("replication-checker-alert-no-replications-selected");
         return;
@@ -1088,12 +1103,12 @@ export class ReplicationCheckerPlugin {
         if (!originalItem) continue;
 
         // Add tags to original
-        await ZoteroIntegration.addTag(originalItemID, TAG_HAS_BEEN_REPLICATED);
-        await ZoteroIntegration.addTag(originalItemID, TAG_IN_FLORA);
+        await ZoteroIntegration.addTag(originalItemID, getTag(TAG_HAS_BEEN_REPLICATED));
+        await ZoteroIntegration.addTag(originalItemID, getTag(TAG_IN_FLORA));
 
         // Add "Added by Replication Checker" tag only for newly created items
         if (isNewItem) {
-          await ZoteroIntegration.addTag(originalItemID, TAG_ADDED_BY_CHECKER);
+          await ZoteroIntegration.addTag(originalItemID, getTag(TAG_ADDED_BY_CHECKER));
         }
 
         // Create bidirectional relationship
@@ -1143,9 +1158,9 @@ export class ReplicationCheckerPlugin {
 
       // Filter for replication or reproduction items
       const itemsToBan = selectedItems.filter((item: Zotero.Item) =>
-        item.hasTag(TAG_IS_REPLICATION) ||
-        item.hasTag(TAG_IS_REPRODUCTION) ||
-        item.hasTag(TAG_ADDED_BY_CHECKER)
+        itemHasTag(item, TAG_IS_REPLICATION) ||
+        itemHasTag(item, TAG_IS_REPRODUCTION) ||
+        itemHasTag(item, TAG_ADDED_BY_CHECKER)
       );
 
       if (itemsToBan.length === 0) {
@@ -1175,7 +1190,7 @@ export class ReplicationCheckerPlugin {
         const url = item.getField("url")?.toString() || "";
 
         // Determine if this is a replication or reproduction
-        const isReproduction = item.hasTag(TAG_IS_REPRODUCTION);
+        const isReproduction = itemHasTag(item, TAG_IS_REPRODUCTION);
         const entryType = isReproduction ? 'reproduction' : 'replication';
 
         // Get original paper info from related items
@@ -1187,7 +1202,7 @@ export class ReplicationCheckerPlugin {
           for (const relatedKey of relatedKeys) {
             // Convert item key to item object
             const relatedItem = Zotero.Items.getByLibraryAndKey(item.libraryID, relatedKey);
-            if (relatedItem && (relatedItem.hasTag(TAG_HAS_REPLICATION) || relatedItem.hasTag(TAG_HAS_REPRODUCTION))) {
+            if (relatedItem && (itemHasTag(relatedItem, TAG_HAS_REPLICATION) || itemHasTag(relatedItem, TAG_HAS_REPRODUCTION))) {
               originalTitle = relatedItem.getField("title") as string;
               originalDOI = ZoteroIntegration.extractDOI(relatedItem) || undefined;
 
@@ -1266,13 +1281,13 @@ export class ReplicationCheckerPlugin {
       }
 
       // Tag the current item as "Is Replication"
-      await ZoteroIntegration.addTag(itemID, TAG_IS_REPLICATION);
-      await ZoteroIntegration.addTag(itemID, TAG_IN_FLORA);
+      await ZoteroIntegration.addTag(itemID, getTag(TAG_IS_REPLICATION));
+      await ZoteroIntegration.addTag(itemID, getTag(TAG_IN_FLORA));
       Zotero.debug(`[ReplicationChecker] Tagged item ${itemID} as "Is Replication"`);
 
       // Add outcome tag — if multiple originals, use special "Multiple Originals" tag
       if (result.originals.length > 1) {
-        await ZoteroIntegration.addTag(itemID, TAG_REPLICATION_MULTIPLE_ORIGINALS);
+        await ZoteroIntegration.addTag(itemID, getTag(TAG_REPLICATION_MULTIPLE_ORIGINALS));
         Zotero.debug(`[ReplicationChecker] Tagged item ${itemID} as "Replication: Multiple Originals"`);
         // Enrich originals with outcomes then create "Original Articles" note
         const enrichedItems = await this.enrichOriginalsWithOutcomes([{ itemID, originals: result.originals }]);
@@ -1285,11 +1300,11 @@ export class ReplicationCheckerPlugin {
           const allSuccessful = outcomes.every((o) => o === "successful" || o === "success");
           const allFailure = outcomes.every((o) => o === "failure" || o === "failed");
           if (allSuccessful) {
-            await ZoteroIntegration.addTag(itemID, TAG_REPLICATION_SUCCESS);
+            await ZoteroIntegration.addTag(itemID, getTag(TAG_REPLICATION_SUCCESS));
           } else if (allFailure) {
-            await ZoteroIntegration.addTag(itemID, TAG_REPLICATION_FAILURE);
+            await ZoteroIntegration.addTag(itemID, getTag(TAG_REPLICATION_FAILURE));
           } else {
-            await ZoteroIntegration.addTag(itemID, TAG_REPLICATION_MIXED);
+            await ZoteroIntegration.addTag(itemID, getTag(TAG_REPLICATION_MIXED));
           }
           Zotero.debug(`[ReplicationChecker] Added outcome tag to replication item ${itemID}`);
         }
@@ -1322,8 +1337,8 @@ export class ReplicationCheckerPlugin {
         if (!originalItem) continue;
 
         // Add tags to original
-        await ZoteroIntegration.addTag(originalItemID, TAG_HAS_BEEN_REPLICATED);
-        await ZoteroIntegration.addTag(originalItemID, TAG_IN_FLORA);
+        await ZoteroIntegration.addTag(originalItemID, getTag(TAG_HAS_BEEN_REPLICATED));
+        await ZoteroIntegration.addTag(originalItemID, getTag(TAG_IN_FLORA));
 
         // Create bidirectional relationship
         item.addRelatedItem(originalItem);
@@ -1437,23 +1452,23 @@ export class ReplicationCheckerPlugin {
       Zotero.debug(`[ReplicationChecker] Processing article in FLoRA: ${result.doi}`);
 
       // Tag the item as being in FLoRA
-      await ZoteroIntegration.addTag(itemID, TAG_IN_FLORA);
+      await ZoteroIntegration.addTag(itemID, getTag(TAG_IN_FLORA));
 
       // If this article has been replicated (has replications)
       if (result.replications.length > 0) {
-        await ZoteroIntegration.addTag(itemID, TAG_HAS_BEEN_REPLICATED);
+        await ZoteroIntegration.addTag(itemID, getTag(TAG_HAS_BEEN_REPLICATED));
         Zotero.debug(`[ReplicationChecker] Tagged ${result.doi} as "Has Been Replicated" (${result.replications.length} replications)`);
       }
 
       // If this article has been reproduced (has reproductions)
       if (result.reproductions.length > 0) {
-        await ZoteroIntegration.addTag(itemID, TAG_HAS_BEEN_REPRODUCED);
+        await ZoteroIntegration.addTag(itemID, getTag(TAG_HAS_BEEN_REPRODUCED));
         Zotero.debug(`[ReplicationChecker] Tagged ${result.doi} as "Has Been Reproduced" (${result.reproductions.length} reproductions)`);
       }
 
       // If this article is a replication of other studies (has originals)
       if (result.originals.length > 0) {
-        await ZoteroIntegration.addTag(itemID, TAG_IS_REPLICATION);
+        await ZoteroIntegration.addTag(itemID, getTag(TAG_IS_REPLICATION));
         Zotero.debug(`[ReplicationChecker] Tagged ${result.doi} as "Is Replication" (replicates ${result.originals.length} studies)`);
       }
 
@@ -1569,7 +1584,7 @@ export class ReplicationCheckerPlugin {
       }
 
       // Add "Has Replication" tag
-      await ZoteroIntegration.addTag(itemID, TAG_HAS_REPLICATION);
+      await ZoteroIntegration.addTag(itemID, getTag(TAG_HAS_REPLICATION));
 
       // Add outcome tags
       const outcomeTags: { [key: string]: string } = {
@@ -1592,7 +1607,7 @@ export class ReplicationCheckerPlugin {
       await Promise.all(
         Array.from(uniqueOutcomes).map((outcome) => {
           const label = outcomeTags[outcome];
-          return label ? ZoteroIntegration.addTag(itemID, label) : Promise.resolve();
+          return label ? ZoteroIntegration.addTag(itemID, getTag(label)) : Promise.resolve();
         })
       );
 
@@ -1798,7 +1813,7 @@ export class ReplicationCheckerPlugin {
           if (existingIDs.length === 0 && rep.title_r) {
             const titleSearch = new Zotero.Search({ libraryID });
             titleSearch.addCondition("title", "is", rep.title_r);
-            titleSearch.addCondition("tag", "is", TAG_IS_REPLICATION);
+            titleSearch.addCondition("tag", "is", getTag(TAG_IS_REPLICATION));
             existingIDs = await titleSearch.search();
           }
 
@@ -1828,22 +1843,22 @@ export class ReplicationCheckerPlugin {
 
               // Add "Is Replication", "Added by Replication Checker", and outcome/multiple-originals tags
               try {
-                existingItem.addTag(TAG_IS_REPLICATION);
-                existingItem.addTag(TAG_ADDED_BY_CHECKER);
+                existingItem.addTag(getTag(TAG_IS_REPLICATION));
+                existingItem.addTag(getTag(TAG_ADDED_BY_CHECKER));
 
                 const normDoi = this.matcher ? this.matcher.normalizeDoi(doi_r) : doi_r.toLowerCase();
                 const multipleOriginals = multipleOriginalsMap.get(normDoi);
                 if (multipleOriginals) {
-                  existingItem.addTag(TAG_REPLICATION_MULTIPLE_ORIGINALS);
+                  existingItem.addTag(getTag(TAG_REPLICATION_MULTIPLE_ORIGINALS));
                   itemsNeedingOriginalNotes.push({ itemID: existingID, originals: multipleOriginals });
                 } else if (rep.outcome) {
                   const outcomeLower = rep.outcome.toLowerCase().trim();
                   if (outcomeLower === "successful" || outcomeLower === "success") {
-                    existingItem.addTag(TAG_REPLICATION_SUCCESS);
+                    existingItem.addTag(getTag(TAG_REPLICATION_SUCCESS));
                   } else if (outcomeLower === "failure" || outcomeLower === "failed") {
-                    existingItem.addTag(TAG_REPLICATION_FAILURE);
+                    existingItem.addTag(getTag(TAG_REPLICATION_FAILURE));
                   } else if (outcomeLower === "mixed") {
-                    existingItem.addTag(TAG_REPLICATION_MIXED);
+                    existingItem.addTag(getTag(TAG_REPLICATION_MIXED));
                   }
                 }
 
@@ -1985,20 +2000,20 @@ export class ReplicationCheckerPlugin {
 
             // Add "Is Replication", "Added by Replication Checker", and outcome/multiple-originals tags
             try {
-              newItem.addTag(TAG_IS_REPLICATION);
-              newItem.addTag(TAG_ADDED_BY_CHECKER);
+              newItem.addTag(getTag(TAG_IS_REPLICATION));
+              newItem.addTag(getTag(TAG_ADDED_BY_CHECKER));
 
               if (multipleOriginals) {
-                newItem.addTag(TAG_REPLICATION_MULTIPLE_ORIGINALS);
+                newItem.addTag(getTag(TAG_REPLICATION_MULTIPLE_ORIGINALS));
                 itemsNeedingOriginalNotes.push({ itemID: newItemID, originals: multipleOriginals });
               } else if (rep.outcome) {
                 const outcomeLower = rep.outcome.toLowerCase().trim();
                 if (outcomeLower === "successful" || outcomeLower === "success") {
-                  newItem.addTag(TAG_REPLICATION_SUCCESS);
+                  newItem.addTag(getTag(TAG_REPLICATION_SUCCESS));
                 } else if (outcomeLower === "failure" || outcomeLower === "failed") {
-                  newItem.addTag(TAG_REPLICATION_FAILURE);
+                  newItem.addTag(getTag(TAG_REPLICATION_FAILURE));
                 } else if (outcomeLower === "mixed") {
-                  newItem.addTag(TAG_REPLICATION_MIXED);
+                  newItem.addTag(getTag(TAG_REPLICATION_MIXED));
                 }
               }
 
@@ -2572,9 +2587,9 @@ export class ReplicationCheckerPlugin {
             const copiedOriginal = await Zotero.Items.getAsync(copiedOriginalID);
 
             // Add tags to copied original
-            copiedOriginal.addTag(TAG_HAS_REPLICATION);
-            copiedOriginal.addTag(TAG_ADDED_BY_CHECKER);
-            copiedOriginal.addTag(TAG_READONLY_ORIGIN);
+            copiedOriginal.addTag(getTag(TAG_HAS_REPLICATION));
+            copiedOriginal.addTag(getTag(TAG_ADDED_BY_CHECKER));
+            copiedOriginal.addTag(getTag(TAG_READONLY_ORIGIN));
             await copiedOriginal.save();
 
             // Add original to the read-only library collection (not to replication folder)
@@ -2637,7 +2652,7 @@ export class ReplicationCheckerPlugin {
               if (existingRepIDs.length === 0 && rep.title_r) {
                 const titleSearch = new Zotero.Search({ libraryID: personalLibraryID });
                 titleSearch.addCondition("title", "is", rep.title_r);
-                titleSearch.addCondition("tag", "is", TAG_IS_REPLICATION);
+                titleSearch.addCondition("tag", "is", getTag(TAG_IS_REPLICATION));
                 existingRepIDs = await titleSearch.search();
               }
 
@@ -2655,15 +2670,15 @@ export class ReplicationCheckerPlugin {
               const replicationItem = await Zotero.Items.getAsync(replicationItemID);
 
               // Add tags
-              replicationItem.addTag(TAG_IS_REPLICATION);
-              replicationItem.addTag(TAG_ADDED_BY_CHECKER);
-              replicationItem.addTag(TAG_READONLY_ORIGIN);
+              replicationItem.addTag(getTag(TAG_IS_REPLICATION));
+              replicationItem.addTag(getTag(TAG_ADDED_BY_CHECKER));
+              replicationItem.addTag(getTag(TAG_READONLY_ORIGIN));
 
               // Add outcome or multiple-originals tag
               const normRepDoi = this.matcher ? this.matcher.normalizeDoi(doi_r) : doi_r.toLowerCase();
               const readOnlyMultipleOriginals = readOnlyMultipleOriginalsMap.get(normRepDoi);
               if (readOnlyMultipleOriginals) {
-                replicationItem.addTag(TAG_REPLICATION_MULTIPLE_ORIGINALS);
+                replicationItem.addTag(getTag(TAG_REPLICATION_MULTIPLE_ORIGINALS));
                 // Override extra set by createReplicationItemInLibrary
                 try { replicationItem.setField("extra", "For more details read the Original Article."); } catch { /* field not valid */ }
                 itemsNeedingOriginalNotes.push({ itemID: replicationItemID, originals: readOnlyMultipleOriginals });
@@ -2675,7 +2690,7 @@ export class ReplicationCheckerPlugin {
                   mixed: TAG_REPLICATION_MIXED,
                 };
                 if (outcomeTags[outcomeKey]) {
-                  replicationItem.addTag(outcomeTags[outcomeKey]);
+                  replicationItem.addTag(getTag(outcomeTags[outcomeKey]));
                 }
               }
 
