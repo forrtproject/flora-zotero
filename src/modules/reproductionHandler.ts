@@ -8,11 +8,20 @@
  * - Banning reproductions
  */
 
-import type { RelatedStudy, DOICheckResult } from "../types/replication";
+import type { RelatedStudy } from "../types/replication";
 import type { BatchMatcher } from "./batchMatcher";
 import * as ZoteroIntegration from "../utils/zoteroIntegration";
 import { blacklistManager } from "./blacklistManager";
 import { getString } from "../utils/strings";
+import {
+  buildMultipleOriginalsMap as sharedBuildMultipleOriginalsMap,
+  enrichOriginalsWithOutcomes as sharedEnrichOriginalsWithOutcomes,
+  createOriginalArticlesNoteHtml as sharedCreateOriginalArticlesNoteHtml,
+  addOriginalArticlesNote as sharedAddOriginalArticlesNote,
+  escapeHtml,
+  parseAuthors,
+  copyItemToLibrary,
+} from "../utils/studyUtils";
 import {
   TAG_HAS_REPRODUCTION, TAG_IS_REPRODUCTION, TAG_ADDED_BY_CHECKER,
   TAG_READONLY_ORIGIN,
@@ -156,156 +165,34 @@ export class ReproductionHandler {
    * Batch-check DOIs and return map of normalized DOI → originals[]
    * for entries where originals.length > 1.
    */
-  private async buildMultipleOriginalsMap(dois: string[]): Promise<Map<string, RelatedStudy[]>> {
-    const map = new Map<string, RelatedStudy[]>();
-    if (!this.matcher || dois.length === 0) return map;
-    const validDois = dois.filter((d) => d && d.startsWith("10."));
-    if (validDois.length === 0) return map;
-    try {
-      const results = await this.matcher.checkBatch(validDois);
-      for (const result of results) {
-        if (result.originals.length > 1) {
-          map.set(result.doi, result.originals);
-        }
-      }
-    } catch (e) {
-      Zotero.debug(`[ReproductionHandler] buildMultipleOriginalsMap failed: ${e}`);
-    }
-    return map;
+  private async buildMultipleOriginalsMap(
+    dois: string[],
+  ): Promise<Map<string, RelatedStudy[]>> {
+    if (!this.matcher) return new Map();
+    return sharedBuildMultipleOriginalsMap(this.matcher, dois, "[ReproductionHandler]");
   }
 
-  /**
-   * Enrich a batch of {itemID, originals} entries with per-original outcomes.
-   *
-   * Checks each ORIGINAL's DOI via the API and locates the reproduction item
-   * (by DOI) inside result.reproductions to read the recorded outcome.
-   * All original DOIs are sent in ONE batch call so no extra latency is added
-   * to the main item-creation flow.
-   */
   private async enrichOriginalsWithOutcomes(
-    items: Array<{ itemID: number; originals: RelatedStudy[] }>
+    items: Array<{ itemID: number; originals: RelatedStudy[] }>,
   ): Promise<Array<{ itemID: number; originals: RelatedStudy[] }>> {
-    if (!this.matcher || items.length === 0) return items;
-    const matcher = this.matcher;
-
-    // 1. Collect unique original DOIs across all entries
-    const uniqueOriginalDois = [...new Set(
-      items
-        .flatMap(({ originals }) => originals.map(o => (o.doi || "").trim()))
-        .filter(d => d.startsWith("10."))
-    )];
-    if (uniqueOriginalDois.length === 0) return items;
-
-    // 2. Resolve reproduction DOI for each entry (from the saved Zotero item)
-    const repDoisMap = new Map<number, string>();
-    for (const { itemID } of items) {
-      const repItem = await Zotero.Items.getAsync(itemID);
-      if (!repItem) continue;
-      const rawDoi = ZoteroIntegration.extractDOI(repItem);
-      const normDoi = rawDoi != null ? matcher.normalizeDoi(rawDoi) : null;
-      if (normDoi) repDoisMap.set(itemID, normDoi);
-    }
-
-    // 3. ONE batch API call for all original DOIs
-    let originalResults: DOICheckResult[] = [];
-    try {
-      originalResults = await matcher.checkBatch(uniqueOriginalDois);
-    } catch (e) {
-      Zotero.debug(`[ReproductionHandler] enrichOriginalsWithOutcomes batch check failed: ${e}`);
-      return items;
-    }
-
-    // 4. Build lookup: normOrigDoi → { normRepDoi → outcome }
-    //    Outcome lives on result.reproductions (not .replications) for reproductions
-    const outcomeIndex = new Map<string, Map<string, string>>();
-    for (const result of originalResults) {
-      const byRep = new Map<string, string>();
-      for (const rep of result.reproductions) {
-        const normRepDoi = matcher.normalizeDoi(rep.doi || "");
-        if (normRepDoi && rep.outcome) byRep.set(normRepDoi, rep.outcome);
-      }
-      if (byRep.size > 0) outcomeIndex.set(result.doi, byRep);
-    }
-
-    // 5. Enrich each entry
-    return items.map(({ itemID, originals }) => {
-      const normRepDoi = repDoisMap.get(itemID);
-      if (!normRepDoi) return { itemID, originals };
-      const enrichedOriginals = originals.map(orig => {
-        const normOrigDoi = orig.doi ? matcher.normalizeDoi(orig.doi) : "";
-        if (!normOrigDoi) return orig;
-        const outcome = outcomeIndex.get(normOrigDoi)?.get(normRepDoi);
-        return outcome ? { ...orig, outcome } : orig;
-      });
-      return { itemID, originals: enrichedOriginals };
-    });
+    if (!this.matcher) return items;
+    return sharedEnrichOriginalsWithOutcomes(this.matcher, items, "reproductions", "[ReproductionHandler]");
   }
 
-  /**
-   * Build HTML for the "Original Articles" note on a reproduction item
-   * that reproduced multiple originals.
-   */
   private createOriginalArticlesNoteHtml(originals: RelatedStudy[]): string {
-    const warning = "*This note is automatically generated. If you edit it, a new note will be created on the next check and this version will be kept as-is.*";
-    const feedbackHtml = getString("replication-checker-note-feedback", { url: FEEDBACK_URL });
-    const dataIssuesHtml = getString("replication-checker-note-data-issues", { url: DATA_ISSUES_URL });
-    const footer = this.escapeHtml(getString("replication-checker-note-footer"));
-
-    let html = "<h2>Original Articles</h2>";
-    html += `<i>${this.escapeHtml(warning)}</i><br>`;
-    html += "<p>This study has multiple original articles</p>";
-    html += "<ul>";
-    for (const orig of originals) {
-      html += "<li>";
-      html += `<strong>${this.escapeHtml(orig.title || "Unknown Title")}</strong><br>`;
-      if (orig.doi && orig.doi.startsWith("10.")) {
-        html += `DOI: <a href="https://doi.org/${this.escapeHtml(orig.doi)}">${this.escapeHtml(orig.doi)}</a><br>`;
-      }
-      const outcomeText = orig.outcome
-        ? orig.outcome.charAt(0).toUpperCase() + orig.outcome.slice(1)
-        : "N/A";
-      html += `Reproduction: <strong>${this.escapeHtml(outcomeText)}</strong><br>`;
-      html += "</li>";
-    }
-    html += "</ul>";
-    html += `
-      <hr/>
-      <div style="padding:10px; border-radius:5px; margin-top:15px;">
-        <p><strong>${feedbackHtml}</strong></p>
-        <p><strong>${dataIssuesHtml}</strong></p>
-      </div>
-    `;
-    html += `<p><small>${footer}</small></p>`;
-    return html;
+    return sharedCreateOriginalArticlesNoteHtml(originals, "Reproduction", FEEDBACK_URL, DATA_ISSUES_URL);
   }
 
-  /**
-   * Add "Original Articles" note to a reproduction item that has multiple originals.
-   * Skips creation if the note already exists (keeps user edits as-is).
-   */
-  private async addOriginalArticlesNote(itemID: number, originals: RelatedStudy[]): Promise<void> {
-    try {
-      const item = await Zotero.Items.getAsync(itemID);
-      if (!item) return;
-      const HEADING = "<h2>Original Articles</h2>";
-      const noteIDs = item.getNotes();
-      for (const noteID of noteIDs) {
-        const note = await Zotero.Items.getAsync(noteID);
-        if (!note) continue;
-        if (note.getNote().startsWith(HEADING)) {
-          return; // Already exists — keep as-is
-        }
-      }
-      const noteHTML = this.createOriginalArticlesNoteHtml(originals);
-      await ZoteroIntegration.addNote(itemID, noteHTML);
-      Zotero.debug(`[ReproductionHandler] Created Original Articles note for item ${itemID}`);
-    } catch (error) {
-      Zotero.logError(new Error(
-        `Error adding Original Articles note to item ${itemID}: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      ));
-    }
+  private async addOriginalArticlesNote(
+    itemID: number,
+    originals: RelatedStudy[],
+  ): Promise<void> {
+    return sharedAddOriginalArticlesNote(
+      itemID,
+      originals,
+      (o) => this.createOriginalArticlesNoteHtml(o),
+      "[ReproductionHandler]",
+    );
   }
 
   /**
@@ -838,7 +725,7 @@ export class ReproductionHandler {
    * Get the note heading HTML for reproduction notes
    */
   private getNoteHeadingHtml(): string {
-    return `<h2>${this.escapeHtml(getString("reproduction-checker-note-title"))}</h2>`;
+    return `<h2>${escapeHtml(getString("reproduction-checker-note-title"))}</h2>`;
   }
 
   /**
@@ -850,33 +737,33 @@ export class ReproductionHandler {
     const journal = rep.journal_rep || getString("reproduction-checker-li-no-journal");
     const doiValue = rep.doi_rep || "";
     const urlValue = rep.url_rep || "";
-    const doiLabel = this.escapeHtml(getString("reproduction-checker-li-doi-label"));
-    const outcomeLabel = this.escapeHtml(getString("reproduction-checker-li-outcome"));
-    const linkLabel = this.escapeHtml(getString("reproduction-checker-li-link"));
+    const doiLabel = escapeHtml(getString("reproduction-checker-li-doi-label"));
+    const outcomeLabel = escapeHtml(getString("reproduction-checker-li-outcome"));
+    const linkLabel = escapeHtml(getString("reproduction-checker-li-link"));
 
     let li = "<li>";
-    li += `<strong>${this.escapeHtml(title)}</strong><br>`;
-    li += `${this.parseAuthors(rep.author_rep)} (${this.escapeHtml(year)})<br>`;
+    li += `<strong>${escapeHtml(title)}</strong><br>`;
+    li += `${parseAuthors(rep.author_rep, "reproduction-checker-li-no-authors")} (${escapeHtml(year)})<br>`;
 
     if (journal && journal !== getString("reproduction-checker-li-no-journal")) {
-      li += `<em>${this.escapeHtml(journal)}</em><br>`;
+      li += `<em>${escapeHtml(journal)}</em><br>`;
     }
 
     if (doiValue && doiValue.startsWith("10.")) {
-      li += `${doiLabel} <a href="https://doi.org/${this.escapeHtml(doiValue)}">${this.escapeHtml(doiValue)}</a><br>`;
+      li += `${doiLabel} <a href="https://doi.org/${escapeHtml(doiValue)}">${escapeHtml(doiValue)}</a><br>`;
     }
 
     if (rep.outcome) {
-      li += `${outcomeLabel} <strong>${this.escapeHtml(rep.outcome)}</strong><br>`;
+      li += `${outcomeLabel} <strong>${escapeHtml(rep.outcome)}</strong><br>`;
     }
 
     if (rep.outcome_quote) {
-      li += `<em>"${this.escapeHtml(rep.outcome_quote)}"</em><br>`;
+      li += `<em>"${escapeHtml(rep.outcome_quote)}"</em><br>`;
     }
 
     // Show URL link
     if (urlValue && urlValue.startsWith("http")) {
-      li += `${linkLabel} <a href="${this.escapeHtml(urlValue)}" target="_blank">${this.escapeHtml(urlValue)}</a><br>`;
+      li += `${linkLabel} <a href="${escapeHtml(urlValue)}" target="_blank">${escapeHtml(urlValue)}</a><br>`;
     }
 
     li += "</li>";
@@ -887,11 +774,11 @@ export class ReproductionHandler {
    * Format reproduction data as HTML note
    */
   private createReproductionNote(reproductions: any[]): string {
-    const warning = this.escapeHtml(getString("reproduction-checker-note-warning"));
-    const intro = this.escapeHtml(getString("reproduction-checker-note-intro"));
+    const warning = escapeHtml(getString("reproduction-checker-note-warning"));
+    const intro = escapeHtml(getString("reproduction-checker-note-intro"));
     const feedbackHtml = getString("reproduction-checker-note-feedback", { url: FEEDBACK_URL });
     const dataIssuesHtml = getString("reproduction-checker-note-data-issues", { url: DATA_ISSUES_URL });
-    const footer = this.escapeHtml(getString("reproduction-checker-note-footer"));
+    const footer = escapeHtml(getString("reproduction-checker-note-footer"));
 
     let html = this.getNoteHeadingHtml();
     html += `<i>${warning}</i><br>`;
@@ -915,36 +802,6 @@ export class ReproductionHandler {
   /**
    * Escape HTML to prevent XSS
    */
-  private escapeHtml(text: any): string {
-    if (!text) return "";
-    return String(text)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  /**
-   * Parse authors array into formatted string
-   */
-  private parseAuthors(authors: any): string {
-    if (!authors || !Array.isArray(authors) || authors.length === 0) {
-      return getString("reproduction-checker-li-no-authors");
-    }
-
-    const authorStrings = authors.map((author: any) => {
-      const initial = author.given ? author.given.split(" ").map((part: string) => part[0] + ".").join(" ") : "";
-      return `${author.family}, ${initial}`;
-    });
-
-    return (
-      authorStrings.slice(0, -1).join(", ") +
-      (authorStrings.length > 1 ? " & " : "") +
-      authorStrings.slice(-1)
-    );
-  }
-
   /**
    * Ban selected reproduction items
    * Moves items to trash and adds to blacklist
@@ -1105,12 +962,12 @@ export class ReproductionHandler {
                 // Track item so auto-check doesn't trigger dialogs
                 this.pluginAddedItems.add(copiedOriginalID);
               } else {
-                copiedOriginalID = await this.copyItemToLibrary(originalItemID, personalLibraryID);
+                copiedOriginalID = await copyItemToLibrary(originalItemID, personalLibraryID, "[ReproductionHandler]");
                 // Track item so auto-check doesn't trigger dialogs
                 this.pluginAddedItems.add(copiedOriginalID);
               }
             } else {
-              copiedOriginalID = await this.copyItemToLibrary(originalItemID, personalLibraryID);
+              copiedOriginalID = await copyItemToLibrary(originalItemID, personalLibraryID, "[ReproductionHandler]");
               // Track item so auto-check doesn't trigger dialogs
               this.pluginAddedItems.add(copiedOriginalID);
             }
@@ -1281,36 +1138,6 @@ export class ReproductionHandler {
       ));
       throw error;
     }
-  }
-
-  /**
-   * Copy an item to another library
-   */
-  private async copyItemToLibrary(sourceItemID: number, targetLibraryID: number): Promise<number> {
-    const sourceItem = await Zotero.Items.getAsync(sourceItemID);
-    if (!sourceItem) throw new Error(`Source item ${sourceItemID} not found`);
-
-    const newItem = new Zotero.Item(sourceItem.itemType as any);
-    (newItem as Zotero.Item & { libraryID: number }).libraryID = targetLibraryID;
-
-    // Copy all used fields
-    const fields = sourceItem.getUsedFields();
-    for (const field of fields) {
-      const value = sourceItem.getField(field);
-      if (value) {
-        newItem.setField(field, value);
-      }
-    }
-
-    // Copy creators
-    const creators = sourceItem.getCreators();
-    if (creators.length > 0) {
-      newItem.setCreators(creators);
-    }
-
-    const newItemID = await newItem.save() as number;
-    Zotero.debug(`[ReproductionHandler] Copied item ${sourceItemID} to library ${targetLibraryID} as ${newItemID}`);
-    return newItemID;
   }
 
   /**

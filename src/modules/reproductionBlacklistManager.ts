@@ -1,155 +1,30 @@
 /**
  * Reproduction Blacklist Manager
- * Manages banned reproduction items that should not be re-added during checks
+ * Manages banned reproduction items that should not be re-added during checks.
+ *
+ * Extends BaseBlacklistManager with URL-first deduplication (reproductions
+ * often lack DOIs) and URL-only removal.
  */
 
 import type {
   ReproductionBlacklistEntry,
   ReproductionBlacklistData,
 } from "../types/replication";
-import { normalizeDoi } from "../utils/doi";
+import { BaseBlacklistManager } from "./baseBlacklistManager";
 
 const REPRODUCTION_BLACKLIST_PREF = "replication-checker.reproductionBlacklist";
 
-/**
- * Manages the blacklist of banned reproduction items
- * Provides persistence via Zotero preferences and fast URL/DOI lookup
- */
-class ReproductionBlacklistManager {
-  private blacklist: ReproductionBlacklistData = { version: 1, entries: [] };
-  private urlIndex: Set<string> = new Set();
-  private doiIndex: Set<string> = new Set();
-  private initialized: boolean = false;
-
-  /**
-   * Initialize the reproduction blacklist manager
-   * Loads blacklist from preferences and builds index
-   */
-  async init(): Promise<void> {
-    if (this.initialized) {
-      Zotero.debug("ReproductionBlacklistManager: Already initialized");
-      return;
-    }
-
-    try {
-      const prefValue = Zotero.Prefs.get(REPRODUCTION_BLACKLIST_PREF);
-
-      if (!prefValue || typeof prefValue !== "string" || prefValue === "") {
-        Zotero.debug(
-          "ReproductionBlacklistManager: No existing blacklist, initializing empty",
-        );
-        this.blacklist = { version: 1, entries: [] };
-        this.initialized = true;
-        return;
-      }
-
-      this.blacklist = JSON.parse(prefValue as string);
-
-      // Validate structure
-      if (!this.blacklist.entries || !Array.isArray(this.blacklist.entries)) {
-        throw new Error("Invalid blacklist structure: entries is not an array");
-      }
-
-      if (typeof this.blacklist.version !== "number") {
-        throw new Error("Invalid blacklist structure: version is not a number");
-      }
-
-      Zotero.debug(
-        `ReproductionBlacklistManager: Loaded ${this.blacklist.entries.length} blacklisted entries`,
-      );
-    } catch (error) {
-      Zotero.logError(
-        new Error(
-          `ReproductionBlacklistManager: Blacklist corrupted, resetting: ${
-            error instanceof Error ? error.message : String(error)
-          }`,
-        ),
-      );
-      this.blacklist = { version: 1, entries: [] };
-      await this.saveBlacklist();
-    }
-
-    // Build indexes for O(1) lookup
-    this.rebuildIndex();
-    this.initialized = true;
+class ReproductionBlacklistManager extends BaseBlacklistManager<ReproductionBlacklistEntry> {
+  constructor() {
+    super(REPRODUCTION_BLACKLIST_PREF, 1, "ReproductionBlacklistManager");
   }
 
-  /**
-   * Rebuild the URL and DOI indexes from current entries
-   */
-  private rebuildIndex(): void {
-    this.urlIndex.clear();
-    this.doiIndex.clear();
-    for (const entry of this.blacklist.entries) {
-      // Index by URL (primary identifier for reproductions)
-      const normalizedUrl = this.normalizeUrl(entry.url);
-      if (normalizedUrl) {
-        this.urlIndex.add(normalizedUrl);
-      }
-      // Also index by DOI if available
-      const normalizedDoi = this.normalizeDOI(entry.doi);
-      if (normalizedDoi) {
-        this.doiIndex.add(normalizedDoi);
-      }
-    }
-    Zotero.debug(
-      `ReproductionBlacklistManager: Index rebuilt with ${this.urlIndex.size} URLs and ${this.doiIndex.size} DOIs`,
-    );
-  }
-
-  /**
-   * Normalize URL for consistent comparison
-   */
-  private normalizeUrl(url: string | null | undefined): string | null {
-    if (!url) return null;
-
-    let normalized = String(url).trim().toLowerCase();
-
-    // Remove trailing slashes
-    normalized = normalized.replace(/\/+$/, "");
-
-    return normalized || null;
-  }
-
-  /**
-   * Normalize DOI for consistent comparison
-   * Delegates to shared normalizeDoi utility
-   */
-  private normalizeDOI(doi: string | null | undefined): string | null {
-    return normalizeDoi(doi);
-  }
-
-  /**
-   * Save blacklist to preferences
-   */
-  private async saveBlacklist(): Promise<void> {
-    try {
-      const jsonString = JSON.stringify(this.blacklist);
-      Zotero.Prefs.set(REPRODUCTION_BLACKLIST_PREF, jsonString);
-      Zotero.debug(
-        `ReproductionBlacklistManager: Saved ${this.blacklist.entries.length} entries to preferences`,
-      );
-    } catch (error) {
-      Zotero.logError(
-        new Error(
-          `ReproductionBlacklistManager: Failed to save blacklist: ${
-            error instanceof Error ? error.message : String(error)
-          }`,
-        ),
-      );
-      throw error;
-    }
-  }
-
-  /**
-   * Add a reproduction to the blacklist
-   */
   async addToBlacklist(entry: ReproductionBlacklistEntry): Promise<void> {
     if (!this.initialized) {
       throw new Error("ReproductionBlacklistManager not initialized");
     }
 
-    // Use URL as primary identifier for reproductions (since many don't have DOIs)
+    // URL is the primary identifier for reproductions (many lack DOIs)
     const normalizedUrl = this.normalizeUrl(entry.url);
     const normalizedDoi = this.normalizeDOI(entry.doi);
 
@@ -160,7 +35,6 @@ class ReproductionBlacklistManager {
       return;
     }
 
-    // Check if already blacklisted
     if (normalizedUrl && this.urlIndex.has(normalizedUrl)) {
       Zotero.debug(
         `ReproductionBlacklistManager: URL already blacklisted: ${normalizedUrl}`,
@@ -174,25 +48,17 @@ class ReproductionBlacklistManager {
       return;
     }
 
-    // Add to entries and indexes
-    this.blacklist.entries.push(entry);
-    if (normalizedUrl) {
-      this.urlIndex.add(normalizedUrl);
-    }
-    if (normalizedDoi) {
-      this.doiIndex.add(normalizedDoi);
-    }
+    this.data.entries.push(entry);
+    if (normalizedUrl) this.urlIndex.add(normalizedUrl);
+    if (normalizedDoi) this.doiIndex.add(normalizedDoi);
 
-    // Persist
     await this.saveBlacklist();
     Zotero.debug(
       `ReproductionBlacklistManager: Added to blacklist: ${entry.title} (${normalizedUrl || normalizedDoi})`,
     );
   }
 
-  /**
-   * Check if a reproduction is blacklisted by URL or DOI
-   */
+  /** Check if a reproduction is blacklisted by URL (primary) or DOI (fallback). */
   isBlacklisted(
     url: string | null | undefined,
     doi?: string | null | undefined,
@@ -205,57 +71,15 @@ class ReproductionBlacklistManager {
     }
 
     const normalizedUrl = this.normalizeUrl(url);
-    if (normalizedUrl && this.urlIndex.has(normalizedUrl)) {
-      return true;
-    }
+    if (normalizedUrl && this.urlIndex.has(normalizedUrl)) return true;
 
     const normalizedDoi = this.normalizeDOI(doi);
-    if (normalizedDoi && this.doiIndex.has(normalizedDoi)) {
-      return true;
-    }
+    if (normalizedDoi && this.doiIndex.has(normalizedDoi)) return true;
 
     return false;
   }
 
-  /**
-   * Get all blacklist entries
-   */
-  getEntries(): ReproductionBlacklistEntry[] {
-    if (!this.initialized) {
-      Zotero.debug(
-        "ReproductionBlacklistManager: getEntries called before initialization",
-      );
-      return [];
-    }
-    return [...this.blacklist.entries];
-  }
-
-  /**
-   * Get entries formatted for UI display
-   */
-  getEntriesWithMetadata(): Array<{
-    reproductionTitle: string;
-    originalTitle: string;
-    url: string;
-    doi: string;
-    dateAdded: string;
-  }> {
-    if (!this.initialized) {
-      return [];
-    }
-
-    return this.blacklist.entries.map((entry) => ({
-      reproductionTitle: entry.title,
-      originalTitle: entry.originalTitle,
-      url: entry.url,
-      doi: entry.doi,
-      dateAdded: entry.dateAdded,
-    }));
-  }
-
-  /**
-   * Remove a specific entry from the blacklist by URL
-   */
+  /** Remove by URL only (the canonical identifier for reproductions). */
   async removeFromBlacklist(url: string): Promise<void> {
     if (!this.initialized) {
       throw new Error("ReproductionBlacklistManager not initialized");
@@ -269,21 +93,18 @@ class ReproductionBlacklistManager {
       return;
     }
 
-    // Find and remove entry
-    const initialLength = this.blacklist.entries.length;
-    this.blacklist.entries = this.blacklist.entries.filter((entry) => {
-      const entryNormalizedUrl = this.normalizeUrl(entry.url);
-      return entryNormalizedUrl !== normalizedUrl;
+    const initialLength = this.data.entries.length;
+    this.data.entries = this.data.entries.filter((entry) => {
+      return this.normalizeUrl(entry.url) !== normalizedUrl;
     });
 
-    if (this.blacklist.entries.length === initialLength) {
+    if (this.data.entries.length === initialLength) {
       Zotero.debug(
         `ReproductionBlacklistManager: URL not found in blacklist: ${normalizedUrl}`,
       );
       return;
     }
 
-    // Rebuild indexes and persist
     this.rebuildIndex();
     await this.saveBlacklist();
     Zotero.debug(
@@ -291,33 +112,27 @@ class ReproductionBlacklistManager {
     );
   }
 
-  /**
-   * Clear all entries from the blacklist
-   */
-  async clearBlacklist(): Promise<void> {
-    if (!this.initialized) {
-      throw new Error("ReproductionBlacklistManager not initialized");
-    }
+  getEntriesWithMetadata(): Array<{
+    reproductionTitle: string;
+    originalTitle: string;
+    url: string;
+    doi: string;
+    dateAdded: string;
+  }> {
+    if (!this.initialized) return [];
 
-    const count = this.blacklist.entries.length;
-    this.blacklist.entries = [];
-    this.urlIndex.clear();
-    this.doiIndex.clear();
-
-    await this.saveBlacklist();
-    Zotero.debug(
-      `ReproductionBlacklistManager: Cleared ${count} entries from blacklist`,
-    );
-  }
-
-  /**
-   * Get the count of blacklisted entries
-   */
-  getCount(): number {
-    return this.blacklist.entries.length;
+    return this.data.entries.map((entry) => ({
+      reproductionTitle: entry.title,
+      originalTitle: entry.originalTitle,
+      url: entry.url,
+      doi: entry.doi,
+      dateAdded: entry.dateAdded,
+    }));
   }
 }
 
 // Export singleton instance
 export const reproductionBlacklistManager = new ReproductionBlacklistManager();
 export { ReproductionBlacklistManager };
+// Re-export data types consumed by other modules
+export type { ReproductionBlacklistData, ReproductionBlacklistEntry };

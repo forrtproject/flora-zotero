@@ -139,6 +139,9 @@ onboarding-welcome-content =
     • Unterstützt schreibgeschützte Gruppenbiblotheken — kopiert Einträge in die Persönliche Bibliothek
     • Konfigurierbare Ordnernamen für Replikationen und Reproduktionen
     • Sperrt unerwünschte Replikationen für zukünftige Prüfungen
+    • Auto-Prüfung: scannt neue Einträge automatisch oder nach Zeitplan
+    • Datenschutzkonform: Ihre DOIs werden nie an den Server übertragen
+    • In mehreren Sprachen verfügbar
 
     Lassen Sie uns eine kurze Tour machen!
 

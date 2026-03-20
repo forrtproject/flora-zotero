@@ -17,6 +17,15 @@ import {
 } from "../utils/tags";
 import { blacklistManager } from "./blacklistManager";
 import { reproductionHandler } from "./reproductionHandler";
+import {
+  buildMultipleOriginalsMap as sharedBuildMultipleOriginalsMap,
+  enrichOriginalsWithOutcomes as sharedEnrichOriginalsWithOutcomes,
+  createOriginalArticlesNoteHtml as sharedCreateOriginalArticlesNoteHtml,
+  addOriginalArticlesNote as sharedAddOriginalArticlesNote,
+  escapeHtml,
+  parseAuthors,
+  copyItemToLibrary,
+} from "../utils/studyUtils";
 
 const AUTO_CHECK_PREF = "replication-checker.autoCheckFrequency";
 const NEW_ITEM_PREF = "replication-checker.autoCheckNewItems";
@@ -69,30 +78,40 @@ async function findOrRenameReplicationCollection(
     return exact;
   }
 
-  // 2. Find by stored collection ID (handles repeated renames — the collection may have
-  //    already been renamed away from any known fallback name)
+  // 2. Find by stored collection ID (handles collections that were manually renamed in
+  //    Zotero — the ID tracks the right collection regardless of its current name).
+  //    If the name differs from the preference, the user renamed it manually in Zotero,
+  //    so we update the preference to match rather than reverting their rename.
   const storedIDs = getStoredReplicationCollectionIDs();
   const storedID = storedIDs[String(libraryID)];
   if (storedID) {
     const byID = Zotero.Collections.get(storedID);
     if (byID && byID.libraryID === libraryID) {
-      const oldName = byID.name;
-      byID.name = targetName;
-      await byID.saveTx();
-      Zotero.debug(`[ReplicationChecker] Renamed collection "${oldName}" → "${targetName}" (ID ${storedID})`);
+      if (byID.name !== targetName) {
+        // Collection was manually renamed by the user in Zotero — respect that and
+        // update the stored preference to match instead of reverting their change.
+        try { Zotero.Prefs.set(FOLDER_NAME_PREF, byID.name); } catch { /* ignore */ }
+        Zotero.debug(
+          `[ReplicationChecker] Collection was manually renamed to "${byID.name}"; updated preference (was "${targetName}")`
+        );
+      }
+      saveReplicationCollectionID(libraryID, byID.id);
       return byID;
     }
   }
 
-  // 3. Fall back to default name so we can rename it instead of creating a duplicate
-  if (targetName !== DEFAULT_FOLDER_NAME) {
-    const old = collections.find((c: any) => c.name === DEFAULT_FOLDER_NAME && !c.parentID);
+  // 3. Fall back to default/legacy names so we can rename instead of creating a duplicate.
+  //    Also recognises "Replication folder" used by older plugin versions.
+  const LEGACY_FOLDER_NAMES = [DEFAULT_FOLDER_NAME, "Replication folder"];
+  if (!LEGACY_FOLDER_NAMES.includes(targetName)) {
+    const old = collections.find((c: any) => LEGACY_FOLDER_NAMES.includes(c.name) && !c.parentID);
     if (old) {
+      const legacyName = old.name;
       old.name = targetName;
       await old.saveTx();
       saveReplicationCollectionID(libraryID, old.id);
       Zotero.debug(
-        `[ReplicationChecker] Renamed collection "${DEFAULT_FOLDER_NAME}" → "${targetName}" in library ${libraryID}`
+        `[ReplicationChecker] Renamed collection "${legacyName}" → "${targetName}" in library ${libraryID}`
       );
       return old;
     }
@@ -2021,159 +2040,38 @@ export class ReplicationCheckerPlugin {
    * Batch-check a list of DOIs and return a map of normalized DOI → originals[]
    * for entries where originals.length > 1 (i.e., the study has multiple originals).
    */
-  private async buildMultipleOriginalsMap(dois: string[]): Promise<Map<string, RelatedStudy[]>> {
-    const map = new Map<string, RelatedStudy[]>();
-    if (!this.matcher || dois.length === 0) return map;
-    const validDois = dois.filter((d) => d && d.startsWith("10."));
-    if (validDois.length === 0) return map;
-    try {
-      const results = await this.matcher.checkBatch(validDois);
-      for (const result of results) {
-        if (result.originals.length > 1) {
-          map.set(result.doi, result.originals);
-        }
-      }
-    } catch (e) {
-      Zotero.debug(`[ReplicationChecker] buildMultipleOriginalsMap failed: ${e}`);
-    }
-    return map;
+  private async buildMultipleOriginalsMap(
+    dois: string[],
+  ): Promise<Map<string, RelatedStudy[]>> {
+    if (!this.matcher) return new Map();
+    return sharedBuildMultipleOriginalsMap(this.matcher, dois, "[ReplicationChecker]");
   }
 
-  /**
-   * Enrich a batch of {itemID, originals} entries with per-original outcomes.
-   *
-   * Strategy: check each ORIGINAL's DOI via the API and locate the replication
-   * item (by DOI) inside result.replications to read the recorded outcome.
-   * All original DOIs across all entries are sent in ONE batch call so the
-   * operation never blocks the main item-creation flow.
-   */
   private async enrichOriginalsWithOutcomes(
-    items: Array<{ itemID: number; originals: RelatedStudy[] }>
+    items: Array<{ itemID: number; originals: RelatedStudy[] }>,
   ): Promise<Array<{ itemID: number; originals: RelatedStudy[] }>> {
-    if (!this.matcher || items.length === 0) return items;
-
-    // 1. Collect unique original DOIs across all entries
-    const uniqueOriginalDois = [...new Set(
-      items
-        .flatMap(({ originals }) => originals.map(o => (o.doi || "").trim()))
-        .filter(d => d.startsWith("10."))
-    )];
-    if (uniqueOriginalDois.length === 0) return items;
-
-    // 2. Resolve replication DOI for each entry (from the saved Zotero item)
-    const repDoisMap = new Map<number, string>();
-    for (const { itemID } of items) {
-      const repItem = await Zotero.Items.getAsync(itemID);
-      if (!repItem) continue;
-      const doi = ZoteroIntegration.extractDOI(repItem);
-      const normDoi = doi ? this.matcher.normalizeDoi(doi) : null;
-      if (normDoi) repDoisMap.set(itemID, normDoi);
-    }
-
-    // 3. ONE batch API call for all original DOIs
-    let originalResults: DOICheckResult[] = [];
-    try {
-      originalResults = await this.matcher.checkBatch(uniqueOriginalDois);
-    } catch (e) {
-      Zotero.debug(`[ReplicationChecker] enrichOriginalsWithOutcomes batch check failed: ${e}`);
-      return items;
-    }
-
-    // 4. Build lookup: normOrigDoi → { normRepDoi → outcome }
-    const outcomeIndex = new Map<string, Map<string, string>>();
-    for (const result of originalResults) {
-      const byRep = new Map<string, string>();
-      for (const rep of result.replications) {
-        const normRepDoi = this.matcher.normalizeDoi(rep.doi || "");
-        if (normRepDoi && rep.outcome) byRep.set(normRepDoi, rep.outcome);
-      }
-      if (byRep.size > 0) outcomeIndex.set(result.doi, byRep);
-    }
-
-    // 5. Enrich each entry
-    return items.map(({ itemID, originals }) => {
-      const normRepDoi = repDoisMap.get(itemID);
-      if (!normRepDoi) return { itemID, originals };
-      const enrichedOriginals = originals.map(orig => {
-        const normOrigDoi = orig.doi ? this.matcher!.normalizeDoi(orig.doi) : "";
-        if (!normOrigDoi) return orig;
-        const outcome = outcomeIndex.get(normOrigDoi)?.get(normRepDoi);
-        return outcome ? { ...orig, outcome } : orig;
-      });
-      return { itemID, originals: enrichedOriginals };
-    });
+    if (!this.matcher) return items;
+    return sharedEnrichOriginalsWithOutcomes(this.matcher, items, "replications", "[ReplicationChecker]");
   }
 
-  /**
-   * Build HTML for the "Original Articles" note placed on a replication item
-   * that replicates multiple originals.
-   */
   private createOriginalArticlesNoteHtml(originals: RelatedStudy[]): string {
-    const warning = "*This note is automatically generated. If you edit it, a new note will be created on the next check and this version will be kept as-is.*";
-    const feedbackHtml = getString("replication-checker-note-feedback", { url: FEEDBACK_URL });
-    const dataIssuesHtml = getString("replication-checker-note-data-issues", { url: DATA_ISSUES_URL });
-    const footer = this.escapeHtml(getString("replication-checker-note-footer"));
-
-    let html = "<h2>Original Articles</h2>";
-    html += `<i>${this.escapeHtml(warning)}</i><br>`;
-    html += "<p>This study has multiple original articles</p>";
-    html += "<ul>";
-    for (const orig of originals) {
-      html += "<li>";
-      html += `<strong>${this.escapeHtml(orig.title || "Unknown Title")}</strong><br>`;
-      if (orig.doi && orig.doi.startsWith("10.")) {
-        html += `DOI: <a href="https://doi.org/${this.escapeHtml(orig.doi)}">${this.escapeHtml(orig.doi)}</a><br>`;
-      }
-      const outcomeText = orig.outcome
-        ? orig.outcome.charAt(0).toUpperCase() + orig.outcome.slice(1)
-        : "N/A";
-      html += `Replication: <strong>${this.escapeHtml(outcomeText)}</strong><br>`;
-      html += "</li>";
-    }
-    html += "</ul>";
-    html += `
-      <hr/>
-      <div style="padding:10px; border-radius:5px; margin-top:15px;">
-        <p><strong>${feedbackHtml}</strong></p>
-        <p><strong>${dataIssuesHtml}</strong></p>
-      </div>
-    `;
-    html += `<p><small>${footer}</small></p>`;
-    return html;
+    return sharedCreateOriginalArticlesNoteHtml(originals, "Replication", FEEDBACK_URL, DATA_ISSUES_URL);
   }
 
-  /**
-   * Add "Original Articles" note to a replication item that has multiple originals.
-   * Skips creation if the note already exists (keeps user edits as-is).
-   */
-  private async addOriginalArticlesNote(itemID: number, originals: RelatedStudy[]): Promise<void> {
-    try {
-      const item = await Zotero.Items.getAsync(itemID);
-      if (!item) return;
-      const HEADING = "<h2>Original Articles</h2>";
-      const noteIDs = item.getNotes();
-      for (const noteID of noteIDs) {
-        const note = await Zotero.Items.getAsync(noteID);
-        if (!note) continue;
-        if (note.getNote().startsWith(HEADING)) {
-          // Note already exists — keep as-is
-          return;
-        }
-      }
-      const noteHTML = this.createOriginalArticlesNoteHtml(originals);
-      await ZoteroIntegration.addNote(itemID, noteHTML);
-      Zotero.debug(`[ReplicationChecker] Created Original Articles note for item ${itemID}`);
-    } catch (error) {
-      Zotero.logError(new Error(
-        `Error adding Original Articles note to item ${itemID}: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      ));
-    }
+  private async addOriginalArticlesNote(
+    itemID: number,
+    originals: RelatedStudy[],
+  ): Promise<void> {
+    return sharedAddOriginalArticlesNote(
+      itemID,
+      originals,
+      (o) => this.createOriginalArticlesNoteHtml(o),
+      "[ReplicationChecker]",
+    );
   }
 
   private getNoteHeadingHtml(): string {
-    return `<h2>${this.escapeHtml(getString("replication-checker-note-title"))}</h2>`;
+    return `<h2>${escapeHtml(getString("replication-checker-note-title"))}</h2>`;
   }
 
   /**
@@ -2184,32 +2082,32 @@ export class ReplicationCheckerPlugin {
     const year = rep.year_r || getString("replication-checker-li-na");
     const journal = rep.journal_r || getString("replication-checker-li-no-journal");
     const doiValue = rep.doi_r || getString("replication-checker-li-na");
-    const doiLabel = this.escapeHtml(getString("replication-checker-li-doi-label"));
-    const outcomeLabel = this.escapeHtml(getString("replication-checker-li-outcome"));
-    const linkLabel = this.escapeHtml(getString("replication-checker-li-link"));
+    const doiLabel = escapeHtml(getString("replication-checker-li-doi-label"));
+    const outcomeLabel = escapeHtml(getString("replication-checker-li-outcome"));
+    const linkLabel = escapeHtml(getString("replication-checker-li-link"));
 
     let li = "<li>";
-    li += `<strong>${this.escapeHtml(title)}</strong><br>`;
-    li += `${this.parseAuthors(rep.author_r)} (${this.escapeHtml(year)})<br>`;
-    li += `<em>${this.escapeHtml(journal)}</em><br>`;
+    li += `<strong>${escapeHtml(title)}</strong><br>`;
+    li += `${parseAuthors(rep.author_r, "replication-checker-li-no-authors")} (${escapeHtml(year)})<br>`;
+    li += `<em>${escapeHtml(journal)}</em><br>`;
 
     // Only render DOI link when a real DOI is present (starts with "10.")
     if (doiValue && doiValue.startsWith("10.")) {
-      li += `${doiLabel} <a href="https://doi.org/${this.escapeHtml(doiValue)}">${this.escapeHtml(doiValue)}</a><br>`;
+      li += `${doiLabel} <a href="https://doi.org/${escapeHtml(doiValue)}">${escapeHtml(doiValue)}</a><br>`;
     }
 
     if (rep.outcome) {
-      li += `${outcomeLabel} <strong>${this.escapeHtml(rep.outcome)}</strong><br>`;
+      li += `${outcomeLabel} <strong>${escapeHtml(rep.outcome)}</strong><br>`;
     }
 
     if (rep.outcome_quote && rep.outcome_quote_source === "abstract") {
-      li += `<em>"${this.escapeHtml(rep.outcome_quote)}"</em><br>`;
+      li += `<em>"${escapeHtml(rep.outcome_quote)}"</em><br>`;
     }
 
     // Show URL link independently of DOI (matches reproduction handler behavior)
     const link = typeof rep.url_r === "string" ? rep.url_r.trim() : "";
     if (link && link.toLowerCase() !== "na" && link.startsWith("http")) {
-      li += `${linkLabel} <a href="${this.escapeHtml(link)}" target="_blank">${this.escapeHtml(link)}</a><br>`;
+      li += `${linkLabel} <a href="${escapeHtml(link)}" target="_blank">${escapeHtml(link)}</a><br>`;
     }
 
     li += "</li>";
@@ -2220,11 +2118,11 @@ export class ReplicationCheckerPlugin {
    * Format replication data as HTML note
    */
   private createReplicationNote(replications: any[]): string {
-    const warning = this.escapeHtml(getString("replication-checker-note-warning"));
-    const intro = this.escapeHtml(getString("replication-checker-note-intro"));
+    const warning = escapeHtml(getString("replication-checker-note-warning"));
+    const intro = escapeHtml(getString("replication-checker-note-intro"));
     const feedbackHtml = getString("replication-checker-note-feedback", { url: FEEDBACK_URL });
     const dataIssuesHtml = getString("replication-checker-note-data-issues", { url: DATA_ISSUES_URL });
-    const footer = this.escapeHtml(getString("replication-checker-note-footer"));
+    const footer = escapeHtml(getString("replication-checker-note-footer"));
 
     let html = this.getNoteHeadingHtml();
     html += `<i>${warning}</i><br>`;
@@ -2248,36 +2146,6 @@ export class ReplicationCheckerPlugin {
   /**
    * Escape HTML to prevent XSS
    */
-  private escapeHtml(text: any): string {
-    if (!text) return "";
-    return String(text)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  /**
-   * Parse authors array into formatted string
-   */
-  private parseAuthors(authors: any): string {
-    if (!authors || !Array.isArray(authors) || authors.length === 0) {
-      return getString("replication-checker-li-no-authors");
-    }
-
-    const authorStrings = authors.map((author: any) => {
-      const initial = author.given ? author.given.split(" ").map((part: string) => part[0] + ".").join(" ") : "";
-      return `${author.family}, ${initial}`;
-    });
-
-    return (
-      authorStrings.slice(0, -1).join(", ") +
-      (authorStrings.length > 1 ? " & " : "") +
-      authorStrings.slice(-1)
-    );
-  }
-
   /**
    * Show formatted results alert
    */
@@ -2488,36 +2356,6 @@ export class ReplicationCheckerPlugin {
   }
 
   /**
-   * Copy an item to another library, preserving all bibliographic data
-   */
-  private async copyItemToLibrary(sourceItemID: number, targetLibraryID: number): Promise<number> {
-    const sourceItem = await Zotero.Items.getAsync(sourceItemID);
-    if (!sourceItem) throw new Error(`Source item ${sourceItemID} not found`);
-
-    const newItem = new Zotero.Item(sourceItem.itemType as any);
-    (newItem as Zotero.Item & { libraryID: number }).libraryID = targetLibraryID;
-
-    // Copy all used fields
-    const fields = sourceItem.getUsedFields();
-    for (const field of fields) {
-      const value = sourceItem.getField(field);
-      if (value) {
-        newItem.setField(field, value);
-      }
-    }
-
-    // Copy creators
-    const creators = sourceItem.getCreators();
-    if (creators.length > 0) {
-      newItem.setCreators(creators);
-    }
-
-    const newItemID = await newItem.save() as number;
-    Zotero.debug(`[ReplicationChecker] Copied item ${sourceItemID} to library ${targetLibraryID} as ${newItemID}`);
-    return newItemID;
-  }
-
-  /**
    * Create a replication item in a specified library
    */
   private async createReplicationItemInLibrary(replicationData: any, libraryID: number): Promise<number> {
@@ -2721,12 +2559,12 @@ export class ReplicationCheckerPlugin {
                 // Track existing item so checkNewItems doesn't trigger dialogs
                 this.pluginAddedItems.add(copiedOriginalID);
               } else {
-                copiedOriginalID = await this.copyItemToLibrary(originalItemID, personalLibraryID);
+                copiedOriginalID = await copyItemToLibrary(originalItemID, personalLibraryID, "[ReplicationChecker]");
                 // Track this item so checkNewItems doesn't trigger dialogs
                 this.pluginAddedItems.add(copiedOriginalID);
               }
             } else {
-              copiedOriginalID = await this.copyItemToLibrary(originalItemID, personalLibraryID);
+              copiedOriginalID = await copyItemToLibrary(originalItemID, personalLibraryID, "[ReplicationChecker]");
               // Track this item so checkNewItems doesn't trigger dialogs
               this.pluginAddedItems.add(copiedOriginalID);
             }

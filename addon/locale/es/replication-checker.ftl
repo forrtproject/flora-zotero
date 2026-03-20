@@ -139,6 +139,9 @@ onboarding-welcome-content =
     • Soporte para bibliotecas de grupo de solo lectura — copia elementos a la biblioteca personal
     • Nombres de carpetas configurables para replicaciones y reproducciones
     • Bloquea replicaciones no deseadas de futuras verificaciones
+    • Verificación automática: analiza nuevos elementos automáticamente o según un horario
+    • Privacidad garantizada: sus DOIs nunca se envían al servidor
+    • Disponible en varios idiomas
 
     ¡Hagamos un recorrido rápido para comenzar!
 

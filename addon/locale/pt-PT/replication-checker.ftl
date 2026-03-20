@@ -132,12 +132,18 @@ onboarding-welcome-content =
     Este plugin ajuda a encontrar estudos de replicação para a sua investigação, ao verificar os itens da sua biblioteca na FORRT Literature Database (FLoRA).
 
     ✨ Funcionalidades principais:
-    • Verificação automática de DOIs na base de dados de replicações
-    • Funciona com a biblioteca inteira, coleções ou itens individuais
-    • Cria notas associadas com informação sobre replicação
-    • Assinala e atribui etiquetas aos itens de acordo com o estado da replicação
-    • Adiciona estudos originais quando existirem replicações
-    • Permite excluir replicações indesejadas de verificações futuras
+    • Verifica a biblioteca inteira, coleções ou itens individuais
+    • Deteta tanto replicações como reproduções computacionais
+    • Gere artigos com múltiplos estudos originais
+    • Adiciona notas com etiquetas de resultado e ligações DOI
+    • Etiqueta itens automaticamente (ex. «Tem replicação», «É replicação»)
+    • Oferece adicionar o estudo original quando é detetada uma replicação
+    • Suporte para bibliotecas de grupo só de leitura — copia itens para a biblioteca pessoal
+    • Nomes de pastas configuráveis para replicações e reproduções
+    • Exclui replicações indesejadas de verificações futuras
+    • Verificação automática: analisa novos itens automaticamente ou segundo um calendário
+    • Privacidade garantida: os seus DOIs nunca são enviados ao servidor
+    • Disponível em vários idiomas
 
     Vamos fazer uma visita rápida para começar!
 

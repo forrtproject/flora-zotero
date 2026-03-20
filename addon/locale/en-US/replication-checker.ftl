@@ -135,6 +135,9 @@ onboarding-welcome-content =
     • Read-only group library support — copies items to Personal library
     • Configurable folder names for replications and reproductions
     • Ban unwanted replications from future checks
+    • Auto-check: scans new items automatically or on a schedule
+    • Privacy-preserving: your DOIs are never sent to the server
+    • Available in multiple languages
 
     Let's take a quick tour to get you started!
 

@@ -1,6 +1,6 @@
 <!-- Update this file before each release. It will be inserted into the GitHub Release body under "✨ New in This Release". Use markdown bullet points. -->
 
-- Added **Multiple Originals support**: replication/reproduction items with more than one original article now receive a dedicated "Original Articles" note listing each original's title, DOI, and outcome (fetched in a single batch API call after items are created)
-- Added **Multiple Originals tags**: `Replication: Multiple Originals` / `Reproduction: Multiple Originals` tags applied instead of outcome tags when an item has more than one original
-- Fixed **consecutive folder renames**: changing the Replication or Reproduction folder name multiple times in Preferences now correctly renames the same existing collection each time, instead of creating a new one on every rename
-- **Fall back to full library check**: When a library (not a collection) is selected, the plugin now runs checkEntireLibrary() instead of showing a "no collection selected" error
+- Added **Portuguese (Europe) language support** (pt-PT): The plugin is now available in five languages — English, German, Spanish, Portuguese (Brazil), and Portuguese (Europe)
+- Fixed **snowballing library bug**: Repeated checks on selected items or collections no longer trigger automatic "add original articles?" prompts, which previously caused a cascading loop where each run would find new originals → replications → more originals, growing the library indefinitely. Originals can still be added explicitly via the right-click "Add Original" menu item; the auto-check for newly added items retains the prompt as a discovery feature
+- Fixed **manual collection rename being reverted**: If the user renames the "FLoRA Replications" or "FLoRA Reproductions" collection directly in Zotero, the plugin now keeps their name instead of reverting it back on the next check
+- Fixed **legacy collection name not recognised on upgrade**: Collections named "Replication folder" (from older plugin versions) are now correctly identified and migrated instead of creating a duplicate collection

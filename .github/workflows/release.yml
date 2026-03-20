@@ -125,6 +125,9 @@ jobs:
           echo "NOTES<<EOF" >> $GITHUB_OUTPUT
           echo "$NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+          # Also write to a temp file so later steps can read it without
+          # embedding multi-line values directly in YAML shell scripts.
+          echo "$NOTES" > /tmp/release_notes.txt
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -191,6 +194,52 @@ jobs:
             update.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update CHANGELOG.md
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          DATE=$(date -u +%Y-%m-%d)
+
+          # Build the new CHANGELOG entry from the notes file written earlier.
+          # Using printf + a temp file avoids embedding multi-line values in YAML.
+          printf '## [%s] - %s\n' "$VERSION" "$DATE" > /tmp/new_entry.md
+          cat /tmp/release_notes.txt >> /tmp/new_entry.md
+          printf '\n' >> /tmp/new_entry.md
+
+          # Insert the new entry right after the first "---" separator in
+          # CHANGELOG.md so the newest release always appears first.
+          if [ -f "CHANGELOG.md" ]; then
+            SEP_LINE=$(grep -n '^---$' CHANGELOG.md | head -1 | cut -d: -f1)
+            if [ -n "$SEP_LINE" ]; then
+              head -n "$SEP_LINE" CHANGELOG.md > /tmp/changelog_new.md
+              printf '\n' >> /tmp/changelog_new.md
+              cat /tmp/new_entry.md >> /tmp/changelog_new.md
+              tail -n +"$((SEP_LINE + 1))" CHANGELOG.md >> /tmp/changelog_new.md
+              mv /tmp/changelog_new.md CHANGELOG.md
+            else
+              cat /tmp/new_entry.md CHANGELOG.md > /tmp/changelog_new.md
+              mv /tmp/changelog_new.md CHANGELOG.md
+            fi
+          else
+            printf '# Changelog\n\nAll notable changes are documented here.\n\n---\n\n' > CHANGELOG.md
+            cat /tmp/new_entry.md >> CHANGELOG.md
+          fi
+
+          echo "CHANGELOG.md updated for $VERSION"
+
+      - name: Commit CHANGELOG.md and reset Release.md
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout main
+
+          # Reset Release.md ready for the next release cycle
+          printf '<!-- Update this file before each release. It will be inserted into the GitHub Release body under "\xe2\x9c\xa8 New in This Release" and prepended to CHANGELOG.md. Use markdown bullet points. -->\n' > docs/Release.md
+
+          git add CHANGELOG.md docs/Release.md
+          git diff --staged --quiet || git commit -m "chore: update CHANGELOG.md and reset Release.md for ${{ steps.version.outputs.VERSION }} [skip ci]"
+          git push origin main
 
       - name: Trigger GitHub Pages rebuild
         run: |

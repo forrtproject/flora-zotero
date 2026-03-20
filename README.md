@@ -2,7 +2,7 @@
   <img src="docs/logo/replication-checker-logo.png" alt="Replication Checker for Zotero by FORRT" width="600">
 </p>
 
-A Zotero plugin that discovers replication studies for items in your library using the [FORRT Library of Reproduction and Replication Attempts (FLoRA)](). It scans your local library for DOIs, checks against FLoRA using privacy-preserving prefix matching, notifies you when reproductions and replications exist, and allows easy addition to your library — all without sending identifiable data off your machine.
+A Zotero plugin that discovers replication studies for items in your library using the [FORRT Library of Reproduction and Replication Attempts (FLoRA)](https://forrt.org/replication-hub/flora/). It scans your local library for DOIs, checks against FLoRA using privacy-preserving prefix matching, notifies you when reproductions and replications exist, and allows easy addition to your library — all without sending identifiable data off your machine.
 
 This plugin was developed as a [FORRT](https://forrt.org/) project to build a working prototype for the open science community. It helps researchers discover replication studies by identifying items with known replications and unobtrusively notifying them via tags and notes.
 
@@ -21,7 +21,7 @@ This plugin was developed as a [FORRT](https://forrt.org/) project to build a wo
 - 🔄 **Bidirectional linking**: Automatically links original studies with their replications as related items
 - 🚫 **Blacklist management**: Ban unwanted replications from being re-added during future checks
 - ⚡ **Auto-check**: Checks newly added items automatically; scheduled checks (daily/weekly/monthly) also available
-- 🌍 **Multi-language support**: Available in 4 languages (English, German, Spanish, Portuguese)
+- 🌍 **Multi-language support**: Available in 5 languages (English, German, Spanish, Portuguese Brazil, Portuguese Europe)
 
 ## Installation
 
@@ -214,6 +214,7 @@ The plugin supports multiple languages and automatically uses your Zotero langua
 - German (de) ✅
 - Spanish (es) ✅
 - Portuguese / Brazil (pt-BR) ✅
+- Portuguese / Europe (pt-PT) ✅
 
 **What gets translated:**
 

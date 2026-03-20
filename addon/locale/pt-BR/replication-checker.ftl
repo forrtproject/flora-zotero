@@ -139,6 +139,9 @@ onboarding-welcome-content =
     • Suporte para bibliotecas de grupo somente leitura — copia itens para a biblioteca pessoal
     • Nomes de pastas configuráveis para replicações e reproduções
     • Bane replicações indesejadas em verificações futuras
+    • Verificação automática: analisa novos itens automaticamente ou conforme agendamento
+    • Preservação de privacidade: seus DOIs nunca são enviados ao servidor
+    • Disponível em vários idiomas
 
     Vamos fazer um tour rápido para começar!
 

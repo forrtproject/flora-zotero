@@ -105,10 +105,13 @@ Before creating a release:
 
 - [ ] Update `package.json` version
 - [ ] Test the build locally with `npm run build`
-- [ ] Update CHANGELOG or release notes if needed
+- [ ] Write release notes in `docs/Release.md` (bullet points describing what changed)
+  - The workflow reads this file for the GitHub Release body **and** automatically
+    prepends the entry to `CHANGELOG.md`, then resets `docs/Release.md` for the next cycle
 - [ ] Commit all changes
 - [ ] Create and push git tag
 - [ ] Verify release on GitHub
+- [ ] Verify `CHANGELOG.md` was updated in `main` by the workflow commit
 - [ ] Test downloading and installing the XPI
 - [ ] Announce release (if applicable)
 

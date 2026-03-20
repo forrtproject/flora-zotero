@@ -196,15 +196,16 @@ describe("Collection Management", function () {
     }
   });
 
-  it("renames collection when preference changes", async function () {
+  it("updates preference when collection is manually renamed in Zotero", async function () {
     const checker = getChecker();
     restoreHTTP = mockHTTP(createMockHTTPHandler(singleReplicationMatch));
 
     const libraryID = Zotero.Libraries.userLibraryID;
-    const oldName = "Old Replication Folder Name";
+    const userRenamedTo = "My Custom Folder";
 
-    // Create collection with old name and store its ID in prefs
-    const col = new Zotero.Collection({ libraryID, name: oldName });
+    // Simulate: user manually renamed the collection in Zotero.
+    // The collection has the user's name but the pref still holds the old name.
+    const col = new Zotero.Collection({ libraryID, name: userRenamedTo });
     await col.saveTx();
     testCollections.push(col);
 
@@ -215,11 +216,9 @@ describe("Collection Management", function () {
       JSON.stringify(storedIDs),
     );
 
-    // Change the folder name preference
-    const newName = "Renamed Replication Folder";
-    Zotero.Prefs.set("replication-checker.folderName", newName);
+    // Pref still says the old name — simulates the state after a manual Zotero rename
+    Zotero.Prefs.set("replication-checker.folderName", "Old Preference Name");
 
-    // Run check — should rename the existing collection
     const original = await createTestItem(
       TEST_DOIS.originalA,
       "The Original Study A",
@@ -234,13 +233,78 @@ describe("Collection Management", function () {
       article.record.replications,
     );
 
-    // Verify the collection was renamed
-    const renamedCol = Zotero.Collections.get(col.id);
+    // Collection should keep the user's name (not reverted to the preference)
+    const afterCol = Zotero.Collections.get(col.id);
     assert.equal(
-      renamedCol.name,
-      newName,
-      "Collection should be renamed to new preference value",
+      afterCol.name,
+      userRenamedTo,
+      "Collection should retain the user's manual rename",
     );
+
+    // Preference should have been updated to match the collection's current name
+    const updatedPref = Zotero.Prefs.get("replication-checker.folderName") as string;
+    assert.equal(
+      updatedPref,
+      userRenamedTo,
+      "Preference should be updated to match the manually renamed collection",
+    );
+
+    // Reset the preference to default for other tests
+    Zotero.Prefs.set("replication-checker.folderName", "FLoRA Replications");
+
+    // Clean up replication items
+    const search = new Zotero.Search({ libraryID });
+    search.addCondition("DOI", "is", TEST_DOIS.replication);
+    for (const id of await search.search()) {
+      const item = await Zotero.Items.getAsync(id);
+      if (item) testItems.push(item);
+    }
+  });
+
+  it("recognises legacy 'Replication folder' name on upgrade", async function () {
+    const checker = getChecker();
+    restoreHTTP = mockHTTP(createMockHTTPHandler(singleReplicationMatch));
+
+    const libraryID = Zotero.Libraries.userLibraryID;
+    const legacyName = "Replication folder";
+    const currentDefault = "FLoRA Replications";
+
+    // Simulate an upgraded library: legacy collection exists, no stored ID in prefs
+    Zotero.Prefs.set("replication-checker.collectionIDs", "{}");
+    Zotero.Prefs.set("replication-checker.folderName", currentDefault);
+
+    const legacyCol = new Zotero.Collection({ libraryID, name: legacyName });
+    await legacyCol.saveTx();
+    testCollections.push(legacyCol);
+
+    const original = await createTestItem(
+      TEST_DOIS.originalA,
+      "The Original Study A",
+    );
+    testItems.push(original);
+
+    const articles = Object.values(singleReplicationMatch.results).flat();
+    const article = articles.find((a) => a.doi === TEST_DOIS.originalA)!;
+
+    await checker.notifyUserAndAddReplications(
+      original.id,
+      article.record.replications,
+    );
+
+    // Legacy collection should have been renamed to the current default — no duplicate created
+    const updatedCollections = Zotero.Collections.getByLibrary(libraryID, true);
+    const legacyRemains = updatedCollections.find((c: any) => c.name === legacyName);
+    assert.isUndefined(legacyRemains, "Legacy 'Replication folder' should have been renamed");
+
+    const newCol = updatedCollections.find((c: any) => c.name === currentDefault);
+    assert.isNotNull(newCol, "Collection should now exist under the current default name");
+    if (newCol) testCollections.push(newCol);
+
+    // Only one replication collection should exist (no duplicate)
+    const repCols = updatedCollections.filter(
+      (c: any) => c.name === currentDefault || c.name === legacyName,
+    );
+    assert.equal(repCols.length, 1, "Should have exactly one replication collection (no duplicate)");
 
     // Reset the preference to default for other tests
     Zotero.Prefs.set("replication-checker.folderName", "FLoRA Replications");
