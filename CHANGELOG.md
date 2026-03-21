@@ -6,6 +6,14 @@ Versions are listed newest-first.
 
 ---
 
+## [v0.1.11] - 2026-03-21
+- Added **Portuguese (Europe) language support** (pt-PT): The plugin is now available in five languages — English, German, Spanish, Portuguese (Brazil), and Portuguese (Europe)
+- Fixed **snowballing library bug**: Repeated checks on selected items or collections no longer trigger automatic "add original articles?" prompts, which previously caused a cascading loop where each run would find new originals → replications → more originals, growing the library indefinitely. Originals can still be added explicitly via the right-click "Add Original" menu item; the auto-check for newly added items retains the prompt as a discovery feature
+- Fixed **manual collection rename being reverted**: If the user renames the "FLoRA Replications" or "FLoRA Reproductions" collection directly in Zotero, the plugin now keeps their name instead of reverting it back on the next check
+- Fixed **legacy collection name not recognised on upgrade**: Collections named "Replication folder" (from older plugin versions) are now correctly identified and migrated instead of creating a duplicate collection
+- Added **translated tags**: Tags added to Zotero items (e.g. "Has Replication", "Is Replication", outcome tags) are now displayed in the user's language. Items tagged by older plugin versions (English tags) remain fully recognised for backward compatibility
+
+
 ## [v0.1.10] - 2026-03-15
 
 - Added **Multiple Originals support**: replication/reproduction items with more than one original article now receive a dedicated "Original Articles" note listing each original's title, DOI, and outcome (fetched in a single batch API call after items are created)
