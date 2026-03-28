@@ -26,9 +26,13 @@ replication-checker-alert-no-dois-selected = 所选条目中未找到 DOI。
 replication-checker-alert-no-collection = 请在运行此检查前先选择一个分组。
 replication-checker-alert-no-originals-available = 此重复研究没有可用的原始研究。
 replication-checker-alert-no-doi = 所选条目没有 DOI。
-replication-checker-add-original-success = 已成功添加原始研究：{ $title }
+replication-checker-add-original-success = 已成功将"{ $title }"添加到"{ $folderName }"。
+replication-checker-add-original-exists = "{ $title }"已在您的文献库中——已更新"{ $folderName }"中的标签、笔记和关联。
 replication-checker-add-original-confirm = 为此重复研究找到 { $count } 篇原始研究。是否将它们全部添加到您的文献库？
-replication-checker-add-original-batch-success = 已成功将 { $count } 篇原始研究添加到您的文献库。
+replication-checker-add-original-select-btn = 选择要添加的原始文献
+replication-checker-add-original-batch-success = 已在"{ $folderName }"中新增 { $newCount } 篇并更新 { $existingCount } 篇原始研究。
+replication-checker-add-original-batch-new-only = 已成功将 { $count } 篇原始研究添加到"{ $folderName }"。
+replication-checker-add-original-batch-exists-only = { $count } 篇原始研究已在您的文献库中——已更新"{ $folderName }"中的标签、笔记和关联。
 replication-checker-error-title = Replication Checker - 错误
 replication-checker-error-api = 无法从 API 获取数据 - 请检查您的网络连接或稍后重试。
 replication-checker-error-body =
@@ -52,15 +56,27 @@ replication-checker-alert-no-replications-selected = 未选择任何重复研究
 
 ## Dialog
 replication-checker-dialog-title = 找到重复研究
-replication-checker-dialog-intro = 为以下文献找到重复研究：\n"{ $title }"
+replication-checker-dialog-intro =
+    为以下文献找到重复研究：
+    "{ $title }"
 replication-checker-dialog-count = 找到 { $count } 篇重复研究：
-replication-checker-dialog-item = { $index }. { $title }\n({ $year })\n   结果：{ $outcome }
+replication-checker-dialog-item =
+    { $index }. { $title }
+    ({ $year })
+       结果：{ $outcome }
 replication-checker-dialog-more = ...以及另外 { $count } 篇重复研究
 replication-checker-dialog-question = 是否添加重复研究信息？
 replication-checker-dialog-progress-title = 已添加重复研究信息
 replication-checker-dialog-progress-line = 已向"{ $title }"添加重复研究信息
+replication-checker-notif-replication-new = 已成功将 { $count } 篇新重复研究添加到"{ $folderName }"。
+replication-checker-notif-replication-exists = { $count } 篇重复研究已在您的文献库中——已更新"{ $folderName }"中的标签、笔记和关联。
+replication-checker-notif-replication-mixed = 已在"{ $folderName }"中新增 { $newCount } 篇并更新 { $existingCount } 篇重复研究。
 replication-checker-dialog-is-replication-title = 找到原始研究
-replication-checker-dialog-is-replication-message = 未找到重复研究，但这似乎是一篇重复研究论文。\n\n是否添加原始文献？
+replication-checker-dialog-is-replication-message =
+    未找到重复研究，但这似乎是一篇重复研究论文。
+    找到 { $count } 篇原始文献。
+
+    是否将它们添加到您的文献库？
 
 ## Read-Only Library Handling
 replication-checker-readonly-dialog-title = 检测到只读文献库
@@ -75,9 +91,9 @@ replication-checker-results-title-selected = 所选条目扫描完成
 replication-checker-results-title-collection = 分组扫描完成
 replication-checker-results-total = 已检查条目总数：{ $count }
 replication-checker-results-dois = 含有 DOI 的条目：{ $count }
-replication-checker-results-found = { $count } 个条目含有重复研究。
+replication-checker-results-found = { $count } 个条目含有重复研究，已存储在"{ $folderName }"中。
 replication-checker-results-none = 未找到重复研究。
-replication-checker-results-reproductions-found = { $count } 个条目含有重复实验。
+replication-checker-results-reproductions-found = { $count } 个条目含有重复实验，已存储在"{ $folderName }"中。
 replication-checker-results-reproductions-none = 未找到重复实验。
 replication-checker-results-footer = 查看笔记了解详情，或选择条目重新检查。
 
@@ -88,6 +104,7 @@ replication-checker-tag-added-by-checker = 由 Replication Checker 添加
 replication-checker-tag-success = 重复研究：成功
 replication-checker-tag-failure = 重复研究：失败
 replication-checker-tag-mixed = 重复研究：混合结果
+replication-checker-tag-multiple-originals = 重复研究：多篇原始文献
 replication-checker-tag-readonly-origin = 原始文献在只读文献库中
 replication-checker-tag-has-been-replicated = 已被重复
 replication-checker-tag-has-been-reproduced = 已被复现
@@ -199,6 +216,7 @@ reproduction-checker-tag-outcome-cs-not-checked = 重复实验：计算成功，
 reproduction-checker-tag-outcome-ci-robust = 重复实验：存在计算问题，结果稳健
 reproduction-checker-tag-outcome-ci-challenges = 重复实验：存在计算问题，稳健性存在挑战
 reproduction-checker-tag-outcome-ci-not-checked = 重复实验：存在计算问题，稳健性未检查
+reproduction-checker-tag-multiple-originals = 重复实验：多篇原始文献
 
 ## Reproduction Feature - Note Template
 reproduction-checker-note-title = 找到重复实验
@@ -249,6 +267,35 @@ pref-autocheck-monthly = 每月（每 30 天检查一次）
 pref-autocheck-new-items = 自动检查新添加到文献库的条目（推荐）
 pref-autocheck-new-items-hint = 如果您希望手动运行所有重复研究检查，请禁用此选项。
 pref-autocheck-note = 当 Zotero 打开时，自动检查在后台运行。您仍然可以通过"工具"菜单手动检查。
+pref-folder-title = 重复研究文件夹名称
+pref-folder-description = 存储重复研究条目的 Zotero 分组名称
+pref-folder-hint = 更改此项将自动重命名现有分组。所有条目将保留在同一分组中。
+pref-repro-folder-title = 再现研究文件夹名称
+pref-repro-folder-description = 存储再现研究条目的 Zotero 分组名称
+pref-repro-folder-hint = 更改此项将自动重命名现有分组。所有条目将保留在同一分组中。
+pref-originals-replication-folder-title = 原始文献文件夹（关联至重复研究）
+pref-originals-replication-folder-description = 存储原始文献（其重复研究已被添加）的 Zotero 分组名称
+pref-originals-replication-folder-hint = 更改此项将自动重命名现有分组。所有条目将保留在同一分组中。
+pref-originals-reproduction-folder-title = 原始文献文件夹（关联至再现研究）
+pref-originals-reproduction-folder-description = 存储原始文献（其再现研究已被添加）的 Zotero 分组名称
+pref-originals-reproduction-folder-hint = 更改此项将自动重命名现有分组。所有条目将保留在同一分组中。
+
+## Stats Pane
+pref-stats-title = 您的 FLoRA 统计数据
+pref-stats-description = 基于您当前 Zotero 文献库的统计数据
+pref-stats-has-replication = 有重复研究的文章
+pref-stats-has-reproduction = 有再现研究的文章
+pref-stats-is-replication = 被标识为重复研究的文章
+pref-stats-originals = 已追踪的原始文章
+pref-stats-refresh = 刷新统计数据
+pref-stats-fetch-flora = 从 FLoRA 获取
+pref-stats-fetching = 正在从 FLoRA 获取…
+pref-stats-fetch-result = FLoRA 在您的 { $origCount } 篇原始文章中找到了 { $matchedCount } 篇。
+pref-stats-fetch-breakdown = 已知总计：{ $repCount } 篇重复研究和 { $reproCount } 篇再现研究。
+pref-stats-no-originals = 在您的文献库中未找到已追踪的原始文章。请先运行重复研究检查。
+pref-stats-fetch-error = 无法访问 FLoRA——请检查您的网络连接并重试。
+pref-stats-view-flora = 查看 FLoRA 数据库 →
+
 pref-blacklist-title = 已屏蔽的重复研究
 pref-blacklist-description = 管理您已屏蔽不在文献库中显示的重复研究
 pref-blacklist-col-replication = 重复研究论文

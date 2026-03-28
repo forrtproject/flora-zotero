@@ -14,6 +14,10 @@ declare namespace _ZoteroTypes {
       "reproductionFolderName": string;
       "collectionIDs": string;
       "reproductionCollectionIDs": string;
+      "originalsReplicationFolderName": string;
+      "originalsReplicationCollectionIDs": string;
+      "originalsReproductionFolderName": string;
+      "originalsReproductionCollectionIDs": string;
     };
   }
 }

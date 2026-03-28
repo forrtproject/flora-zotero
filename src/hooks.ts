@@ -10,7 +10,12 @@ import { reproductionHandler } from "./modules/reproductionHandler";
 import { config } from "../package.json";
 import { createZToolkit } from "./utils/ztoolkit";
 import { getString } from "./utils/strings";
-import { TAG_IS_REPLICATION, TAG_IS_REPRODUCTION, TAG_ADDED_BY_CHECKER, itemHasTag } from "./utils/tags";
+import {
+  TAG_IS_REPLICATION, TAG_IS_REPRODUCTION, itemHasTag,
+  TAG_HAS_REPLICATION, TAG_HAS_REPRODUCTION,
+  TAG_HAS_BEEN_REPLICATED,
+  getTag,
+} from "./utils/tags";
 import {
   initThemeObserver,
   cleanupThemeObserver,
@@ -230,8 +235,9 @@ export async function onStartup() {
     (Zotero as any).ReplicationChecker.blacklistManager = blacklistManager;
     (Zotero as any).ReplicationChecker.reproductionHandler = reproductionHandler;
 
-    // Expose preference pane UI initializer globally
+    // Expose preference pane UI initializers globally
     (Zotero as any).ReplicationChecker.initBlacklistUI = initBlacklistUI;
+    (Zotero as any).ReplicationChecker.initStatsUI = initStatsUI;
 
     // Register preference observer for auto-check frequency changes
     Zotero.Prefs.registerObserver(
@@ -330,8 +336,7 @@ export async function onMainWindowLoad(win: _ZoteroTypes.MainWindow) {
         const selectedItems = Zotero.getActiveZoteroPane().getSelectedItems();
         return selectedItems.some((item: Zotero.Item) =>
           itemHasTag(item, TAG_IS_REPLICATION) ||
-          itemHasTag(item, TAG_IS_REPRODUCTION) ||
-          itemHasTag(item, TAG_ADDED_BY_CHECKER)
+          itemHasTag(item, TAG_IS_REPRODUCTION)
         );
       },
       commandListener: () => {
@@ -673,6 +678,11 @@ function setupPreferencePaneObserver() {
                   } else {
                     Zotero.debug("[ReplicationChecker] ERROR: initBlacklistUI not available");
                   }
+                  if ((Zotero as any).ReplicationChecker?.initStatsUI) {
+                    (Zotero as any).ReplicationChecker.initStatsUI(doc);
+                  } else {
+                    Zotero.debug("[ReplicationChecker] ERROR: initStatsUI not available");
+                  }
                   // Update preference pane icon to match current theme
                   updatePreferencePaneIcons();
                 } else if (attempts < maxAttempts) {
@@ -988,6 +998,224 @@ export async function initBlacklistUI(doc: Document) {
 
   // Load the UI
   await loadBlacklistUI();
+}
+
+// ---------------------------------------------------------------------------
+// Stats UI for the preference pane
+// ---------------------------------------------------------------------------
+
+export async function initStatsUI(doc: Document): Promise<void> {
+  Zotero.debug("[ReplicationChecker Prefs] initStatsUI called");
+
+  let statsNotifierID: string | null = null;
+
+  // ── helpers ──────────────────────────────────────────────────────────────
+
+  async function countByTag(tag: string): Promise<number> {
+    const libraryID = Zotero.Libraries.userLibraryID;
+    const search = new Zotero.Search();
+    search.addCondition("libraryID", "is", String(libraryID));
+    search.addCondition("tag", "is", tag);
+    const ids = await search.search();
+    return ids.length;
+  }
+
+  async function countAllItems(): Promise<number> {
+    const libraryID = Zotero.Libraries.userLibraryID;
+    const search = new Zotero.Search();
+    search.addCondition("libraryID", "is", String(libraryID));
+    search.addCondition("noChildren", "true", "1");
+    const ids = await search.search();
+    return ids.length;
+  }
+
+  function setText(id: string, value: string): void {
+    const el = doc.getElementById(id);
+    if (el) el.textContent = value;
+  }
+
+  // ── load stats from Zotero library ───────────────────────────────────────
+
+  async function loadStatsUI(): Promise<void> {
+    try {
+      // Show loading state
+      for (const id of [
+        "stat-total", "stat-originals", "stat-has-replication",
+        "stat-is-replication", "stat-has-reproduction", "stat-is-reproduction",
+      ]) setText(id, "…");
+
+      const [total, originals, hasRep, isRep, hasRepro, isRepro] = await Promise.all([
+        countAllItems(),
+        countByTag(getTag(TAG_HAS_BEEN_REPLICATED)),
+        countByTag(getTag(TAG_HAS_REPLICATION)),
+        countByTag(getTag(TAG_IS_REPLICATION)),
+        countByTag(getTag(TAG_HAS_REPRODUCTION)),
+        countByTag(getTag(TAG_IS_REPRODUCTION)),
+      ]);
+
+      setText("stat-total",            total.toLocaleString());
+      setText("stat-originals",        String(originals));
+      setText("stat-has-replication",  String(hasRep));
+      setText("stat-is-replication",   String(isRep));
+      setText("stat-has-reproduction", String(hasRepro));
+      setText("stat-is-reproduction",  String(isRepro));
+
+      Zotero.debug(`[ReplicationChecker Prefs] Stats: total=${total} originals=${originals} hasRep=${hasRep} isRep=${isRep} hasRepro=${hasRepro} isRepro=${isRepro}`);
+    } catch (error) {
+      Zotero.debug("[ReplicationChecker Prefs] Error loading stats: " + error);
+    }
+  }
+
+  // ── FLoRA API lookup ─────────────────────────────────────────────────────
+
+  async function fetchFloraStats(): Promise<void> {
+    const btn = doc.getElementById("stats-fetch-flora-btn") as HTMLButtonElement | null;
+    const resultArea = doc.getElementById("stats-flora-area");
+    const resultEl   = doc.getElementById("stats-flora-result");
+    const breakdownEl = doc.getElementById("stats-flora-breakdown");
+    const errorEl    = doc.getElementById("stats-flora-error");
+
+    if (btn) { btn.disabled = true; btn.textContent = "Fetching…"; }
+    if (resultArea) (resultArea as HTMLElement).style.display = "none";
+    if (errorEl)   { (errorEl as HTMLElement).style.display = "none"; errorEl.textContent = ""; }
+
+    try {
+      const libraryID = Zotero.Libraries.userLibraryID;
+      const search = new Zotero.Search();
+      search.addCondition("libraryID", "is", String(libraryID));
+      search.addCondition("tag", "is", getTag(TAG_HAS_BEEN_REPLICATED));
+      const ids = await search.search();
+
+      const dois: string[] = [];
+      for (const id of ids) {
+        const item = await Zotero.Items.getAsync(id);
+        if (!item) continue;
+        const doi = (item.getField("DOI") as string | undefined)?.trim().toLowerCase();
+        if (doi) dois.push(doi);
+      }
+
+      if (dois.length === 0) {
+        if (errorEl) { errorEl.textContent = "No tracked originals found. Run a replication check first."; (errorEl as HTMLElement).style.display = "block"; }
+        return;
+      }
+
+      const resp = await Zotero.HTTP.request("POST", "https://rep-api.forrt.org/v1/original-lookup", {
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dois }),
+      });
+
+      const data = JSON.parse(resp.responseText ?? "");
+      const results = (data.results || {}) as Record<string, any>;
+
+      let matched = 0, totalRep = 0, totalRepro = 0;
+      for (const doi in results) {
+        const stats = results[doi]?.record?.stats;
+        if (!stats) continue;
+        matched++;
+        totalRep   += (stats.n_replications_total  as number) || 0;
+        totalRepro += (stats.n_reproductions_total as number) || 0;
+      }
+
+      if (resultEl) resultEl.textContent =
+        `FLoRA matched ${matched} of your ${dois.length} original article${dois.length !== 1 ? "s" : ""}.`;
+      if (breakdownEl) breakdownEl.textContent =
+        `Total known: ${totalRep} replication${totalRep !== 1 ? "s" : ""} and ${totalRepro} reproduction${totalRepro !== 1 ? "s" : ""} across those articles.`;
+      if (resultArea) (resultArea as HTMLElement).style.display = "block";
+
+    } catch (error) {
+      Zotero.debug("[ReplicationChecker Prefs] FLoRA fetch error: " + error);
+      if (errorEl) { errorEl.textContent = "Could not reach FLoRA — check your internet connection."; (errorEl as HTMLElement).style.display = "block"; }
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = "Fetch from FLoRA"; }
+    }
+  }
+
+  // ── Open FLoRA Annotator (copies DOIs to clipboard first) ────────────────
+
+  async function openAnnotator(): Promise<void> {
+    try {
+      const libraryID = Zotero.Libraries.userLibraryID;
+      const search = new Zotero.Search();
+      search.addCondition("libraryID", "is", String(libraryID));
+      search.addCondition("tag", "is", getTag(TAG_HAS_BEEN_REPLICATED));
+      const ids = await search.search();
+
+      const dois: string[] = [];
+      for (const id of ids) {
+        const item = await Zotero.Items.getAsync(id);
+        if (!item) continue;
+        const doi = (item.getField("DOI") as string | undefined)?.trim();
+        if (doi) dois.push(doi);
+      }
+
+      if (dois.length > 0) {
+        const clipHelper = (Components.classes as any)[
+          "@mozilla.org/widget/clipboardhelper;1"
+        ].getService((Components.interfaces as any).nsIClipboardHelper);
+        clipHelper.copyString(dois.join("\n"));
+
+        const progressWin = new Zotero.ProgressWindow();
+        progressWin.changeHeadline("FLoRA Annotator");
+        progressWin.addLines(
+          `${dois.length} DOI${dois.length !== 1 ? "s" : ""} copied — paste into the Input References field`,
+          ""
+        );
+        progressWin.show();
+        progressWin.startCloseTimer(4000);
+        Zotero.debug(`[ReplicationChecker Prefs] Copied ${dois.length} DOIs to clipboard for Annotator`);
+      }
+
+      Zotero.launchURL("https://forrt.org/annotator/");
+    } catch (error) {
+      Zotero.debug("[ReplicationChecker Prefs] Error opening annotator: " + error);
+    }
+  }
+
+  // ── Wire up buttons ───────────────────────────────────────────────────────
+
+  const fetchBtn = doc.getElementById("stats-fetch-flora-btn");
+  if (fetchBtn) fetchBtn.addEventListener("click", () => { fetchFloraStats(); });
+
+  const annotatorBtn = doc.getElementById("stats-annotator-btn");
+  if (annotatorBtn) annotatorBtn.addEventListener("click", () => { openAnnotator(); });
+
+  // ── Auto-update via Zotero Notifier ──────────────────────────────────────
+
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+  statsNotifierID = Zotero.Notifier.registerObserver(
+    {
+      notify: (event: string, type: string, _ids: (number | string)[], _extraData: Record<string, any>) => {
+        if (type === "item" && (event === "add" || event === "modify" || event === "delete")) {
+          // Debounce: wait 500 ms after the last change before reloading
+          if (debounceTimer !== null) clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(() => { loadStatsUI(); }, 500);
+        }
+      },
+    },
+    ["item"]
+  );
+  Zotero.debug("[ReplicationChecker Prefs] Stats notifier registered: " + statsNotifierID);
+
+  // ── Clean up on window close ──────────────────────────────────────────────
+
+  const win = doc.defaultView;
+  if (win) {
+    win.addEventListener("unload", () => {
+      if (debounceTimer !== null) clearTimeout(debounceTimer);
+      if (statsNotifierID) {
+        try {
+          Zotero.Notifier.unregisterObserver(statsNotifierID);
+          Zotero.debug("[ReplicationChecker Prefs] Stats notifier unregistered");
+        } catch (e) {
+          Zotero.debug("[ReplicationChecker Prefs] Could not unregister stats notifier: " + e);
+        }
+      }
+    });
+  }
+
+  // ── Initial load ──────────────────────────────────────────────────────────
+  await loadStatsUI();
 }
 
 export default {

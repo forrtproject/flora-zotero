@@ -26,9 +26,13 @@ replication-checker-alert-no-dois-selected = Aucun DOI trouvé dans les élémen
 replication-checker-alert-no-collection = Veuillez sélectionner une collection avant d'exécuter cette vérification.
 replication-checker-alert-no-originals-available = Aucune étude originale disponible pour cette réplication.
 replication-checker-alert-no-doi = L'élément sélectionné n'a pas de DOI.
-replication-checker-add-original-success = Étude originale ajoutée avec succès : { $title }
+replication-checker-add-original-success = "{ $title }" ajouté avec succès dans "{ $folderName }".
+replication-checker-add-original-exists = "{ $title }" est déjà dans votre bibliothèque — étiquettes, notes et relations mises à jour dans "{ $folderName }".
 replication-checker-add-original-confirm = { $count } étude(s) originale(s) trouvée(s) pour cette réplication. Voulez-vous toutes les ajouter à votre bibliothèque ?
-replication-checker-add-original-batch-success = { $count } étude(s) originale(s) ajoutée(s) avec succès à votre bibliothèque.
+replication-checker-add-original-select-btn = Sélectionner les originaux à ajouter
+replication-checker-add-original-batch-success = { $newCount } nouvelle(s) et { $existingCount } étude(s) originale(s) existante(s) mise(s) à jour dans "{ $folderName }".
+replication-checker-add-original-batch-new-only = { $count } étude(s) originale(s) ajoutée(s) avec succès dans "{ $folderName }".
+replication-checker-add-original-batch-exists-only = { $count } étude(s) originale(s) déjà dans votre bibliothèque — étiquettes, notes et relations mises à jour dans "{ $folderName }".
 replication-checker-error-title = Replication Checker - Erreur
 replication-checker-error-api = Impossible de récupérer les données depuis l'API - vérifiez votre connexion Internet ou réessayez plus tard.
 replication-checker-error-body =
@@ -52,15 +56,27 @@ replication-checker-alert-no-replications-selected = Aucun élément de réplica
 
 ## Dialog
 replication-checker-dialog-title = Études de réplication trouvées
-replication-checker-dialog-intro = Études de réplication trouvées pour :\n"{ $title }"
+replication-checker-dialog-intro =
+    Études de réplication trouvées pour :
+    "{ $title }"
 replication-checker-dialog-count = { $count } réplication(s) trouvée(s) :
-replication-checker-dialog-item = { $index }. { $title }\n({ $year })\n   Résultat : { $outcome }
+replication-checker-dialog-item =
+    { $index }. { $title }
+    ({ $year })
+       Résultat : { $outcome }
 replication-checker-dialog-more = ...et { $count } réplication(s) supplémentaire(s)
 replication-checker-dialog-question = Souhaitez-vous ajouter des informations de réplication ?
 replication-checker-dialog-progress-title = Informations de réplication ajoutées
 replication-checker-dialog-progress-line = Informations de réplication ajoutées à "{ $title }"
+replication-checker-notif-replication-new = { $count } nouvelle(s) réplication(s) ajoutée(s) avec succès dans "{ $folderName }".
+replication-checker-notif-replication-exists = { $count } réplication(s) déjà dans votre bibliothèque — étiquettes, notes et relations mises à jour dans "{ $folderName }".
+replication-checker-notif-replication-mixed = { $newCount } nouvelle(s) et { $existingCount } réplication(s) existante(s) mises à jour dans "{ $folderName }".
 replication-checker-dialog-is-replication-title = Étude originale trouvée
-replication-checker-dialog-is-replication-message = Aucune réplication trouvée, mais il semble que ce soit une étude de réplication.\n\nSouhaitez-vous ajouter le(s) article(s) original(aux) ?
+replication-checker-dialog-is-replication-message =
+    Aucune réplication trouvée, mais il semble que ce soit une étude de réplication.
+    Trouvé { $count } article(s) original(aux).
+
+    Souhaitez-vous les ajouter à votre bibliothèque ?
 
 ## Read-Only Library Handling
 replication-checker-readonly-dialog-title = Bibliothèque en lecture seule détectée
@@ -75,9 +91,9 @@ replication-checker-results-title-selected = Analyse des éléments sélectionn�
 replication-checker-results-title-collection = Analyse de la collection terminée
 replication-checker-results-total = Total des éléments vérifiés : { $count }
 replication-checker-results-dois = Éléments avec des DOI : { $count }
-replication-checker-results-found = { $count } élément(s) ont des réplications.
+replication-checker-results-found = { $count } élément(s) ont des réplications, stockés dans "{ $folderName }".
 replication-checker-results-none = Aucune réplication trouvée.
-replication-checker-results-reproductions-found = { $count } élément(s) ont des reproductions.
+replication-checker-results-reproductions-found = { $count } élément(s) ont des reproductions, stockés dans "{ $folderName }".
 replication-checker-results-reproductions-none = Aucune reproduction trouvée.
 replication-checker-results-footer = Consultez les notes pour plus de détails ou sélectionnez des éléments à revérifier.
 
@@ -88,6 +104,7 @@ replication-checker-tag-added-by-checker = Ajouté par Replication Checker
 replication-checker-tag-success = Réplication : Réussie
 replication-checker-tag-failure = Réplication : Échouée
 replication-checker-tag-mixed = Réplication : Mitigée
+replication-checker-tag-multiple-originals = Réplication : Plusieurs originaux
 replication-checker-tag-readonly-origin = Original présent dans une bibliothèque en lecture seule
 replication-checker-tag-has-been-replicated = A été répliqué
 replication-checker-tag-has-been-reproduced = A été reproduit
@@ -199,6 +216,7 @@ reproduction-checker-tag-outcome-cs-not-checked = Reproduction : Succès informa
 reproduction-checker-tag-outcome-ci-robust = Reproduction : Problèmes informatiques, Robuste
 reproduction-checker-tag-outcome-ci-challenges = Reproduction : Problèmes informatiques, Défis de robustesse
 reproduction-checker-tag-outcome-ci-not-checked = Reproduction : Problèmes informatiques, Robustesse non vérifiée
+reproduction-checker-tag-multiple-originals = Reproduction : Plusieurs originaux
 
 ## Reproduction Feature - Note Template
 reproduction-checker-note-title = Reproductions trouvées
@@ -249,6 +267,35 @@ pref-autocheck-monthly = Mensuel (vérifier tous les 30 jours)
 pref-autocheck-new-items = Vérifier automatiquement les nouveaux éléments ajoutés à la bibliothèque (recommandé)
 pref-autocheck-new-items-hint = Désactivez cette option si vous préférez effectuer toutes les vérifications de réplication manuellement.
 pref-autocheck-note = La vérification automatique s'exécute en arrière-plan lorsque Zotero est ouvert. Vous pouvez toujours vérifier manuellement depuis le menu Outils.
+pref-folder-title = Nom du dossier de réplication
+pref-folder-description = Nom de la collection Zotero dans laquelle sont stockés les éléments de réplication
+pref-folder-hint = La modification renommera automatiquement la collection existante. Tous les éléments resteront dans la même collection.
+pref-repro-folder-title = Nom du dossier de reproduction
+pref-repro-folder-description = Nom de la collection Zotero dans laquelle sont stockés les éléments de reproduction
+pref-repro-folder-hint = La modification renommera automatiquement la collection existante. Tous les éléments resteront dans la même collection.
+pref-originals-replication-folder-title = Dossier des originaux (liés aux réplications)
+pref-originals-replication-folder-description = Nom de la collection Zotero dans laquelle sont stockés les articles originaux (dont les réplications ont été ajoutées)
+pref-originals-replication-folder-hint = La modification renommera automatiquement la collection existante. Tous les éléments resteront dans la même collection.
+pref-originals-reproduction-folder-title = Dossier des originaux (liés aux reproductions)
+pref-originals-reproduction-folder-description = Nom de la collection Zotero dans laquelle sont stockés les articles originaux (dont les reproductions ont été ajoutées)
+pref-originals-reproduction-folder-hint = La modification renommera automatiquement la collection existante. Tous les éléments resteront dans la même collection.
+
+## Stats Pane
+pref-stats-title = Vos statistiques FLoRA
+pref-stats-description = Statistiques basées sur votre bibliothèque Zotero actuelle
+pref-stats-has-replication = Articles avec réplications
+pref-stats-has-reproduction = Articles avec reproductions
+pref-stats-is-replication = Articles identifiés comme réplications
+pref-stats-originals = Articles originaux suivis
+pref-stats-refresh = Actualiser les statistiques
+pref-stats-fetch-flora = Récupérer depuis FLoRA
+pref-stats-fetching = Récupération depuis FLoRA…
+pref-stats-fetch-result = FLoRA a trouvé { $matchedCount } de vos { $origCount } article(s) original(aux).
+pref-stats-fetch-breakdown = Total connu : { $repCount } réplication(s) et { $reproCount } reproduction(s) pour ces articles.
+pref-stats-no-originals = Aucun article original suivi trouvé dans votre bibliothèque. Effectuez d'abord une vérification des réplications.
+pref-stats-fetch-error = Impossible d'atteindre FLoRA — vérifiez votre connexion Internet et réessayez.
+pref-stats-view-flora = Voir la base de données FLoRA →
+
 pref-blacklist-title = Réplications bannies
 pref-blacklist-description = Gérer les réplications que vous avez bannies de votre bibliothèque
 pref-blacklist-col-replication = Article de réplication

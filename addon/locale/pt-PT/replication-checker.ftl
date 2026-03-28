@@ -1,7 +1,7 @@
 # Zotero Replication Checker Locale File - European Portuguese (Português Europeu, Portugal)
 # Modern Fluent format (.ftl)
 
-## Menu Items / Itens do menu 
+## Menu Items / Itens do menu
 replication-checker-tools-menu = Verificar replicações na biblioteca atual
 replication-checker-context-menu = Verificar replicações
 replication-checker-context-menu-ban = Excluir replicação
@@ -26,9 +26,13 @@ replication-checker-alert-no-dois-selected = Não foram encontrados DOIs nos ite
 replication-checker-alert-no-collection = Selecione uma coleção antes de executar esta verificação.
 replication-checker-alert-no-originals-available = Não há estudos originais disponíveis para esta replicação.
 replication-checker-alert-no-doi = O item selecionado não tem DOI.
-replication-checker-add-original-success = Estudo original adicionado com sucesso: { $title }
+replication-checker-add-original-success = "{ $title }" adicionado com sucesso a "{ $folderName }".
+replication-checker-add-original-exists = "{ $title }" já está na sua biblioteca — etiquetas, notas e relações atualizadas em "{ $folderName }".
 replication-checker-add-original-confirm = Foram encontrado(s) { $count } estudo(s) original(is) para esta replicação. Pretende adicioná-los todos à sua biblioteca?
-replication-checker-add-original-batch-success = Foram adicionados com sucesso { $count } estudo(s) original(is) à sua biblioteca.
+replication-checker-add-original-select-btn = Selecionar quais originais adicionar
+replication-checker-add-original-batch-success = Adicionado(s) { $newCount } novo(s) e atualizado(s) { $existingCount } estudo(s) original(is) existente(s) em "{ $folderName }".
+replication-checker-add-original-batch-new-only = Foram adicionados com sucesso { $count } estudo(s) original(is) a "{ $folderName }".
+replication-checker-add-original-batch-exists-only = { $count } estudo(s) original(is) já na sua biblioteca — etiquetas, notas e relações atualizadas em "{ $folderName }".
 replication-checker-error-title = Replication Checker - Erro
 replication-checker-error-api = Não foi possível obter dados da API - verifique a sua ligação à Internet ou tente novamente mais tarde.
 replication-checker-error-body =
@@ -41,7 +45,7 @@ replication-checker-target-library = a biblioteca atual
 replication-checker-target-selected = os itens selecionados
 replication-checker-target-collection = a coleção selecionada
 
-## Ban Feature / Exclusão 
+## Ban Feature / Exclusão
 replication-checker-ban-title = Excluir replicações
 replication-checker-ban-confirm =
     Tem a certeza de que pretende excluir { $count } replicação(ões)?
@@ -54,15 +58,27 @@ replication-checker-alert-no-replications-selected = Não foram selecionados ite
 
 ## Dialog
 replication-checker-dialog-title = Estudos de replicação encontrados
-replication-checker-dialog-intro = Estudos de replicação encontrados para:\n"{ $title }"
+replication-checker-dialog-intro =
+    Estudos de replicação encontrados para:
+    "{ $title }"
 replication-checker-dialog-count = Encontrada(s) { $count } replicação(ões):
-replication-checker-dialog-item = { $index }. { $title }\n({ $year })\n   Resultado: { $outcome }
+replication-checker-dialog-item =
+    { $index }. { $title }
+    ({ $year })
+       Resultado: { $outcome }
 replication-checker-dialog-more = ...e mais { $count } replicação(ões)
 replication-checker-dialog-question = Pretende adicionar a informação sobre replicação?
 replication-checker-dialog-progress-title = Informação de replicação adicionada
 replication-checker-dialog-progress-line = Informação de replicação adicionada a "{ $title }"
+replication-checker-notif-replication-new = { $count } nova(s) replicação(ões) adicionada(s) com sucesso a "{ $folderName }".
+replication-checker-notif-replication-exists = { $count } replicação(ões) já na sua biblioteca — etiquetas, notas e relações atualizadas em "{ $folderName }".
+replication-checker-notif-replication-mixed = Adicionada(s) { $newCount } nova(s) e atualizada(s) { $existingCount } replicação(ões) existente(s) em "{ $folderName }".
 replication-checker-dialog-is-replication-title = Estudo original encontrado
-replication-checker-dialog-is-replication-message = Não foram encontradas replicações, mas este parece ser um estudo de replicação.\n\nPretende adicionar o(s) artigo(s) original(is)?
+replication-checker-dialog-is-replication-message =
+    Não foram encontradas replicações, mas este parece ser um estudo de replicação.
+    Encontrado(s) { $count } artigo(s) original(is).
+
+    Pretende adicioná-los à sua biblioteca?
 
 ## Read-Only Library Handling
 replication-checker-readonly-dialog-title = Biblioteca só de leitura detetada
@@ -77,9 +93,9 @@ replication-checker-results-title-selected = Análise dos itens selecionados con
 replication-checker-results-title-collection = Análise da coleção concluída
 replication-checker-results-total = Total de itens verificados: { $count }
 replication-checker-results-dois = Itens com DOI: { $count }
-replication-checker-results-found = { $count } item(ns) com replicações.
+replication-checker-results-found = { $count } item(ns) com replicações, armazenados em "{ $folderName }".
 replication-checker-results-none = Nenhuma replicação encontrada.
-replication-checker-results-reproductions-found = { $count } item(ns) com reproduções.
+replication-checker-results-reproductions-found = { $count } item(ns) com reproduções, armazenados em "{ $folderName }".
 replication-checker-results-reproductions-none = Não foram encontradas reproduções.
 replication-checker-results-footer = Consulte as notas para mais detalhes ou selecione itens para nova verificação.
 
@@ -258,14 +274,34 @@ pref-autocheck-monthly = Mensal (verificar a cada 30 dias)
 pref-autocheck-new-items = Verificar automaticamente novos itens adicionados à biblioteca (recomendado)
 pref-autocheck-new-items-hint = Desative esta opção se preferir executar manualmente todas as verificações de replicação.
 pref-autocheck-note = A verificação automática decorre em segundo plano quando o Zotero está aberto. Continua a poder verificar manualmente através do menu Ferramentas.
-
-##
 pref-folder-title = Nome da pasta de replicações
 pref-folder-description = Nome da coleção do Zotero onde os itens de replicação são armazenados
 pref-folder-hint = Alterar isto irá renomear automaticamente a coleção existente. Todos os itens permanecerão na mesma coleção.
 pref-repro-folder-title = Nome da pasta de reproduções
 pref-repro-folder-description = Nome da coleção do Zotero onde os itens de reprodução são armazenados
 pref-repro-folder-hint = Alterar isto irá renomear automaticamente a coleção existente. Todos os itens permanecerão na mesma coleção.
+pref-originals-replication-folder-title = Pasta de originais (ligada a replicações)
+pref-originals-replication-folder-description = Nome da coleção do Zotero onde os artigos originais (cujas replicações foram adicionadas) são armazenados
+pref-originals-replication-folder-hint = Alterar isto irá renomear automaticamente a coleção existente. Todos os itens permanecerão na mesma coleção.
+pref-originals-reproduction-folder-title = Pasta de originais (ligada a reproduções)
+pref-originals-reproduction-folder-description = Nome da coleção do Zotero onde os artigos originais (cujas reproduções foram adicionadas) são armazenados
+pref-originals-reproduction-folder-hint = Alterar isto irá renomear automaticamente a coleção existente. Todos os itens permanecerão na mesma coleção.
+
+## Stats Pane
+pref-stats-title = As suas estatísticas do FLoRA
+pref-stats-description = Estatísticas com base na sua biblioteca do Zotero atual
+pref-stats-has-replication = Artigos com replicações
+pref-stats-has-reproduction = Artigos com reproduções
+pref-stats-is-replication = Artigos identificados como replicações
+pref-stats-originals = Artigos originais monitorizados
+pref-stats-refresh = Atualizar estatísticas
+pref-stats-fetch-flora = Obter do FLoRA
+pref-stats-fetching = A obter do FLoRA…
+pref-stats-fetch-result = O FLoRA encontrou { $matchedCount } dos seus { $origCount } artigo(s) original(is).
+pref-stats-fetch-breakdown = Total conhecido: { $repCount } replicação(ões) e { $reproCount } reprodução(ões) nesses artigos.
+pref-stats-no-originals = Não foram encontrados artigos originais monitorizados na sua biblioteca. Execute primeiro uma verificação de replicações.
+pref-stats-fetch-error = Não foi possível aceder ao FLoRA — verifique a sua ligação à Internet e tente novamente.
+pref-stats-view-flora = Ver base de dados FLoRA →
 
 ##
 pref-blacklist-title = Replicações excluídas

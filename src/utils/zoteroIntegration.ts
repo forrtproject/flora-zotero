@@ -155,6 +155,9 @@ export async function addTag(itemID: number, tagName: string): Promise<void> {
   const item = await Zotero.Items.getAsync(itemID);
   if (!item) throw new Error(`Item ${itemID} not found`);
 
+  // Ensure all secondary data (including tags) is loaded before accessing them.
+  // Without this, Zotero throws UnloadedDataException when tags are cached lazily.
+  await item.loadAllData();
   item.addTag(tagName);
   await item.saveTx();
 }

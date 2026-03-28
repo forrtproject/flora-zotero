@@ -1,0 +1,175 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://zotero/skin/zotero.css" type="text/css"?>
+
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        id="flora-select-originals"
+        title="Select Original Articles to Add"
+        width="720"
+        height="480"
+        persist="width height">
+
+  <script src="chrome://zotero/content/include.js"/>
+  <script>
+    <![CDATA[
+      var dialogArgs;
+
+      function init() {
+        dialogArgs = window.arguments[0];
+        var originals = dialogArgs.originals || [];
+
+        // Localise title if a localized string was passed
+        if (dialogArgs.dialogTitle) {
+          document.getElementById("dialog-title").textContent = dialogArgs.dialogTitle;
+          document.title = dialogArgs.dialogTitle;
+        }
+        if (dialogArgs.dialogSubtitle) {
+          document.getElementById("dialog-subtitle").textContent = dialogArgs.dialogSubtitle;
+        }
+
+        var tbody = document.getElementById("originals-tbody");
+
+        originals.forEach(function(orig, i) {
+          var tr = document.createElementNS("http://www.w3.org/1999/xhtml", "tr");
+          tr.style.borderBottom = "1px solid #e8e8e8";
+          tr.style.backgroundColor = (i % 2 === 0) ? "#ffffff" : "#f7f7f7";
+
+          // Checkbox
+          var tdCheck = document.createElementNS("http://www.w3.org/1999/xhtml", "td");
+          tdCheck.style.cssText = "padding:6px 8px; text-align:center; vertical-align:top; width:32px;";
+          var cb = document.createElementNS("http://www.w3.org/1999/xhtml", "input");
+          cb.type = "checkbox";
+          cb.setAttribute("data-index", String(i));
+          cb.className = "orig-cb";
+          cb.addEventListener("change", updateOkButton);
+          tdCheck.appendChild(cb);
+
+          // Title
+          var tdTitle = document.createElementNS("http://www.w3.org/1999/xhtml", "td");
+          tdTitle.style.cssText = "padding:6px 8px; vertical-align:top;";
+          tdTitle.textContent = orig.title || "No title available";
+
+          // Year
+          var tdYear = document.createElementNS("http://www.w3.org/1999/xhtml", "td");
+          tdYear.style.cssText = "padding:6px 8px; text-align:center; vertical-align:top; width:56px;";
+          tdYear.textContent = orig.year ? String(orig.year) : "N/A";
+
+          // DOI
+          var tdDOI = document.createElementNS("http://www.w3.org/1999/xhtml", "td");
+          tdDOI.style.cssText = "padding:6px 8px; vertical-align:top; font-size:0.82em; width:200px; word-break:break-all;";
+          if (orig.doi) {
+            var a = document.createElementNS("http://www.w3.org/1999/xhtml", "a");
+            a.href = "#";
+            a.textContent = orig.doi;
+            a.addEventListener("click", function(e) {
+              e.preventDefault();
+              try { Zotero.launchURL("https://doi.org/" + orig.doi); } catch(ex) {}
+            });
+            tdDOI.appendChild(a);
+          } else {
+            tdDOI.textContent = "N/A";
+          }
+
+          // Outcome
+          var tdOut = document.createElementNS("http://www.w3.org/1999/xhtml", "td");
+          tdOut.style.cssText = "padding:6px 8px; text-align:center; vertical-align:top; width:110px;";
+          var raw = orig.outcome || "";
+          tdOut.textContent = raw ? (raw.charAt(0).toUpperCase() + raw.slice(1)) : "N/A";
+
+          tr.appendChild(tdCheck);
+          tr.appendChild(tdTitle);
+          tr.appendChild(tdYear);
+          tr.appendChild(tdDOI);
+          tr.appendChild(tdOut);
+          tbody.appendChild(tr);
+        });
+
+        updateOkButton();
+      }
+
+      function updateOkButton() {
+        var anyChecked = document.querySelectorAll(".orig-cb:checked").length > 0;
+        document.getElementById("ok-btn").disabled = !anyChecked;
+      }
+
+      function toggleSelectAll(cb) {
+        var checked = cb.checked;
+        document.querySelectorAll(".orig-cb").forEach(function(c) {
+          c.checked = checked;
+        });
+        updateOkButton();
+      }
+
+      function doOK() {
+        var selected = [];
+        document.querySelectorAll(".orig-cb").forEach(function(cb) {
+          if (cb.checked) selected.push(parseInt(cb.getAttribute("data-index"), 10));
+        });
+        dialogArgs.selectedIndices = selected;
+        dialogArgs.cancelled = false;
+        window.close();
+      }
+
+      function doCancel() {
+        dialogArgs.cancelled = true;
+        window.close();
+      }
+    ]]>
+  </script>
+
+  <vbox flex="1" style="padding:16px; min-width:680px;">
+
+    <!-- Header -->
+    <hbox align="center" style="margin-bottom:10px;">
+      <image src="chrome://replicationChecker/content/icons/favicon@0.5x.png"
+             style="width:28px; height:28px; margin-right:10px;"/>
+      <label id="dialog-title"
+             style="font-weight:bold; font-size:1.05em;">
+        Select Original Articles to Add
+      </label>
+    </hbox>
+
+    <description id="dialog-subtitle"
+                 style="margin-bottom:10px; font-size:0.9em; color:#555;"/>
+
+    <!-- Select-all row -->
+    <hbox align="center" style="margin-bottom:6px;">
+      <html:label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+        <html:input type="checkbox" id="select-all-cb"
+                    onchange="toggleSelectAll(this)"/>
+        Select All
+      </html:label>
+    </hbox>
+
+    <!-- Table -->
+    <html:div style="flex:1; overflow-y:auto; border:1px solid #bbb; border-radius:3px; max-height:320px;">
+      <html:table style="width:100%; border-collapse:collapse; font-size:0.88em;">
+        <html:thead style="position:sticky; top:0; background:#ddd; border-bottom:2px solid #999;">
+          <html:tr>
+            <html:th style="padding:6px 8px; width:32px;"></html:th>
+            <html:th style="padding:6px 8px; text-align:left;">Title</html:th>
+            <html:th style="padding:6px 8px; text-align:center; width:56px;">Year</html:th>
+            <html:th style="padding:6px 8px; text-align:left; width:200px;">DOI</html:th>
+            <html:th style="padding:6px 8px; text-align:center; width:110px;">Outcome</html:th>
+          </html:tr>
+        </html:thead>
+        <html:tbody id="originals-tbody"/>
+      </html:table>
+    </html:div>
+
+    <!-- Buttons -->
+    <hbox pack="end" align="center" style="margin-top:14px; gap:8px;">
+      <button id="cancel-btn" label="Cancel" oncommand="doCancel()"/>
+      <button id="ok-btn" label="Add Selected" oncommand="doOK()" disabled="true"/>
+    </hbox>
+
+  </vbox>
+
+  <script>
+    <![CDATA[
+      window.addEventListener("load", init);
+    ]]>
+  </script>
+
+</window>

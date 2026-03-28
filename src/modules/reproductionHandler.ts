@@ -30,94 +30,22 @@ import {
   TAG_REPRODUCTION_MULTIPLE_ORIGINALS,
   getTag, itemHasTag,
 } from "../utils/tags";
+import {
+  type CollectionSpec,
+  getCollectionFolderName,
+  getOrCreateCollection,
+} from "../utils/collectionUtils";
 
 const FEEDBACK_URL = "https://tinyurl.com/y5evebv9";
 const DATA_ISSUES_URL = "https://forms.gle/Tn2eqasUU1WE86Dq8";
 
-const REPRODUCTION_FOLDER_NAME_PREF = "replication-checker.reproductionFolderName";
-const DEFAULT_REPRODUCTION_FOLDER_NAME = "FLoRA Reproductions";
-// Legacy hardcoded name used before the configurable preference was introduced
-const LEGACY_REPRODUCTION_FOLDER_NAME = "Reproduction folder";
-const REPRODUCTION_COLLECTION_IDS_PREF = "replication-checker.reproductionCollectionIDs";
-
-function getReproductionFolderName(): string {
-  try {
-    const prefValue = Zotero.Prefs.get(REPRODUCTION_FOLDER_NAME_PREF);
-    if (typeof prefValue === "string" && prefValue.trim().length > 0) {
-      return prefValue.trim();
-    }
-  } catch (e) {
-    // Fall through to default
-  }
-  return DEFAULT_REPRODUCTION_FOLDER_NAME;
-}
-
-/** Read stored reproduction collectionID map from prefs */
-function getStoredReproductionCollectionIDs(): Record<string, number> {
-  try {
-    const json = Zotero.Prefs.get(REPRODUCTION_COLLECTION_IDS_PREF) as string;
-    if (json) return JSON.parse(json);
-  } catch { /* ignore */ }
-  return {};
-}
-
-/** Persist a reproduction collectionID for a given libraryID */
-function saveReproductionCollectionID(libraryID: number, collectionID: number): void {
-  const map = getStoredReproductionCollectionIDs();
-  map[String(libraryID)] = collectionID;
-  try { Zotero.Prefs.set(REPRODUCTION_COLLECTION_IDS_PREF, JSON.stringify(map)); } catch { /* ignore */ }
-}
-
-/**
- * Find an existing reproduction collection by the current folder name, renaming an
- * old-named collection if needed. Returns null if none exists (caller should create one).
- * Uses the stored collection ID to handle repeated renames correctly.
- */
-async function findOrRenameReproductionCollection(
-  collections: any[],
-  targetName: string,
-  libraryID: number
-): Promise<any | null> {
-  // 1. Exact match with current name
-  const exact = collections.find((c: any) => c.name === targetName && !c.parentID);
-  if (exact) {
-    saveReproductionCollectionID(libraryID, exact.id);
-    return exact;
-  }
-
-  // 2. Find by stored collection ID (handles repeated renames — the collection may have
-  //    already been renamed away from any known fallback name)
-  const storedIDs = getStoredReproductionCollectionIDs();
-  const storedID = storedIDs[String(libraryID)];
-  if (storedID) {
-    const byID = Zotero.Collections.get(storedID);
-    if (byID && byID.libraryID === libraryID) {
-      const oldName = byID.name;
-      byID.name = targetName;
-      await byID.saveTx();
-      Zotero.debug(`[ReproductionHandler] Renamed collection "${oldName}" → "${targetName}" (ID ${storedID})`);
-      return byID;
-    }
-  }
-
-  // 3. Fall back to old names (new default first, then legacy hardcoded name)
-  const fallbackNames = [DEFAULT_REPRODUCTION_FOLDER_NAME, LEGACY_REPRODUCTION_FOLDER_NAME].filter(
-    (n) => n !== targetName
-  );
-  for (const oldName of fallbackNames) {
-    const old = collections.find((c: any) => c.name === oldName && !c.parentID);
-    if (old) {
-      old.name = targetName;
-      await old.saveTx();
-      saveReproductionCollectionID(libraryID, old.id);
-      Zotero.debug(
-        `[ReproductionHandler] Renamed collection "${oldName}" → "${targetName}" in library ${libraryID}`
-      );
-      return old;
-    }
-  }
-  return null;
-}
+const REPRODUCTION_SPEC: CollectionSpec = {
+  namePrefKey: "replication-checker.reproductionFolderName",
+  idsPrefKey: "replication-checker.reproductionCollectionIDs",
+  defaultName: "FLoRA Reproductions",
+  legacyNames: ["FLoRA Reproductions", "Reproduction folder"],
+  debugTag: "[ReproductionHandler]",
+};
 
 /**
  * Map reproduction outcome string to its FTL tag key.
@@ -151,6 +79,14 @@ export class ReproductionHandler {
    */
   setMatcher(matcher: BatchMatcher): void {
     this.matcher = matcher;
+  }
+
+  /**
+   * Return the current reproduction folder name (reads from preferences).
+   * Used by ReplicationCheckerPlugin.showResultsAlert() to show the folder name dynamically.
+   */
+  getReproductionFolderName(): string {
+    return getCollectionFolderName(REPRODUCTION_SPEC);
   }
 
   /**
@@ -455,23 +391,8 @@ export class ReproductionHandler {
 
       // Get or create reproduction collection
       const libraryID = item.libraryID;
-      let collections = Zotero.Collections.getByLibrary(libraryID, true);
-      const reproductionFolderName = getReproductionFolderName();
-      let reproductionCollection = await findOrRenameReproductionCollection(
-        collections,
-        reproductionFolderName,
-        libraryID
-      );
-
-      if (!reproductionCollection) {
-        reproductionCollection = new Zotero.Collection({
-          libraryID: libraryID,
-          name: reproductionFolderName,
-        });
-        await reproductionCollection.saveTx();
-        Zotero.debug(`[ReproductionHandler] Created new "${reproductionFolderName}" collection in library ${libraryID}`);
-      }
-      saveReproductionCollectionID(libraryID, reproductionCollection.id);
+      const reproductionCollection = await getOrCreateCollection(libraryID, REPRODUCTION_SPEC);
+      const reproductionFolderName = reproductionCollection.name;
 
       // Process reproductions in transaction
       await Zotero.DB.executeTransaction(async () => {
@@ -894,27 +815,13 @@ export class ReproductionHandler {
       const sourceLibraryName = sourceLibrary ? sourceLibrary.name : "Unknown Library";
 
       // Get or create reproduction folder in Personal library
-      const reproductionFolderName = getReproductionFolderName();
-      let collections = Zotero.Collections.getByLibrary(personalLibraryID, true);
-      let reproductionCollection = await findOrRenameReproductionCollection(
-        collections,
-        reproductionFolderName,
-        personalLibraryID
-      );
-
-      if (!reproductionCollection) {
-        reproductionCollection = new Zotero.Collection({
-          libraryID: personalLibraryID,
-          name: reproductionFolderName,
-        });
-        await reproductionCollection.saveTx();
-        Zotero.debug(`[ReproductionHandler] Created "${reproductionFolderName}" in Personal library`);
-      }
-      saveReproductionCollectionID(personalLibraryID, reproductionCollection.id);
+      const reproductionCollection = await getOrCreateCollection(personalLibraryID, REPRODUCTION_SPEC);
+      const reproductionFolderName = reproductionCollection.name;
 
       // Get or create collection for originals
       const originalsCollectionName = `${sourceLibraryName} [Read-Only]`;
-      let originalsCollection = collections.find(
+      let personalCollections = Zotero.Collections.getByLibrary(personalLibraryID, true);
+      let originalsCollection = personalCollections.find(
         (c: any) => c.name === originalsCollectionName && !c.parentID
       );
 
@@ -924,7 +831,7 @@ export class ReproductionHandler {
           name: originalsCollectionName,
         });
         await originalsCollection.saveTx();
-        collections = Zotero.Collections.getByLibrary(personalLibraryID, true);
+        personalCollections = Zotero.Collections.getByLibrary(personalLibraryID, true);
       }
 
       // Pre-check: which reproduction DOIs (across all items) have multiple originals

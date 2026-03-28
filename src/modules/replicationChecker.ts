@@ -27,112 +27,45 @@ import {
   parseAuthors,
   copyItemToLibrary,
 } from "../utils/studyUtils";
+import {
+  type CollectionSpec,
+  getCollectionFolderName,
+  findOrRenameCollection,
+  getOrCreateCollection,
+} from "../utils/collectionUtils";
 
 const AUTO_CHECK_PREF = "replication-checker.autoCheckFrequency";
 const NEW_ITEM_PREF = "replication-checker.autoCheckNewItems";
-const FOLDER_NAME_PREF = "replication-checker.folderName";
-const DEFAULT_FOLDER_NAME = "FLoRA Replications";
-const COLLECTION_IDS_PREF = "replication-checker.collectionIDs";
 
-function getReplicationFolderName(): string {
-  try {
-    const prefValue = Zotero.Prefs.get(FOLDER_NAME_PREF);
-    if (typeof prefValue === "string" && prefValue.trim().length > 0) {
-      return prefValue.trim();
-    }
-  } catch (e) {
-    // Fall through to default
-  }
-  return DEFAULT_FOLDER_NAME;
-}
+// ---------------------------------------------------------------------------
+// Collection specs – one per managed folder type
+// ---------------------------------------------------------------------------
 
-/** Read stored collectionID → libraryID map from prefs */
-function getStoredReplicationCollectionIDs(): Record<string, number> {
-  try {
-    const json = Zotero.Prefs.get(COLLECTION_IDS_PREF) as string;
-    if (json) return JSON.parse(json);
-  } catch { /* ignore */ }
-  return {};
-}
+const REPLICATION_SPEC: CollectionSpec = {
+  namePrefKey: "replication-checker.folderName",
+  idsPrefKey: "replication-checker.collectionIDs",
+  defaultName: "FLoRA Replications",
+  legacyNames: ["FLoRA Replications", "Replication folder"],
+  debugTag: "[ReplicationChecker]",
+};
 
-/** Persist a collectionID for a given libraryID */
-function saveReplicationCollectionID(libraryID: number, collectionID: number): void {
-  const map = getStoredReplicationCollectionIDs();
-  map[String(libraryID)] = collectionID;
-  try { Zotero.Prefs.set(COLLECTION_IDS_PREF, JSON.stringify(map)); } catch { /* ignore */ }
-}
+/** Originals that were fetched via "Add Original" for a *replication* item. */
+const ORIGINALS_REPLICATION_SPEC: CollectionSpec = {
+  namePrefKey: "replication-checker.originalsReplicationFolderName",
+  idsPrefKey: "replication-checker.originalsReplicationCollectionIDs",
+  defaultName: "FLoRA Originals linked to Replications",
+  legacyNames: [],
+  debugTag: "[ReplicationChecker]",
+};
 
-/**
- * Find an existing replication collection by the current folder name, renaming the
- * old default-named collection if needed. Returns null if none exists (caller should create one).
- * Uses the stored collection ID to handle repeated renames correctly.
- */
-async function findOrRenameReplicationCollection(
-  collections: any[],
-  targetName: string,
-  libraryID: number
-): Promise<any | null> {
-  // 1. Exact match with current name
-  const exact = collections.find((c: any) => c.name === targetName && !c.parentID);
-  if (exact) {
-    saveReplicationCollectionID(libraryID, exact.id);
-    return exact;
-  }
-
-  // 2. Find by stored collection ID (handles collections that were manually renamed in
-  //    Zotero — the ID tracks the right collection regardless of its current name).
-  //    If the name differs from the preference, the user renamed it manually in Zotero,
-  //    so we update the preference to match rather than reverting their rename.
-  //    NOTE: We search within the `collections` array (from getByLibrary) rather than
-  //    calling Zotero.Collections.get() directly. getByLibrary only returns currently
-  //    active collections, so this avoids matching stale deleted objects that may still
-  //    linger in Zotero's in-memory cache.
-  const storedIDs = getStoredReplicationCollectionIDs();
-  const storedID = storedIDs[String(libraryID)];
-  if (storedID) {
-    const byID = collections.find((c: any) => c.id === storedID);
-    if (byID) {
-      if (byID.name !== targetName) {
-        // Collection was manually renamed by the user in Zotero — respect that and
-        // update the stored preference to match instead of reverting their change.
-        try { Zotero.Prefs.set(FOLDER_NAME_PREF, byID.name); } catch { /* ignore */ }
-        Zotero.debug(
-          `[ReplicationChecker] Collection was manually renamed to "${byID.name}"; updated preference (was "${targetName}")`
-        );
-      }
-      saveReplicationCollectionID(libraryID, byID.id);
-      return byID;
-    }
-    // Stored ID not found in active collections — it was deleted externally or from
-    // another Zotero client. Clear the stale pref so Step 3 / creation can take over.
-    Zotero.debug(
-      `[ReplicationChecker] Stored collection ID ${storedID} not found in library ${libraryID} — clearing stale pref`
-    );
-    const freshMap = getStoredReplicationCollectionIDs();
-    delete freshMap[String(libraryID)];
-    try { Zotero.Prefs.set(COLLECTION_IDS_PREF, JSON.stringify(freshMap)); } catch { /* ignore */ }
-  }
-
-  // 3. Fall back to default/legacy names so we can rename instead of creating a duplicate.
-  //    Excludes targetName from the search so we never try to rename a collection to its
-  //    own name (which would have been caught by Step 1 anyway).
-  //    Also recognises "Replication folder" used by older plugin versions.
-  const LEGACY_FOLDER_NAMES = [DEFAULT_FOLDER_NAME, "Replication folder"];
-  const fallbackNames = LEGACY_FOLDER_NAMES.filter((n) => n !== targetName);
-  for (const legacyName of fallbackNames) {
-    const old = collections.find((c: any) => c.name === legacyName && !c.parentID);
-    if (old) {
-      old.name = targetName;
-      await old.saveTx();
-      saveReplicationCollectionID(libraryID, old.id);
-      Zotero.debug(
-        `[ReplicationChecker] Renamed collection "${legacyName}" → "${targetName}" in library ${libraryID}`
-      );
-      return old;
-    }
-  }
-  return null;
-}
+/** Originals that were fetched via "Add Original" for a *reproduction* item. */
+const ORIGINALS_REPRODUCTION_SPEC: CollectionSpec = {
+  namePrefKey: "replication-checker.originalsReproductionFolderName",
+  idsPrefKey: "replication-checker.originalsReproductionCollectionIDs",
+  defaultName: "FLoRA Originals linked to Reproductions",
+  legacyNames: [],
+  debugTag: "[ReplicationChecker]",
+};
 
 type LocaleParams = Record<string, string | number>;
 const FEEDBACK_URL = "https://tinyurl.com/y5evebv9";
@@ -149,6 +82,7 @@ export class ReplicationCheckerPlugin {
   private autoCheckTimer: number | null = null;
   private prefObserverSymbols: symbol[] = [];
   private pluginAddedItems: Set<number> = new Set(); // Track items added by the plugin
+  private isAddingOriginals = false; // Guard: suppress auto-check while batch-adding originals
 
   /**
    * Initialize the plugin
@@ -201,10 +135,18 @@ export class ReplicationCheckerPlugin {
             Zotero.debug("ReplicationChecker: Skipping new-item auto-check (preference disabled)");
             return;
           }
+          if (this.isAddingOriginals) {
+            Zotero.debug("ReplicationChecker: Skipping new-item auto-check (plugin is adding originals)");
+            return;
+          }
           // Small delay to ensure item is fully saved
           setTimeout(() => {
             if (!this.shouldCheckNewItems()) {
               Zotero.debug("ReplicationChecker: New-item auto-check disabled before execution");
+              return;
+            }
+            if (this.isAddingOriginals) {
+              Zotero.debug("ReplicationChecker: Skipping delayed auto-check (plugin is adding originals)");
               return;
             }
             this.checkNewItems(ids as number[]);
@@ -1016,7 +958,6 @@ export class ReplicationCheckerPlugin {
     try {
       const selectedItems = Zotero.getActiveZoteroPane().getSelectedItems();
 
-      // Only process the first selected item
       if (selectedItems.length === 0) {
         this.showInfoAlert("replication-checker-alert-no-replications-selected");
         return;
@@ -1024,7 +965,6 @@ export class ReplicationCheckerPlugin {
 
       const item = selectedItems[0];
 
-      // Check if item has "Is Replication" or "Is Reproduction" tag
       const isReplication = itemHasTag(item, TAG_IS_REPLICATION);
       const isReproduction = itemHasTag(item, TAG_IS_REPRODUCTION);
       if (!isReplication && !isReproduction) {
@@ -1040,7 +980,6 @@ export class ReplicationCheckerPlugin {
 
       if (!this.matcher) throw new Error("Matcher not initialized");
 
-      // Query API for this DOI
       const results = await this.matcher.checkBatch([doi]);
 
       if (results.length === 0 || results[0].originals.length === 0) {
@@ -1049,99 +988,205 @@ export class ReplicationCheckerPlugin {
       }
 
       const result = results[0];
-      const originals = result.originals;
 
-      Zotero.debug(`[ReplicationChecker] Found ${originals.length} original(s) for replication ${doi}`);
+      // Enrich originals with outcomes so the select dialog shows them correctly
+      const enrichedItems = await this.enrichOriginalsWithOutcomes([
+        { itemID: item.id, originals: result.originals },
+      ]);
+      const originals = enrichedItems[0]?.originals ?? result.originals;
 
-      // Show single confirmation prompt when there are multiple originals
+      Zotero.debug(`[ReplicationChecker] Found ${originals.length} original(s) for ${doi}`);
+
+      // Determine which originals folder to use
+      const originalsSpec = isReplication ? ORIGINALS_REPLICATION_SPEC : ORIGINALS_REPRODUCTION_SPEC;
+
+      // -----------------------------------------------------------------------
+      // When there are multiple originals offer three choices:
+      //   0 = Add All  |  1 = Cancel  |  2 = Select which to add
+      // -----------------------------------------------------------------------
+      let originalsToProcess = originals;
+
       if (originals.length > 1) {
         const promptWin = this.getPromptWindow();
         if (!promptWin) return;
 
-        const confirmed = Services.prompt.confirm(
+        // BUTTON_POS_0 * BUTTON_TITLE_IS_STRING = 1*127 = 127
+        // BUTTON_POS_1 * BUTTON_TITLE_CANCEL   = 256*2 = 512
+        // BUTTON_POS_2 * BUTTON_TITLE_IS_STRING = 65536*127 = 8323072
+        const buttonFlags = 127 + 512 + 8323072;
+
+        const buttonPressed = (Services.prompt as any).confirmEx(
           promptWin,
           getString("replication-checker-dialog-is-replication-title"),
-          getString("replication-checker-add-original-confirm", {
-            count: originals.length,
-          })
-        );
+          getString("replication-checker-add-original-confirm", { count: originals.length }),
+          buttonFlags,
+          getString("replication-checker-context-menu-add-original"), // button 0: "Add All"
+          "",   // button 1: uses BUTTON_TITLE_CANCEL → standard "Cancel" label
+          getString("replication-checker-add-original-select-btn"),   // button 2: "Select…"
+          "",   // no checkbox label
+          {}
+        ) as number;
 
-        if (!confirmed) {
-          Zotero.debug(`[ReplicationChecker] User declined to add ${originals.length} original(s)`);
+        if (buttonPressed === 1) {
+          Zotero.debug(`[ReplicationChecker] User cancelled adding originals`);
           return;
         }
+
+        if (buttonPressed === 2) {
+          // Open the selection dialog
+          const selected = this.showSelectOriginalsDialog(originals);
+          if (selected === null) return; // user cancelled inside dialog
+          if (selected.length === 0) return; // nothing checked
+          originalsToProcess = selected;
+        }
+        // buttonPressed === 0 → Add All (originalsToProcess unchanged)
       }
 
-      // Get Personal library ID
       const personalLibraryID = Zotero.Libraries.userLibraryID;
+      const originalsCollection = await getOrCreateCollection(personalLibraryID, originalsSpec);
+      const folderName = originalsCollection.name;
 
-      let addedCount = 0;
+      let newCount = 0;
+      let existingCount = 0;
+      let lastOriginal: RelatedStudy | null = null;
+      let lastIsNew = false;
 
-      // Process each original study
-      for (const original of originals) {
-        // Check if original already exists in Personal library
+      this.isAddingOriginals = true;
+      try {
+      for (const original of originalsToProcess) {
+        // Check if this original already exists in the Personal library
         const search = new Zotero.Search({ libraryID: personalLibraryID });
         search.addCondition("DOI", "is", original.doi);
         const existingIDs = await search.search();
 
         let originalItemID: number;
         let isNewItem = false;
+
         if (existingIDs.length > 0) {
           originalItemID = existingIDs[0];
+          existingCount++;
           Zotero.debug(`[ReplicationChecker] Using existing original item ${originalItemID}`);
         } else {
-          // Create new item from RelatedStudy
           originalItemID = await this.createItemFromRelatedStudy(original, personalLibraryID);
           isNewItem = true;
-          Zotero.debug(`[ReplicationChecker] Created new original item ${originalItemID}`);
-
-          // Track this item so we don't auto-check it
+          newCount++;
           this.pluginAddedItems.add(originalItemID);
+          Zotero.debug(`[ReplicationChecker] Created new original item ${originalItemID}`);
         }
 
         const originalItem = await Zotero.Items.getAsync(originalItemID);
         if (!originalItem) continue;
 
-        // Add tags to original
+        // Tags – apply to both new and existing items (each addTag calls saveTx internally)
         await ZoteroIntegration.addTag(originalItemID, getTag(TAG_HAS_BEEN_REPLICATED));
         await ZoteroIntegration.addTag(originalItemID, getTag(TAG_IN_FLORA));
-
-        // Add "Added by Replication Checker" tag only for newly created items
         if (isNewItem) {
           await ZoteroIntegration.addTag(originalItemID, getTag(TAG_ADDED_BY_CHECKER));
         }
 
-        // Create bidirectional relationship
+        // Bidirectional relationship
         item.addRelatedItem(originalItem);
         originalItem.addRelatedItem(item);
         await item.saveTx();
         await originalItem.saveTx();
 
-        Zotero.debug(`[ReplicationChecker] Linked replication ${item.id} with original ${originalItemID}`);
-
-        // Create note on original showing ALL replications (not just this one)
+        // Create/update "Replications Found" note on original
         await this.createReplicationNoteForOriginal(originalItemID, original.doi);
 
-        addedCount++;
+        // Add to originals collection LAST — after all saveTx() calls, and wrapped
+        // in its own transaction (required by Zotero's collection.addItem API).
+        try {
+          await Zotero.DB.executeTransaction(async () => {
+            await originalsCollection.addItem(originalItemID);
+          });
+        } catch (e) {
+          Zotero.debug(`[ReplicationChecker] Could not add item ${originalItemID} to "${folderName}": ${e}`);
+        }
+
+        lastOriginal = original;
+        lastIsNew = isNewItem;
+      }
+      } finally {
+        this.isAddingOriginals = false;
       }
 
-      // Show single summary message
-      if (addedCount === 1) {
-        this.showInfoAlert("replication-checker-add-original-success", {
-          title: originals[0].title,
-        });
-      } else if (addedCount > 1) {
-        this.showInfoAlert("replication-checker-add-original-batch-success", {
-          count: addedCount,
-        });
+      // Show summary via ProgressWindow (no OS warning icon)
+      const total = newCount + existingCount;
+      if (total === 0) return;
+
+      const progressWin = new Zotero.ProgressWindow();
+      progressWin.changeHeadline(getString("replication-checker-alert-title"));
+      progressWin.show();
+
+      if (total === 1 && lastOriginal) {
+        const msgKey = lastIsNew
+          ? "replication-checker-add-original-success"
+          : "replication-checker-add-original-exists";
+        this.addProgressLine(progressWin, getString(msgKey, {
+          title: lastOriginal.title,
+          folderName,
+        }));
+      } else if (newCount > 0 && existingCount === 0) {
+        this.addProgressLine(progressWin, getString(
+          "replication-checker-add-original-batch-new-only",
+          { count: newCount, folderName }
+        ));
+      } else if (newCount === 0 && existingCount > 0) {
+        this.addProgressLine(progressWin, getString(
+          "replication-checker-add-original-batch-exists-only",
+          { count: existingCount, folderName }
+        ));
+      } else {
+        this.addProgressLine(progressWin, getString(
+          "replication-checker-add-original-batch-success",
+          { newCount, existingCount, folderName }
+        ));
       }
+
+      progressWin.startCloseTimer(3000);
 
     } catch (error) {
+      this.isAddingOriginals = false;
       Zotero.logError(
         new Error(`Error adding original study: ${error instanceof Error ? error.message : String(error)}`)
       );
       this.showOperationError("selected", String(error));
     }
+  }
+
+  /**
+   * Open the "Select which originals to add" dialog.
+   * Returns the subset of originals the user selected, or null if cancelled.
+   */
+  private showSelectOriginalsDialog(originals: RelatedStudy[]): RelatedStudy[] | null {
+    const mainWin = Zotero.getMainWindow();
+    if (!mainWin) return null;
+
+    const args: {
+      originals: RelatedStudy[];
+      dialogTitle?: string;
+      dialogSubtitle?: string;
+      cancelled: boolean;
+      selectedIndices: number[];
+    } = {
+      originals,
+      dialogTitle: getString("replication-checker-dialog-is-replication-title"),
+      dialogSubtitle: getString("replication-checker-add-original-confirm", {
+        count: originals.length,
+      }),
+      cancelled: true,
+      selectedIndices: [],
+    };
+
+    (mainWin as any).openDialog(
+      "chrome://replicationChecker/content/selectOriginalsDialog.xhtml",
+      "flora-select-originals",
+      "chrome,dialog,centerscreen,modal,resizable",
+      args
+    );
+
+    if (args.cancelled) return null;
+    return args.selectedIndices.map((i) => originals[i]);
   }
 
   /**
@@ -1159,8 +1204,7 @@ export class ReplicationCheckerPlugin {
       // Filter for replication or reproduction items
       const itemsToBan = selectedItems.filter((item: Zotero.Item) =>
         itemHasTag(item, TAG_IS_REPLICATION) ||
-        itemHasTag(item, TAG_IS_REPRODUCTION) ||
-        itemHasTag(item, TAG_ADDED_BY_CHECKER)
+        itemHasTag(item, TAG_IS_REPRODUCTION)
       );
 
       if (itemsToBan.length === 0) {
@@ -1262,38 +1306,25 @@ export class ReplicationCheckerPlugin {
    */
   private async showIsReplicationDialog(itemID: number, result: DOICheckResult): Promise<void> {
     try {
-      const promptWin = this.getPromptWindow();
-      if (!promptWin) return;
-
       const item = await Zotero.Items.getAsync(itemID);
       if (!item) return;
 
-      // Ask user if they want to add the original article(s)
-      const confirmed = Services.prompt.confirm(
-        promptWin,
-        getString("replication-checker-dialog-is-replication-title"),
-        getString("replication-checker-dialog-is-replication-message")
-      );
-
-      if (!confirmed) {
-        Zotero.debug(`[ReplicationChecker] User declined to add original for replication item ${itemID}`);
-        return;
-      }
-
-      // Tag the current item as "Is Replication"
+      // ── STEP 1: Always tag this item, regardless of user choice ──────────
       await ZoteroIntegration.addTag(itemID, getTag(TAG_IS_REPLICATION));
       await ZoteroIntegration.addTag(itemID, getTag(TAG_IN_FLORA));
-      Zotero.debug(`[ReplicationChecker] Tagged item ${itemID} as "Is Replication"`);
+      Zotero.debug(`[ReplicationChecker] Tagged item ${itemID} as "Is Replication" / "In FLoRA"`);
 
-      // Add outcome tag — if multiple originals, use special "Multiple Originals" tag
-      if (result.originals.length > 1) {
+      // ── STEP 2: Enrich originals with outcomes ────────────────────────────
+      const enrichedItems = await this.enrichOriginalsWithOutcomes([
+        { itemID, originals: result.originals },
+      ]);
+      const originals = enrichedItems[0]?.originals ?? result.originals;
+
+      // Add outcome / multiple-originals tag using enriched data
+      if (originals.length > 1) {
         await ZoteroIntegration.addTag(itemID, getTag(TAG_REPLICATION_MULTIPLE_ORIGINALS));
-        Zotero.debug(`[ReplicationChecker] Tagged item ${itemID} as "Replication: Multiple Originals"`);
-        // Enrich originals with outcomes then create "Original Articles" note
-        const enrichedItems = await this.enrichOriginalsWithOutcomes([{ itemID, originals: result.originals }]);
-        await this.addOriginalArticlesNote(itemID, enrichedItems[0]?.originals ?? result.originals);
       } else {
-        const outcomes = result.originals
+        const outcomes = originals
           .map((o) => (o.outcome || "").toLowerCase().trim())
           .filter((o) => o);
         if (outcomes.length > 0) {
@@ -1306,65 +1337,155 @@ export class ReplicationCheckerPlugin {
           } else {
             await ZoteroIntegration.addTag(itemID, getTag(TAG_REPLICATION_MIXED));
           }
-          Zotero.debug(`[ReplicationChecker] Added outcome tag to replication item ${itemID}`);
         }
       }
 
-      // Get Personal library ID
-      const personalLibraryID = Zotero.Libraries.userLibraryID;
+      // Create "Original Articles" note if multiple originals
+      if (originals.length > 1) {
+        await this.addOriginalArticlesNote(itemID, originals);
+      }
 
-      // Process each original study
-      for (const original of result.originals) {
-        // Check if original already exists in Personal library
+      // ── STEP 3: 3-button dialog ───────────────────────────────────────────
+      // Button 0 = "Add Original" (add all)
+      // Button 1 = "Select which originals to add"
+      // Button 2 = Cancel
+      const promptWin = this.getPromptWindow();
+      if (!promptWin) return;
+
+      // BUTTON_POS_0 * IS_STRING = 127
+      // BUTTON_POS_1 * IS_STRING = 256 * 127 = 32512
+      // BUTTON_POS_2 * CANCEL    = 65536 * 2  = 131072
+      const buttonFlags = 127 + 32512 + 131072;
+
+      const buttonPressed = (Services.prompt as any).confirmEx(
+        promptWin,
+        getString("replication-checker-dialog-is-replication-title"),
+        getString("replication-checker-dialog-is-replication-message", { count: originals.length }),
+        buttonFlags,
+        getString("replication-checker-context-menu-add-original"),   // button 0: Add Original
+        getString("replication-checker-add-original-select-btn"),     // button 1: Select
+        "",   // button 2: platform Cancel label
+        "",   // no checkbox
+        {}
+      ) as number;
+
+      // Cancel (button 2 or dialog closed) → tags already saved, nothing more to do
+      if (buttonPressed === 2) {
+        Zotero.debug(`[ReplicationChecker] User cancelled adding originals — tags preserved on item ${itemID}`);
+        return;
+      }
+
+      // ── STEP 4: Determine which originals to process ──────────────────────
+      let originalsToProcess = originals;
+
+      if (buttonPressed === 1) {
+        // "Select which originals to add" → open the same selection dialog
+        const selected = this.showSelectOriginalsDialog(originals);
+        if (selected === null || selected.length === 0) return;
+        originalsToProcess = selected;
+      }
+      // buttonPressed === 0 → Add All (originalsToProcess unchanged)
+
+      // ── STEP 5: Process the chosen originals ──────────────────────────────
+      const personalLibraryID = Zotero.Libraries.userLibraryID;
+      const originalsCollection = await getOrCreateCollection(personalLibraryID, ORIGINALS_REPLICATION_SPEC);
+      const originalsFolder = originalsCollection.name;
+
+      let origNewCount = 0;
+      let origExistingCount = 0;
+      let lastOriginal: RelatedStudy | null = null;
+      let lastIsNew = false;
+
+      this.isAddingOriginals = true;
+      try {
+      for (const original of originalsToProcess) {
         const search = new Zotero.Search({ libraryID: personalLibraryID });
         search.addCondition("DOI", "is", original.doi);
         const existingIDs = await search.search();
 
         let originalItemID: number;
+        let isNewItem = false;
         if (existingIDs.length > 0) {
           originalItemID = existingIDs[0];
+          origExistingCount++;
           Zotero.debug(`[ReplicationChecker] Using existing original item ${originalItemID}`);
         } else {
-          // Create new item from RelatedStudy
           originalItemID = await this.createItemFromRelatedStudy(original, personalLibraryID);
-          Zotero.debug(`[ReplicationChecker] Created new original item ${originalItemID}`);
-
-          // Track this item so we don't auto-check it
+          isNewItem = true;
+          origNewCount++;
           this.pluginAddedItems.add(originalItemID);
+          Zotero.debug(`[ReplicationChecker] Created new original item ${originalItemID}`);
         }
 
         const originalItem = await Zotero.Items.getAsync(originalItemID);
         if (!originalItem) continue;
 
-        // Add tags to original
+        // Tags on the original (each addTag calls saveTx internally)
         await ZoteroIntegration.addTag(originalItemID, getTag(TAG_HAS_BEEN_REPLICATED));
         await ZoteroIntegration.addTag(originalItemID, getTag(TAG_IN_FLORA));
+        if (isNewItem) {
+          await ZoteroIntegration.addTag(originalItemID, getTag(TAG_ADDED_BY_CHECKER));
+        }
 
-        // Create bidirectional relationship
+        // Bidirectional relationship
         item.addRelatedItem(originalItem);
         originalItem.addRelatedItem(item);
         await item.saveTx();
         await originalItem.saveTx();
 
-        Zotero.debug(`[ReplicationChecker] Linked replication ${item.id} with original ${originalItemID}`);
+        Zotero.debug(`[ReplicationChecker] Linked replication ${item.id} ↔ original ${originalItemID}`);
 
-        // Create note on original showing ALL replications (not just this one)
+        // Note on original
         await this.createReplicationNoteForOriginal(originalItemID, original.doi);
+
+        // Add to originals collection LAST — after all saveTx() calls
+        try {
+          await Zotero.DB.executeTransaction(async () => {
+            await originalsCollection.addItem(originalItemID);
+          });
+        } catch (e) {
+          Zotero.debug(`[ReplicationChecker] Could not add ${originalItemID} to "${originalsFolder}": ${e}`);
+        }
+
+        lastOriginal = original;
+        lastIsNew = isNewItem;
+      }
+      } finally {
+        this.isAddingOriginals = false;
       }
 
-      // Show success message
-      const progressWin = new Zotero.ProgressWindow();
-      progressWin.changeHeadline(getString("replication-checker-dialog-progress-title"));
-      progressWin.show();
-      this.addProgressLine(
-        progressWin,
-        getString("replication-checker-dialog-progress-line", {
-          title: item.getField("title") as string,
-        })
-      );
-      progressWin.startCloseTimer(3000);
+      // ── STEP 6: Success notification ──────────────────────────────────────
+      const total = origNewCount + origExistingCount;
+      if (total > 0) {
+        const progressWin = new Zotero.ProgressWindow();
+        progressWin.changeHeadline(getString("replication-checker-alert-title"));
+        progressWin.show();
+
+        let notifMsg: string;
+        if (total === 1 && lastOriginal) {
+          const msgKey = lastIsNew
+            ? "replication-checker-add-original-success"
+            : "replication-checker-add-original-exists";
+          notifMsg = getString(msgKey, { title: lastOriginal.title, folderName: originalsFolder });
+        } else if (origNewCount > 0 && origExistingCount === 0) {
+          notifMsg = getString("replication-checker-add-original-batch-new-only", {
+            count: origNewCount, folderName: originalsFolder,
+          });
+        } else if (origNewCount === 0 && origExistingCount > 0) {
+          notifMsg = getString("replication-checker-add-original-batch-exists-only", {
+            count: origExistingCount, folderName: originalsFolder,
+          });
+        } else {
+          notifMsg = getString("replication-checker-add-original-batch-success", {
+            newCount: origNewCount, existingCount: origExistingCount, folderName: originalsFolder,
+          });
+        }
+        this.addProgressLine(progressWin, notifMsg);
+        progressWin.startCloseTimer(3000);
+      }
 
     } catch (error) {
+      this.isAddingOriginals = false;
       Zotero.logError(new Error(
         `Error showing is-replication dialog: ${error instanceof Error ? error.message : String(error)}`
       ));
@@ -1411,20 +1532,32 @@ export class ReplicationCheckerPlugin {
       const result = Services.prompt.confirm(promptWin, getString("replication-checker-dialog-title"), message);
 
       if (result) {
-        // User clicked "OK" - add tag and note
-        await this.notifyUserAndAddReplications(itemID, replications);
+        // User clicked "OK" - add tags, notes, and add to folder
+        const { newCount, existingCount, folderName } =
+          await this.notifyUserAndAddReplications(itemID, replications);
 
-        // Show success message
+        // Show success message reflecting new vs existing
         const progressWin = new Zotero.ProgressWindow();
         progressWin.changeHeadline(getString("replication-checker-dialog-progress-title"));
         progressWin.show();
-        this.addProgressLine(
-          progressWin,
-          getString("replication-checker-dialog-progress-line", {
-            title: itemTitle,
-          })
-        );
 
+        let notifMsg: string;
+        if (newCount > 0 && existingCount === 0) {
+          notifMsg = getString("replication-checker-notif-replication-new", {
+            count: newCount, folderName,
+          });
+        } else if (newCount === 0 && existingCount > 0) {
+          notifMsg = getString("replication-checker-notif-replication-exists", {
+            count: existingCount, folderName,
+          });
+        } else if (newCount > 0 && existingCount > 0) {
+          notifMsg = getString("replication-checker-notif-replication-mixed", {
+            newCount, existingCount, folderName,
+          });
+        } else {
+          notifMsg = getString("replication-checker-dialog-progress-line", { title: itemTitle });
+        }
+        this.addProgressLine(progressWin, notifMsg);
         progressWin.startCloseTimer(3000);
 
         Zotero.debug(`ReplicationChecker: User accepted replication info for item ${itemID}`);
@@ -1506,7 +1639,10 @@ export class ReplicationCheckerPlugin {
    * Notify user and add replications
    * Combines adding tags/notes and creating replication folder entries
    */
-  private async notifyUserAndAddReplications(itemID: number, replications: RelatedStudy[]): Promise<void> {
+  private async notifyUserAndAddReplications(
+    itemID: number,
+    replications: RelatedStudy[],
+  ): Promise<{ newCount: number; existingCount: number; folderName: string }> {
     try {
       Zotero.debug(`[ReplicationChecker] Processing item ${itemID} with ${replications.length} replications`);
 
@@ -1516,10 +1652,11 @@ export class ReplicationCheckerPlugin {
       // Step 1: Add tags and notes
       await this.notifyUser(itemID, replicationsOldFormat);
 
-      // Step 2: Add to replication folder
-      await this.addReplicationsToFolder(itemID, replicationsOldFormat);
+      // Step 2: Add to replication folder (returns new/existing counts)
+      const counts = await this.addReplicationsToFolder(itemID, replicationsOldFormat);
 
       Zotero.debug(`[ReplicationChecker] Completed processing item ${itemID}`);
+      return counts;
     } catch (error) {
       Zotero.logError(new Error(
         `Error in notifyUserAndAddReplications for item ${itemID}: ${
@@ -1717,7 +1854,10 @@ export class ReplicationCheckerPlugin {
   /**
    * Add replications to the replication folder collection
    */
-  private async addReplicationsToFolder(itemID: number, replications: any[]): Promise<void> {
+  private async addReplicationsToFolder(
+    itemID: number,
+    replications: any[],
+  ): Promise<{ newCount: number; existingCount: number; folderName: string }> {
     try {
       const item = await Zotero.Items.getAsync(itemID);
       if (!item) throw new Error(`Item ${itemID} not found`);
@@ -1756,7 +1896,7 @@ export class ReplicationCheckerPlugin {
         Zotero.debug(
           `ReplicationChecker: All replications for item ${itemID} are blacklisted, skipping`
         );
-        return;
+        return { newCount: 0, existingCount: 0, folderName: "" };
       }
 
       // Pre-check: find which replication DOIs have multiple originals (batch API call)
@@ -1769,23 +1909,11 @@ export class ReplicationCheckerPlugin {
 
       // Get or create replication collection
       const libraryID = item.libraryID;
-      let collections = Zotero.Collections.getByLibrary(libraryID, true);
-      const folderName = getReplicationFolderName();
-      let replicationCollection = await findOrRenameReplicationCollection(
-        collections,
-        folderName,
-        libraryID
-      );
+      const replicationCollection = await getOrCreateCollection(libraryID, REPLICATION_SPEC);
+      const folderName = replicationCollection.name;
 
-      if (!replicationCollection) {
-        replicationCollection = new Zotero.Collection({
-          libraryID: libraryID,
-          name: folderName,
-        });
-        await replicationCollection.saveTx();
-        Zotero.debug(`Created new "${folderName}" collection in library ${libraryID}`);
-      }
-      saveReplicationCollectionID(libraryID, replicationCollection.id);
+      let newCount = 0;
+      let existingCount = 0;
 
       // Process replications in transaction
       await Zotero.DB.executeTransaction(async () => {
@@ -1821,6 +1949,7 @@ export class ReplicationCheckerPlugin {
           // Instead, (a) make sure it's in the replication folder collection and
           // (b) link it as a related item to the original.
           if (existingIDs.length > 0) {
+            existingCount++;
             Zotero.debug(
               `Found existing replication item(s) with identifier ${doi_r || url_r || rep.title_r}; linking instead of creating duplicate`
             );
@@ -2025,6 +2154,7 @@ export class ReplicationCheckerPlugin {
 
             // Add to collection
             await replicationCollection.addItem(newItemID);
+            newCount++;
             Zotero.debug(`Added replication item ${newItemID} to "${folderName}"`);
           } catch (error) {
             Zotero.debug(`Error creating replication item for DOI ${doi_r}: ${error}`);
@@ -2039,6 +2169,8 @@ export class ReplicationCheckerPlugin {
           await this.addOriginalArticlesNote(repItemID, originals);
         }
       }
+
+      return { newCount, existingCount, folderName };
     } catch (error) {
       Zotero.logError(
         new Error(
@@ -2171,8 +2303,8 @@ export class ReplicationCheckerPlugin {
     isSelected = false,
     isCollection = false
   ): void {
-    const promptWin = this.getPromptWindow();
-    if (!promptWin) return;
+    const mainWin = Zotero.getMainWindow();
+    if (!mainWin) return;
 
     const titleKey = isCollection
       ? "replication-checker-results-title-collection"
@@ -2180,31 +2312,43 @@ export class ReplicationCheckerPlugin {
         ? "replication-checker-results-title-selected"
         : "replication-checker-results-title-library";
 
-    let message = `${getString(titleKey)}\n`;
-    message += `${getString("replication-checker-results-total", { count: totalItems })}\n`;
+    const heading = getString(titleKey);
+    let message = `${getString("replication-checker-results-total", { count: totalItems })}\n`;
     message += `${getString("replication-checker-results-dois", { count: doiCount })}\n\n`;
 
-    // Count replications and reproductions
     const replicationCount = results.filter((r) => r.replications.length > 0).length;
     const reproductionCount = results.filter((r) => r.reproductions.length > 0).length;
 
-    // Show replication results
+    const replicationFolderName = getCollectionFolderName(REPLICATION_SPEC);
+    const reproductionFolderName = reproductionHandler.getReproductionFolderName();
+
     if (replicationCount > 0) {
-      message += `${getString("replication-checker-results-found", { count: replicationCount })}\n`;
+      message += `${getString("replication-checker-results-found", {
+        count: replicationCount,
+        folderName: replicationFolderName,
+      })}\n`;
     } else {
       message += `${getString("replication-checker-results-none")}\n`;
     }
 
-    // Show reproduction results (use hardcoded strings due to getString() issues with reproduction keys)
     if (reproductionCount > 0) {
-      message += `${reproductionCount} item(s) have reproductions.\n`;
+      message += `${getString("replication-checker-results-reproductions-found", {
+        count: reproductionCount,
+        folderName: reproductionFolderName,
+      })}\n`;
     } else {
-      message += `No reproductions found.\n`;
+      message += `${getString("replication-checker-results-reproductions-none")}\n`;
     }
 
     message += getString("replication-checker-results-footer");
 
-    Services.prompt.alert(promptWin, getString("replication-checker-alert-title"), message);
+    // Open the custom results dialog (shows plugin icon, not OS warning triangle)
+    (mainWin as any).openDialog(
+      "chrome://replicationChecker/content/resultsDialog.xhtml",
+      "flora-results",
+      "chrome,dialog,centerscreen,modal",
+      { title: getString("replication-checker-alert-title"), heading, message }
+    );
   }
 
   /**
@@ -2269,24 +2413,22 @@ export class ReplicationCheckerPlugin {
     // Fill any missing fields from BibTeX reference
     ZoteroIntegration.fillMissingFieldsFromBibtex(newItem, study.bibtex_ref);
 
-    const newItemID = await newItem.save() as number;
-    Zotero.debug(`[ReplicationChecker] Created item ${newItemID} from RelatedStudy: ${study.doi}`);
-
-    // Add authors
+    // Set creators before the first save so the item is fully populated in a
+    // single saveTx() call — this fires the item-add notifier exactly once,
+    // preventing a second notifier fire from bypassing pluginAddedItems guards.
     if (study.authors && Array.isArray(study.authors) && study.authors.length > 0) {
       const creators = study.authors.map((author) => ({
         creatorType: "author" as const,
         firstName: author.given || "",
         lastName: author.family || "",
       }));
-
-      const item = await Zotero.Items.getAsync(newItemID);
-      if (item && creators.length > 0) {
-        item.setCreators(creators);
-        await item.save();
-        Zotero.debug(`[ReplicationChecker] Added ${creators.length} authors to item ${newItemID}`);
+      if (creators.length > 0) {
+        newItem.setCreators(creators);
       }
     }
+
+    const newItemID = await newItem.saveTx() as number;
+    Zotero.debug(`[ReplicationChecker] Created item ${newItemID} from RelatedStudy: ${study.doi}`);
 
     return newItemID;
   }
@@ -2494,27 +2636,13 @@ export class ReplicationCheckerPlugin {
       const sourceLibraryName = sourceLibrary ? sourceLibrary.name : "Unknown Library";
 
       // Get or create replication folder in Personal library (for replications)
-      const folderName = getReplicationFolderName();
-      let collections = Zotero.Collections.getByLibrary(personalLibraryID, true);
-      let replicationCollection = await findOrRenameReplicationCollection(
-        collections,
-        folderName,
-        personalLibraryID
-      );
-
-      if (!replicationCollection) {
-        replicationCollection = new Zotero.Collection({
-          libraryID: personalLibraryID,
-          name: folderName,
-        });
-        await replicationCollection.saveTx();
-        Zotero.debug(`[ReplicationChecker] Created "${folderName}" in Personal library`);
-      }
-      saveReplicationCollectionID(personalLibraryID, replicationCollection.id);
+      const replicationCollection = await getOrCreateCollection(personalLibraryID, REPLICATION_SPEC);
+      const folderName = replicationCollection.name;
 
       // Get or create collection for originals named "{LibraryName} [Read-Only]"
       const originalsCollectionName = `${sourceLibraryName} [Read-Only]`;
-      let originalsCollection = collections.find(
+      let personalCollections = Zotero.Collections.getByLibrary(personalLibraryID, true);
+      let originalsCollection = personalCollections.find(
         (c: any) => c.name === originalsCollectionName && !c.parentID
       );
 
@@ -2525,8 +2653,7 @@ export class ReplicationCheckerPlugin {
         });
         await originalsCollection.saveTx();
         Zotero.debug(`[ReplicationChecker] Created "${originalsCollectionName}" collection in Personal library`);
-        // Refresh collections list after creating new collection
-        collections = Zotero.Collections.getByLibrary(personalLibraryID, true);
+        personalCollections = Zotero.Collections.getByLibrary(personalLibraryID, true);
       }
 
       // Show progress

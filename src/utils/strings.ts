@@ -55,7 +55,7 @@ export const strings = {
   "replication-checker-dialog-progress-title": "Replication Information Added",
   "replication-checker-dialog-progress-line": "Added replication information to \"{ $title }\"",
   "replication-checker-dialog-is-replication-title": "Original Study Found",
-  "replication-checker-dialog-is-replication-message": "No replications found, but this appears to be a replication study.\n\nWould you like to add the original article(s)?",
+  "replication-checker-dialog-is-replication-message": "No replications found, but this appears to be a replication study.\nFound { $count } original article(s).\n\nWould you like to add them to your library?",
 
   // Read-Only Library Handling
   "replication-checker-readonly-dialog-title": "Read-Only Library Detected",
@@ -70,6 +70,9 @@ export const strings = {
   "replication-checker-results-found": "{ $count } item(s) have replications.",
   "replication-checker-results-none": "No replications found.",
   "replication-checker-results-footer": "View notes for details or select items to re-check.",
+  "replication-checker-notif-replication-new": "Successfully added { $count } new replication(s) to \"{ $folderName }\".",
+  "replication-checker-notif-replication-exists": "{ $count } replication(s) already in your library — tags, notes, and relationships updated in \"{ $folderName }\".",
+  "replication-checker-notif-replication-mixed": "Added { $newCount } new and updated { $existingCount } existing replication(s) in \"{ $folderName }\".",
 
   // Tags
   "replication-checker-tag": "Has Replication",
@@ -148,6 +151,22 @@ export const strings = {
 
   "onboarding-scan-title": "Ready to Scan Your Library?",
   "onboarding-scan-content": "Would you like to scan your library for replications now?\n\n• Click \"Yes\" to start scanning\n  (this may take a few minutes)\n\n• Click \"No\" to skip - you can always scan later from Tools menu\n\n💡 Access this guide anytime:\nHelp → Replication Checker User Guide",
+  // Stats Pane
+  "pref-stats-title": "Your FLoRA Stats",
+  "pref-stats-description": "Statistics based on your current Zotero library",
+  "pref-stats-has-replication": "Articles with replications",
+  "pref-stats-has-reproduction": "Articles with reproductions",
+  "pref-stats-is-replication": "Articles identified as replications",
+  "pref-stats-originals": "Original articles tracked",
+  "pref-stats-refresh": "Refresh Stats",
+  "pref-stats-fetch-flora": "Fetch from FLoRA",
+  "pref-stats-fetching": "Fetching from FLoRA…",
+  "pref-stats-fetch-result": "FLoRA matched { $matchedCount } of your { $origCount } original article(s).",
+  "pref-stats-fetch-breakdown": "Total known: { $repCount } replication(s) and { $reproCount } reproduction(s) across those articles.",
+  "pref-stats-no-originals": "No tracked originals found in your library. Run a replication check first.",
+  "pref-stats-fetch-error": "Could not reach FLoRA — check your internet connection and try again.",
+  "pref-stats-view-flora": "View FLoRA Database →",
+
   // Preference Pane
   "pref-autocheck-title": "Auto-Check Library for Replications",
   "pref-autocheck-description": "Automatically check your library for replication studies at regular intervals",

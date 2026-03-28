@@ -26,16 +26,26 @@ The built XPI is written to `.scaffold/build/zotero-replication-checker.xpi`.
 
 ## Project Structure
 
-```
+```text
 flora_zotero/
 ├── addon/                           # Static assets packaged into the XPI
 │   ├── bootstrap.js                 # XPI bootstrap entry point (loads index.ts exports)
 │   ├── content/
 │   │   ├── icons/                   # Extension icons (SVG + PNG)
-│   │   └── preferences.xhtml        # Preferences UI: auto-check, folder names, ban tables
+│   │   ├── preferences.xhtml        # Preferences UI: auto-check, folder names, ban table, stats
+│   │   ├── resultsDialog.xhtml      # Scan results popup (heading + message body)
+│   │   └── selectOriginalsDialog.xhtml  # Checkbox dialog to choose which originals to add
 │   ├── locale/
-│   │   └── en-US/
-│   │       └── replication-checker.ftl   # All user-facing strings (Fluent format)
+│   │   ├── en-US/
+│   │   │   └── replication-checker.ftl   # All user-facing strings (Fluent format)
+│   │   ├── de/replication-checker.ftl    # German
+│   │   ├── es/replication-checker.ftl    # Spanish
+│   │   ├── fr/replication-checker.ftl    # French
+│   │   ├── ko/replication-checker.ftl    # Korean
+│   │   ├── pt-BR/replication-checker.ftl # Portuguese (Brazil)
+│   │   ├── pt-PT/replication-checker.ftl # Portuguese (Europe)
+│   │   ├── zh-CN/replication-checker.ftl # Chinese Simplified
+│   │   └── ar/replication-checker.ftl    # Arabic
 │   ├── manifest.json                # Runtime manifest template
 │   └── prefs.js                     # Default preference values
 │
@@ -53,13 +63,17 @@ flora_zotero/
 │   │   ├── batchMatcher.ts          # Privacy-preserving DOI matching via MD5 hash prefixes
 │   │   └── onboarding.ts            # First-run onboarding tour
 │   ├── utils/
-│   │   ├── zoteroIntegration.ts     # Zotero API wrappers: DOI extraction, tagging,
-│   │   │                            #   note creation, BibTeX parsing
+│   │   ├── zoteroIntegration.ts     # Zotero API wrappers: DOI extraction, tagging (with
+│   │   │                            #   loadAllData guard), note creation, BibTeX parsing
 │   │   ├── studyUtils.ts            # Shared utilities for both main modules:
 │   │   │                            #   escapeHtml, parseAuthors, copyItemToLibrary,
 │   │   │                            #   buildMultipleOriginalsMap, enrichOriginalsWithOutcomes,
 │   │   │                            #   createOriginalArticlesNoteHtml, addOriginalArticlesNote
-│   │   ├── strings.ts               # getString() Fluent localization helper
+│   │   ├── collectionUtils.ts       # Shared collection find/rename/create logic:
+│   │   │                            #   CollectionSpec, getCollectionFolderName,
+│   │   │                            #   findOrCreateCollection (ID → name → legacy → create)
+│   │   ├── strings.ts               # getString() Fluent localization helper + embedded
+│   │   │                            #   English fallback strings for all keys
 │   │   ├── tags.ts                  # All Zotero tag name constants (single source of truth)
 │   │   └── doi.ts                   # normalizeDoi() — lowercase + strip URL prefix
 │   ├── types/
@@ -127,22 +141,25 @@ Singleton `Addon` class that holds shared state (`data.initialized`, references 
 
 Registers all Zotero lifecycle callbacks:
 
-- `onStartup` — initializes both blacklist managers, the replication checker, and the reproduction handler; registers the item notifier for auto-check.
+- `onStartup` — initializes both blacklist managers, the replication checker, and the reproduction handler; registers the item notifier for auto-check; exposes `initBlacklistUI` and `initStatsUI` as `Zotero.ReplicationChecker.*` globals so the sandboxed preference pane can call them.
 - `onMainWindowLoad` — injects Tools menu items and right-click context menus; loads FTL strings.
 - `onShutdown` / `onMainWindowUnload` — tears down notifiers and menu entries.
 - `initBlacklistUI` — wires the ban-table UI in the Preferences pane.
+- `initStatsUI` — wires the FLoRA Stats section in the Preferences pane: populates live tag-based counts using `Zotero.Search`, registers a debounced `Zotero.Notifier` observer so counts auto-update on item add/modify/delete, handles "Fetch from FLoRA" (POST to `rep-api.forrt.org/v1/original-lookup`), and handles "View FLoRA Database →".
 - `loadFTLStrings` / `parseFTL` — load and parse the `.ftl` locale file at runtime.
 
 ### `src/modules/replicationChecker.ts`
 
-The largest file (~2,800 lines). Responsibilities:
+The largest file. Responsibilities:
 
 - `checkEntireLibrary`, `checkSelectedItems`, `checkSelectedCollection`, `checkNewItems` — the four entry points triggered from the UI.
-- `notifyUserAndAddReplications` — deduplicates results, checks blacklist, calls `addReplicationsToFolder`.
-- `addReplicationsToFolder` — creates replication Zotero items + notes inside a DB transaction, then adds "Original Articles" notes outside the transaction.
+- `notifyUserAndAddReplications` — deduplicates results, checks blacklist, calls `addReplicationsToFolder`; emits distinct new/exists/mixed notification strings with the folder name.
+- `addReplicationsToFolder` — creates replication Zotero items via a single `saveTx()` (creators set before first save to avoid double-notifier fire), adds notes outside the transaction, then enriches with outcomes before writing outcome tags.
 - `handleReadOnlyLibrary` — copies originals and creates replications in the user's Personal library when the source library is read-only.
-- `findOrRenameReplicationCollection` — finds or creates the "FLoRA Replications" collection, respects manual renames by updating the stored preference, recognises legacy "Replication folder" name on upgrade.
-- `banSelectedReplications` — moves items to trash, adds to blacklist.
+- `showIsReplicationDialog` — prompts to add originals; wrapped in `isAddingOriginals = true/false` to prevent the auto-check notifier from treating newly-added originals as user-imported items.
+- `addOriginalStudy` / `showSelectOriginalsDialog` — adds one or more original studies; offers a checkbox selection dialog when multiple originals exist.
+- `banSelectedItems` — moves items to trash and adds to blacklist; now correctly scoped to items tagged `Is Replication` only (no longer matches `Added by Replication Checker`).
+- Collection management delegated to `collectionUtils.ts` (`findOrCreateCollection`).
 - Uses shared utilities from `studyUtils.ts` for HTML generation, author formatting, and item copying.
 
 ### `src/modules/reproductionHandler.ts`
@@ -190,7 +207,16 @@ Zotero API wrappers used by both main modules:
 - `extractDOI` — reads DOI from item fields.
 - `addNote` / `updateNote` — create or replace Zotero notes.
 - `parseBibtex` / `bibtexTypeToZoteroType` / `fillMissingFieldsFromBibtex` — BibTeX helpers for item creation.
+- `addTag` — calls `await item.loadAllData()` before `item.addTag()` to prevent `UnloadedDataException` when Zotero hasn't yet loaded all item fields into memory.
 - `tagItem`, `removeTag` — tag management.
+
+### `src/utils/collectionUtils.ts`
+
+Shared collection find / rename / create logic, extracted from `replicationChecker.ts` and `reproductionHandler.ts` to eliminate duplication across the four collection types (replications, reproductions, originals-for-replications, originals-for-reproductions).
+
+- `CollectionSpec` interface — bundles the name-pref key, ID-map pref key, default name, legacy names, and debug tag for one collection type.
+- `getCollectionFolderName(spec)` — reads the user-configured name from preferences with fallback to the default.
+- `findOrCreateCollection(libraryID, spec)` — three-step lookup: (1) exact name match, (2) stored ID with user-rename detection, (3) legacy name migration; creates a new collection only if all three steps fail.
 
 ### `src/utils/studyUtils.ts`
 
@@ -386,19 +412,27 @@ Both `replicationChecker.ts` and `reproductionHandler.ts` are structurally paral
 - `noAuthorsKey` — FTL key for the "No authors" fallback string
 - `debugTag: "[ReplicationChecker]" | "[ReproductionHandler]"` — prefix for log messages
 
+### Single `saveTx` Pattern
+
+Each new Zotero item must be saved exactly once via `saveTx()`. Using `save()` followed by a second `saveTx()` (e.g. to add creators after the first save) fires the Zotero Notifier twice for the same item. The first fire removes the item from `pluginAddedItems`, so the second fire looks like a user-imported item and can trigger an unwanted "replication found" dialog. The fix: set all item fields **including creators** before the very first `saveTx()`.
+
 ### Transaction Discipline
 
-Zotero item creation (including `addRelatedItem` and `save`) must run inside a `Zotero.DB.executeTransaction` block. Note creation (`addNote`) uses `saveTx` internally and **cannot** be nested in a transaction. The pattern used throughout: create items inside a transaction, collect IDs that need notes, then add notes in a separate loop outside the transaction.
+Zotero item creation (including `addRelatedItem` and `saveTx`) must run inside a `Zotero.DB.executeTransaction` block. Note creation (`addNote`) uses `saveTx` internally and **cannot** be nested in a transaction. The pattern used throughout: create items inside a transaction, collect IDs that need notes, then add notes in a separate loop outside the transaction.
+
+### `isAddingOriginals` Guard
+
+`ReplicationChecker` has a private `isAddingOriginals: boolean` flag. Any method that programmatically adds original studies to the library sets this flag to `true` (via `try/finally`) before the batch loop. The Notifier callback skips auto-check processing while this flag is set, preventing the newly-added originals from triggering another round of replication lookups and dialog prompts.
 
 ### Collection Management
 
-`findOrRenameReplicationCollection` (and its reproduction equivalent) follows a three-step lookup:
+All four collection types (replications, reproductions, originals linked to replications, originals linked to reproductions) use `findOrCreateCollection` from `collectionUtils.ts`. Each collection type is described by a `CollectionSpec` — a small data object that bundles the pref keys, default name, legacy names, and debug tag. The lookup order:
 
-1. **Stored ID** — retrieve the collection by previously saved ID. If the user has manually renamed it in Zotero since the last check, update the stored preference to match their name.
-2. **Preference name** — search for a top-level collection matching the name stored in preferences. If found, save its ID.
-3. **Legacy name fallback** — if the target name is the default name, also search for legacy names (e.g. `"Replication folder"`) to recognise collections from older plugin versions.
+1. **Exact name match** — scan the library for a collection whose current name equals `targetName`.
+2. **Stored ID** — retrieve the collection by the ID saved in preferences. If the collection was renamed by the user in Zotero since the last run, update the stored name preference to match rather than reverting.
+3. **Legacy name fallback** — search for any name in `spec.legacyNames` (e.g. `"Replication folder"` from older plugin versions); rename it to `targetName` on first match.
 
-If none of the above finds a collection, a new one is created.
+If none of the above finds a collection, a new one is created and its ID saved.
 
 ---
 

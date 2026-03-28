@@ -26,9 +26,13 @@ replication-checker-alert-no-dois-selected = No DOIs found in selected items.
 replication-checker-alert-no-collection = Please select a collection before running this check.
 replication-checker-alert-no-originals-available = No original studies available for this replication.
 replication-checker-alert-no-doi = Selected item has no DOI.
-replication-checker-add-original-success = Successfully added original study: { $title }
+replication-checker-add-original-success = Successfully added "{ $title }" to "{ $folderName }".
+replication-checker-add-original-exists = "{ $title }" is already in your library — tags, notes, and relationships have been updated in "{ $folderName }".
 replication-checker-add-original-confirm = Found { $count } original study(ies) for this replication. Would you like to add all of them to your library?
-replication-checker-add-original-batch-success = Successfully added { $count } original study(ies) to your library.
+replication-checker-add-original-select-btn = Select which originals to add
+replication-checker-add-original-batch-success = Added { $newCount } new and updated { $existingCount } existing original study(ies) in "{ $folderName }".
+replication-checker-add-original-batch-new-only = Successfully added { $count } original study(ies) to "{ $folderName }".
+replication-checker-add-original-batch-exists-only = { $count } original study(ies) already in your library — tags, notes, and relationships updated in "{ $folderName }".
 replication-checker-error-title = Replication Checker - Error
 replication-checker-error-api = Could not retrieve data from API - check your internet connection or retry again later.
 replication-checker-error-body =
@@ -64,11 +68,15 @@ replication-checker-dialog-more = ...and { $count } more replication(s)
 replication-checker-dialog-question = Would you like to add replication information?
 replication-checker-dialog-progress-title = Replication Information Added
 replication-checker-dialog-progress-line = Added replication information to "{ $title }"
+replication-checker-notif-replication-new = Successfully added { $count } new replication(s) to "{ $folderName }".
+replication-checker-notif-replication-exists = { $count } replication(s) already in your library — tags, notes, and relationships updated in "{ $folderName }".
+replication-checker-notif-replication-mixed = Added { $newCount } new and updated { $existingCount } existing replication(s) in "{ $folderName }".
 replication-checker-dialog-is-replication-title = Original Study Found
 replication-checker-dialog-is-replication-message =
     No replications found, but this appears to be a replication study.
+    Found { $count } original article(s).
 
-    Would you like to add the original article(s)?
+    Would you like to add them to your library?
 
 ## Read-Only Library Handling
 replication-checker-readonly-dialog-title = Read-Only Library Detected
@@ -83,9 +91,9 @@ replication-checker-results-title-selected = Selected Items Scan Complete
 replication-checker-results-title-collection = Collection Scan Complete
 replication-checker-results-total = Total items checked: { $count }
 replication-checker-results-dois = Items with DOIs: { $count }
-replication-checker-results-found = { $count } item(s) have replications.
+replication-checker-results-found = { $count } item(s) have replications, stored in "{ $folderName }".
 replication-checker-results-none = No replications found.
-replication-checker-results-reproductions-found = { $count } item(s) have reproductions.
+replication-checker-results-reproductions-found = { $count } item(s) have reproductions, stored in "{ $folderName }".
 replication-checker-results-reproductions-none = No reproductions found.
 replication-checker-results-footer = View notes for details or select items to re-check.
 
@@ -273,6 +281,29 @@ pref-folder-hint = Changing this will rename the existing collection automatical
 pref-repro-folder-title = Reproduction Folder Name
 pref-repro-folder-description = Name of the Zotero collection where reproduction items are stored
 pref-repro-folder-hint = Changing this will rename the existing collection automatically. All items will remain in the same collection.
+pref-originals-replication-folder-title = Originals Folder (linked to Replications)
+pref-originals-replication-folder-description = Name of the Zotero collection where original articles (whose replications were added) are stored
+pref-originals-replication-folder-hint = Changing this will rename the existing collection automatically. All items will remain in the same collection.
+pref-originals-reproduction-folder-title = Originals Folder (linked to Reproductions)
+pref-originals-reproduction-folder-description = Name of the Zotero collection where original articles (whose reproductions were added) are stored
+pref-originals-reproduction-folder-hint = Changing this will rename the existing collection automatically. All items will remain in the same collection.
+
+## Stats Pane
+pref-stats-title = Your FLoRA Stats
+pref-stats-description = Statistics based on your current Zotero library
+pref-stats-has-replication = Articles with replications
+pref-stats-has-reproduction = Articles with reproductions
+pref-stats-is-replication = Articles identified as replications
+pref-stats-originals = Original articles tracked
+pref-stats-refresh = Refresh Stats
+pref-stats-fetch-flora = Fetch from FLoRA
+pref-stats-fetching = Fetching from FLoRA…
+pref-stats-fetch-result = FLoRA matched { $matchedCount } of your { $origCount } original article(s).
+pref-stats-fetch-breakdown = Total known: { $repCount } replication(s) and { $reproCount } reproduction(s) across those articles.
+pref-stats-no-originals = No tracked originals found in your library. Run a replication check first.
+pref-stats-fetch-error = Could not reach FLoRA — check your internet connection and try again.
+pref-stats-view-flora = View FLoRA Database →
+
 pref-blacklist-title = Banned Replications
 pref-blacklist-description = Manage replications you've banned from appearing in your library
 pref-blacklist-col-replication = Replication Article

@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://zotero/skin/zotero.css" type="text/css"?>
+
+<!--
+  Custom results-summary dialog for Zotero Replication Checker.
+  Replaces Services.prompt.alert() so we can show the plugin icon
+  instead of the OS yellow-warning triangle.
+-->
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        id="flora-results-dialog"
+        title="Zotero Replication Checker"
+        width="420"
+        style="min-width:380px;">
+
+  <script src="chrome://zotero/content/include.js"/>
+  <script>
+    <![CDATA[
+      function init() {
+        var args = window.arguments[0];
+        // args.heading = scan title shown next to logo (e.g. "Selected Items Scan Complete")
+        // args.title   = window title bar text (e.g. "Zotero Replication Checker")
+        // args.message = body text (newline-separated)
+        if (args.title) {
+          document.title = args.title;
+        }
+        if (args.heading) {
+          document.getElementById("dialog-heading").textContent = args.heading;
+        }
+        if (args.message) {
+          // Split on newlines and render as separate <p> elements so the
+          // layout looks clean without relying on white-space:pre-wrap.
+          var container = document.getElementById("message-container");
+          var lines = args.message.split("\n");
+          lines.forEach(function(line) {
+            if (line.trim() === "") {
+              // Empty line → small spacer
+              var spacer = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+              spacer.style.height = "4px";
+              container.appendChild(spacer);
+            } else {
+              var p = document.createElementNS("http://www.w3.org/1999/xhtml", "p");
+              p.style.cssText = "margin:2px 0; font-size:0.92em;";
+              p.textContent = line;
+              container.appendChild(p);
+            }
+          });
+        }
+        // Resize the window to fit the dynamically added content
+        window.sizeToContent();
+      }
+    ]]>
+  </script>
+
+  <vbox style="padding:18px 20px 14px 20px;">
+
+    <!-- Plugin branding row -->
+    <hbox align="center" style="margin-bottom:14px;">
+      <image src="chrome://replicationChecker/content/icons/favicon@0.5x.png"
+             style="width:32px; height:32px; margin-right:12px;"/>
+      <label id="dialog-heading"
+             style="font-weight:bold; font-size:1.05em;"/>
+    </hbox>
+
+    <!-- Message area -->
+    <html:div id="message-container"
+              style="line-height:1.5; margin-bottom:16px;"/>
+
+    <!-- OK button -->
+    <hbox pack="end">
+      <button label="OK" oncommand="window.close();" default="true"
+              style="min-width:72px;"/>
+    </hbox>
+
+  </vbox>
+
+  <script>
+    <![CDATA[
+      window.addEventListener("load", init);
+    ]]>
+  </script>
+
+</window>
