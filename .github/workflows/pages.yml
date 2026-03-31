@@ -362,7 +362,7 @@ jobs:
                 background: transparent !important;
               }
 
-              .markdown-body a {
+              .markdown-body a:not(.flora-btn) {
                 color: var(--primary-color) !important;
                 background: transparent !important;
                 text-decoration: none;
@@ -370,7 +370,7 @@ jobs:
                 transition: all 0.2s ease;
               }
 
-              .markdown-body a:hover {
+              .markdown-body a:not(.flora-btn):hover {
                 color: var(--accent-color) !important;
                 border-bottom-color: var(--accent-color);
                 background: transparent !important;
