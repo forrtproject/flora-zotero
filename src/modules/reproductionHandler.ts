@@ -23,7 +23,7 @@ import {
   copyItemToLibrary,
 } from "../utils/studyUtils";
 import {
-  TAG_HAS_REPRODUCTION, TAG_IS_REPRODUCTION, TAG_ADDED_BY_CHECKER,
+  TAG_HAS_REPRODUCTION, TAG_HAS_BEEN_REPRODUCED, TAG_IS_REPRODUCTION, TAG_ADDED_BY_CHECKER,
   TAG_READONLY_ORIGIN,
   TAG_REPRO_CS_ROBUST, TAG_REPRO_CS_CHALLENGES, TAG_REPRO_CS_NOT_CHECKED,
   TAG_REPRO_CI_ROBUST, TAG_REPRO_CI_CHALLENGES, TAG_REPRO_CI_NOT_CHECKED,
@@ -233,8 +233,8 @@ export class ReproductionHandler {
         return;
       }
 
-      // Add "Has Reproduction" tag
-      await ZoteroIntegration.addTag(itemID, getTag(TAG_HAS_REPRODUCTION));
+      // Add "Has Been Reproduced" tag
+      await ZoteroIntegration.addTag(itemID, getTag(TAG_HAS_BEEN_REPRODUCED));
 
       // Add outcome tags for each unique outcome
       const uniqueOutcomes = new Set<string>(
@@ -756,7 +756,7 @@ export class ReproductionHandler {
           const relatedKeys = item.relatedItems || [];
           for (const relatedKey of relatedKeys) {
             const relatedItem = Zotero.Items.getByLibraryAndKey(item.libraryID, relatedKey);
-            if (relatedItem && itemHasTag(relatedItem, TAG_HAS_REPRODUCTION)) {
+            if (relatedItem && (itemHasTag(relatedItem, TAG_HAS_REPRODUCTION) || itemHasTag(relatedItem, TAG_HAS_BEEN_REPRODUCED))) {
               originalTitle = relatedItem.getField("title") as string;
               originalDOI = ZoteroIntegration.extractDOI(relatedItem) || undefined;
 
@@ -884,7 +884,7 @@ export class ReproductionHandler {
             if (!copiedOriginal) continue;
 
             // Add tags to copied original
-            copiedOriginal.addTag(getTag(TAG_HAS_REPRODUCTION));
+            copiedOriginal.addTag(getTag(TAG_HAS_BEEN_REPRODUCED));
             copiedOriginal.addTag(getTag(TAG_ADDED_BY_CHECKER));
             copiedOriginal.addTag(getTag(TAG_READONLY_ORIGIN));
             await copiedOriginal.save();

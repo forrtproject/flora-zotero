@@ -46,6 +46,8 @@ export function getTag(ftlKey: string): string {
  * Used to recognise tags written by older plugin versions that always used English.
  */
 export const ENGLISH_TAG_VALUES: Record<string, string> = {
+  // TAG_HAS_REPLICATION key now resolves to "Has Been Replicated"; keep "Has Replication" as
+  // legacy so older items (tagged before the merge) are still recognised by itemHasTag().
   [TAG_HAS_REPLICATION]: "Has Replication",
   [TAG_IS_REPLICATION]: "Is Replication",
   [TAG_ADDED_BY_CHECKER]: "Added by Replication Checker",
@@ -54,10 +56,14 @@ export const ENGLISH_TAG_VALUES: Record<string, string> = {
   [TAG_REPLICATION_MIXED]: "Replication: Mixed",
   [TAG_REPLICATION_MULTIPLE_ORIGINALS]: "Replication: Multiple Originals",
   [TAG_READONLY_ORIGIN]: "Original present in Read-Only Library",
-  [TAG_HAS_BEEN_REPLICATED]: "Has Been Replicated",
-  [TAG_HAS_BEEN_REPRODUCED]: "Has Been Reproduced",
-  [TAG_IN_FLORA]: "In FLoRA",
+  // TAG_HAS_BEEN_REPLICATED is now the canonical "replicated" tag; "Has Replication" is the
+  // legacy English value for backward-compat (items tagged by earlier versions).
+  [TAG_HAS_BEEN_REPLICATED]: "Has Replication",
+  // TAG_HAS_REPRODUCTION key now resolves to "Has Been Reproduced"; same legacy pattern.
   [TAG_HAS_REPRODUCTION]: "Has Reproduction",
+  // TAG_HAS_BEEN_REPRODUCED is now the canonical "reproduced" tag.
+  [TAG_HAS_BEEN_REPRODUCED]: "Has Reproduction",
+  [TAG_IN_FLORA]: "In FLoRA",
   [TAG_IS_REPRODUCTION]: "Is Reproduction",
   [TAG_REPRO_CS_ROBUST]: "Reproduction: Computationally Successful, Robust",
   [TAG_REPRO_CS_CHALLENGES]: "Reproduction: Computationally Successful, Robustness Challenges",

@@ -8,6 +8,7 @@ export const strings = {
   "replication-checker-tools-menu": "Check Current Library for Replications",
   "replication-checker-context-menu": "Check for Replications",
   "replication-checker-context-menu-add-original": "Add Original",
+  "replication-checker-context-menu-add-originals": "Add Original(s)",
 
   // Progress Messages
   "replication-checker-progress-checking-library": "Checking for Replications",
@@ -19,7 +20,7 @@ export const strings = {
   "replication-checker-progress-no-dois": "No items with DOIs found in collection",
   "replication-checker-progress-complete": "Check Complete",
   "replication-checker-progress-failed": "Check Failed",
-  "replication-checker-progress-match-count": "Found { $count } item(s) with replications",
+  "replication-checker-progress-match-count": "{ $count -> [one] Found 1 item with replications *[other] Found { $count } items with replications }",
   "replication-checker-progress-copying-readonly": "Copying items from read-only library to Personal library...",
 
   // Alerts
@@ -29,8 +30,10 @@ export const strings = {
   "replication-checker-alert-no-originals-available": "No original studies available for this replication.",
   "replication-checker-alert-no-doi": "Selected item has no DOI.",
   "replication-checker-add-original-success": "Successfully added original study: { $title }",
-  "replication-checker-add-original-confirm": "Found { $count } original study(ies) for this replication. Would you like to add all of them to your library?",
-  "replication-checker-add-original-batch-success": "Successfully added { $count } original study(ies) to your library.",
+  "replication-checker-add-original-add-all-btn": "Add All Originals",
+  "replication-checker-add-original-confirm": "Found { $count } original articles for this replication. Please select which originals you would like to add to your library.",
+  "replication-checker-add-original-select-btn": "Select which originals to add",
+  "replication-checker-add-original-batch-success": "Successfully added { $count } original articles to your library.",
   "replication-checker-error-title": "Replication Checker - Error",
   "replication-checker-error-api": "Could not retrieve data from API - check your internet connection or retry again later.",
   "replication-checker-error-body": "Failed to check { $target } for replications:\n\n{ $details }\n\nCould not retrieve data from API - check your internet connection or retry again later.",
@@ -41,8 +44,8 @@ export const strings = {
   // Ban Feature
   "replication-checker-context-menu-ban": "Ban Replication",
   "replication-checker-ban-title": "Ban Replications",
-  "replication-checker-ban-confirm": "Are you sure you want to ban { $count } replication(s)?\n\nThese items will be moved to trash and won't be re-added during future checks.",
-  "replication-checker-ban-success": "Successfully banned { $count } replication(s).",
+  "replication-checker-ban-confirm": "{ $count -> [one] Are you sure you want to ban 1 replication? *[other] Are you sure you want to ban { $count } replications? }\n\nThese items will be moved to trash and won't be re-added during future checks.",
+  "replication-checker-ban-success": "{ $count -> [one] Successfully banned 1 replication. *[other] Successfully banned { $count } replications. }",
   "replication-checker-alert-no-replications-selected": "No replication items selected.",
 
   // Dialog
@@ -55,7 +58,7 @@ export const strings = {
   "replication-checker-dialog-progress-title": "Replication Information Added",
   "replication-checker-dialog-progress-line": "Added replication information to \"{ $title }\"",
   "replication-checker-dialog-is-replication-title": "Original Study Found",
-  "replication-checker-dialog-is-replication-message": "No replications found, but this appears to be a replication study.\nFound { $count } original article(s).\n\nWould you like to add them to your library?",
+  "replication-checker-dialog-is-replication-message": "{ $count -> [one] No replications found, but this appears to be a replication study. Found 1 original article. Would you like to add it to your library? *[other] No replications found, but this appears to be a replication study. Found { $count } original articles. Please select which originals you would like to add to your library. }",
 
   // Read-Only Library Handling
   "replication-checker-readonly-dialog-title": "Read-Only Library Detected",
@@ -75,7 +78,7 @@ export const strings = {
   "replication-checker-notif-replication-mixed": "Added { $newCount } new and updated { $existingCount } existing replication(s) in \"{ $folderName }\".",
 
   // Tags
-  "replication-checker-tag": "Has Replication",
+  "replication-checker-tag": "Has Been Replicated",
   "replication-checker-tag-is-replication": "Is Replication",
   "replication-checker-tag-added-by-checker": "Added by Replication Checker",
   "replication-checker-tag-success": "Replication: Successful",
@@ -108,7 +111,7 @@ export const strings = {
   "replication-checker-prompt-first-run": "Thank you for installing the Zotero Replication Checker!\n\nThis plugin helps you discover replication studies for your research by checking your library items against the FORRT Literature Database (FLoRA).\n\nWould you like to scan your library for replications now?\n\n• Click \"OK\" to start scanning (this may take a few minutes)\n• Click \"Cancel\" to skip - you can always scan later from Tools menu",
 
   // Reproduction Tags
-  "reproduction-checker-tag": "Has Reproduction",
+  "reproduction-checker-tag": "Has Been Reproduced",
   "reproduction-checker-tag-is-reproduction": "Is Reproduction",
   "reproduction-checker-tag-added-by-checker": "Added by Replication Checker",
   "reproduction-checker-tag-readonly-origin": "Original present in Read-Only Library",
@@ -193,9 +196,82 @@ export const strings = {
 } as const;
 
 /**
- * Get a localized string with optional parameter substitution
- * Uses Zotero's built-in localization system to load strings from .ftl files
- * based on the user's language preference
+ * Pick the correct branch text from a Fluent selector body.
+ * Finds all *?[tag] markers by position and returns the text for `category`
+ * (falling back to "other" then the first branch).
+ */
+function pickFtlBranch(body: string, category: string): string {
+  const tagRe = /\*?\[(\w+)\]/g;
+  const positions: Array<{ tag: string; contentStart: number; markerStart: number }> = [];
+  let m: RegExpExecArray | null;
+  while ((m = tagRe.exec(body)) !== null) {
+    positions.push({ tag: m[1], contentStart: m.index + m[0].length, markerStart: m.index });
+  }
+  if (positions.length === 0) return body.trim();
+  const branches: Record<string, string> = {};
+  for (let idx = 0; idx < positions.length; idx++) {
+    const start = positions[idx].contentStart;
+    const end = idx + 1 < positions.length ? positions[idx + 1].markerStart : body.length;
+    branches[positions[idx].tag] = body.slice(start, end).trim();
+  }
+  return branches[category] ?? branches["other"] ?? Object.values(branches)[0] ?? "";
+}
+
+/**
+ * Resolve Fluent plural selector blocks within a string.
+ * Handles { $var -> [one] ... *[other] ... } — including selectors whose
+ * branch bodies contain nested { $param } variable references.
+ * Uses brace-depth counting so nested braces never truncate the outer selector.
+ */
+function resolveFluentSelectors(value: string, params: Record<string, string | number>): string {
+  let result = "";
+  let i = 0;
+  while (i < value.length) {
+    if (value[i] !== '{') {
+      result += value[i++];
+      continue;
+    }
+    // Check ahead: is this a selector  { $varName -> … }  ?
+    const selectorMatch = /^\{\s*\$(\w+)\s*->/.exec(value.slice(i));
+    if (!selectorMatch) {
+      result += value[i++];
+      continue;
+    }
+    // Walk forward counting brace depth to find the matching closing }
+    let depth = 1;
+    let j = i + 1;
+    while (j < value.length && depth > 0) {
+      if (value[j] === '{') depth++;
+      else if (value[j] === '}') depth--;
+      j++;
+    }
+    // value[i..j) is the full selector block; body is between "->" and the final "}"
+    const bodyStart = i + selectorMatch[0].length;
+    const bodyEnd = j - 1;
+    const body = value.slice(bodyStart, bodyEnd);
+    const varName = selectorMatch[1];
+    const numVal = Number(params[varName] ?? 0);
+    const category = numVal === 1 ? "one" : "other";
+    result += pickFtlBranch(body, category);
+    i = j;
+  }
+  return result;
+}
+
+/**
+ * Apply { $key } variable substitution to a string.
+ */
+function applyParams(value: string, params: Record<string, string | number>): string {
+  let result = value;
+  for (const [paramKey, paramValue] of Object.entries(params)) {
+    result = result.replace(new RegExp(`\\{\\s*\\$${paramKey}\\s*\\}`, 'g'), String(paramValue));
+  }
+  return result;
+}
+
+/**
+ * Get a localized string with optional parameter substitution.
+ * Supports Fluent plural selectors ({ $count -> [one] ... *[other] ... }).
  */
 export function getString(key: string, params?: Record<string, string | number>): string {
   try {
@@ -208,13 +284,9 @@ export function getString(key: string, params?: Record<string, string | number>)
     if (addon?.data?.locale?.strings) {
       const localizedValue = addon.data.locale.strings[key];
       if (localizedValue) {
-        // Apply parameter substitution
         if (params) {
-          let result = localizedValue;
-          for (const [paramKey, paramValue] of Object.entries(params)) {
-            result = result.replace(new RegExp(`\\{\\s*\\$${paramKey}\\s*\\}`, 'g'), String(paramValue));
-          }
-          return result;
+          const resolved = resolveFluentSelectors(localizedValue, params);
+          return applyParams(resolved, params);
         }
         return localizedValue;
       }
@@ -229,11 +301,8 @@ export function getString(key: string, params?: Record<string, string | number>)
     }
 
     if (params) {
-      let result: string = value;
-      for (const [paramKey, paramValue] of Object.entries(params)) {
-        result = result.replace(new RegExp(`\\{\\s*\\$${paramKey}\\s*\\}`, 'g'), String(paramValue));
-      }
-      return result;
+      const resolved = resolveFluentSelectors(value, params);
+      return applyParams(resolved, params);
     }
 
     return value as string;

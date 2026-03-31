@@ -1020,7 +1020,7 @@ export class ReplicationCheckerPlugin {
           getString("replication-checker-dialog-is-replication-title"),
           getString("replication-checker-add-original-confirm", { count: originals.length }),
           buttonFlags,
-          getString("replication-checker-context-menu-add-original"), // button 0: "Add All"
+          getString("replication-checker-add-original-add-all-btn"),    // button 0: "Add All Originals"
           "",   // button 1: uses BUTTON_TITLE_CANCEL → standard "Cancel" label
           getString("replication-checker-add-original-select-btn"),   // button 2: "Select…"
           "",   // no checkbox label
@@ -1246,7 +1246,7 @@ export class ReplicationCheckerPlugin {
           for (const relatedKey of relatedKeys) {
             // Convert item key to item object
             const relatedItem = Zotero.Items.getByLibraryAndKey(item.libraryID, relatedKey);
-            if (relatedItem && (itemHasTag(relatedItem, TAG_HAS_REPLICATION) || itemHasTag(relatedItem, TAG_HAS_REPRODUCTION))) {
+            if (relatedItem && (itemHasTag(relatedItem, TAG_HAS_REPLICATION) || itemHasTag(relatedItem, TAG_HAS_BEEN_REPLICATED) || itemHasTag(relatedItem, TAG_HAS_REPRODUCTION) || itemHasTag(relatedItem, TAG_HAS_BEEN_REPRODUCED))) {
               originalTitle = relatedItem.getField("title") as string;
               originalDOI = ZoteroIntegration.extractDOI(relatedItem) || undefined;
 
@@ -1345,46 +1345,68 @@ export class ReplicationCheckerPlugin {
         await this.addOriginalArticlesNote(itemID, originals);
       }
 
-      // ── STEP 3: 3-button dialog ───────────────────────────────────────────
-      // Button 0 = "Add Original" (add all)
-      // Button 1 = "Select which originals to add"
-      // Button 2 = Cancel
+      // ── STEP 3: dialog ───────────────────────────────────────────────────────
       const promptWin = this.getPromptWindow();
       if (!promptWin) return;
 
-      // BUTTON_POS_0 * IS_STRING = 127
-      // BUTTON_POS_1 * IS_STRING = 256 * 127 = 32512
-      // BUTTON_POS_2 * CANCEL    = 65536 * 2  = 131072
-      const buttonFlags = 127 + 32512 + 131072;
+      let originalsToProcess = originals;
 
-      const buttonPressed = (Services.prompt as any).confirmEx(
-        promptWin,
-        getString("replication-checker-dialog-is-replication-title"),
-        getString("replication-checker-dialog-is-replication-message", { count: originals.length }),
-        buttonFlags,
-        getString("replication-checker-context-menu-add-original"),   // button 0: Add Original
-        getString("replication-checker-add-original-select-btn"),     // button 1: Select
-        "",   // button 2: platform Cancel label
-        "",   // no checkbox
-        {}
-      ) as number;
+      if (originals.length === 1) {
+        // Single original: simple 2-button dialog — "Add Original" | Cancel
+        // BUTTON_POS_0 * IS_STRING = 127
+        // BUTTON_POS_1 * CANCEL    = 256 * 2 = 512
+        const singleFlags = 127 + 512;
+        const singlePressed = (Services.prompt as any).confirmEx(
+          promptWin,
+          getString("replication-checker-dialog-is-replication-title"),
+          getString("replication-checker-dialog-is-replication-message", { count: 1 }),
+          singleFlags,
+          getString("replication-checker-context-menu-add-original"), // button 0: Add Original
+          "",   // button 1: platform Cancel
+          "",
+          "",
+          {}
+        ) as number;
 
-      // Cancel (button 2 or dialog closed) → tags already saved, nothing more to do
-      if (buttonPressed === 2) {
-        Zotero.debug(`[ReplicationChecker] User cancelled adding originals — tags preserved on item ${itemID}`);
-        return;
+        if (singlePressed !== 0) {
+          Zotero.debug(`[ReplicationChecker] User cancelled adding single original — tags preserved on item ${itemID}`);
+          return;
+        }
+        // singlePressed === 0 → add the one original (originalsToProcess unchanged)
+      } else {
+        // Multiple originals: 3-button dialog — "Add All Originals" | "Select which to add" | Cancel
+        // BUTTON_POS_0 * IS_STRING = 127
+        // BUTTON_POS_1 * IS_STRING = 256 * 127 = 32512
+        // BUTTON_POS_2 * CANCEL    = 65536 * 2  = 131072
+        const multiFlags = 127 + 32512 + 131072;
+
+        const buttonPressed = (Services.prompt as any).confirmEx(
+          promptWin,
+          getString("replication-checker-dialog-is-replication-title"),
+          getString("replication-checker-dialog-is-replication-message", { count: originals.length }),
+          multiFlags,
+          getString("replication-checker-add-original-add-all-btn"),  // button 0: Add All Originals
+          getString("replication-checker-add-original-select-btn"),   // button 1: Select
+          "",   // button 2: platform Cancel label
+          "",
+          {}
+        ) as number;
+
+        if (buttonPressed === 2) {
+          Zotero.debug(`[ReplicationChecker] User cancelled adding originals — tags preserved on item ${itemID}`);
+          return;
+        }
+
+        if (buttonPressed === 1) {
+          // "Select which originals to add" → open the same selection dialog
+          const selected = this.showSelectOriginalsDialog(originals);
+          if (selected === null || selected.length === 0) return;
+          originalsToProcess = selected;
+        }
+        // buttonPressed === 0 → Add All (originalsToProcess unchanged)
       }
 
       // ── STEP 4: Determine which originals to process ──────────────────────
-      let originalsToProcess = originals;
-
-      if (buttonPressed === 1) {
-        // "Select which originals to add" → open the same selection dialog
-        const selected = this.showSelectOriginalsDialog(originals);
-        if (selected === null || selected.length === 0) return;
-        originalsToProcess = selected;
-      }
-      // buttonPressed === 0 → Add All (originalsToProcess unchanged)
 
       // ── STEP 5: Process the chosen originals ──────────────────────────────
       const personalLibraryID = Zotero.Libraries.userLibraryID;
@@ -1720,8 +1742,8 @@ export class ReplicationCheckerPlugin {
         return;
       }
 
-      // Add "Has Replication" tag
-      await ZoteroIntegration.addTag(itemID, getTag(TAG_HAS_REPLICATION));
+      // Add "Has Been Replicated" tag
+      await ZoteroIntegration.addTag(itemID, getTag(TAG_HAS_BEEN_REPLICATED));
 
       // Add outcome tags
       const outcomeTags: { [key: string]: string } = {
@@ -2714,7 +2736,7 @@ export class ReplicationCheckerPlugin {
             const copiedOriginal = await Zotero.Items.getAsync(copiedOriginalID);
 
             // Add tags to copied original
-            copiedOriginal.addTag(getTag(TAG_HAS_REPLICATION));
+            copiedOriginal.addTag(getTag(TAG_HAS_BEEN_REPLICATED));
             copiedOriginal.addTag(getTag(TAG_ADDED_BY_CHECKER));
             copiedOriginal.addTag(getTag(TAG_READONLY_ORIGIN));
             await copiedOriginal.save();

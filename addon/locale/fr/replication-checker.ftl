@@ -6,6 +6,7 @@ replication-checker-tools-menu = Vérifier la bibliothèque actuelle pour les r�
 replication-checker-context-menu = Vérifier les réplications
 replication-checker-context-menu-ban = Bannir la réplication
 replication-checker-context-menu-add-original = Ajouter l'original
+replication-checker-context-menu-add-originals = Ajouter les originaux
 
 ## Progress Messages
 replication-checker-progress-checking-library = Vérification des réplications
@@ -17,7 +18,11 @@ replication-checker-progress-checking-database = Consultation de la base de donn
 replication-checker-progress-no-dois = Aucun élément avec des DOI trouvé dans la collection
 replication-checker-progress-complete = Vérification terminée
 replication-checker-progress-failed = Vérification échouée
-replication-checker-progress-match-count = { $count } élément(s) avec des réplications trouvé(s)
+replication-checker-progress-match-count =
+    { $count ->
+        [one] 1 élément avec des réplications trouvé
+       *[other] { $count } éléments avec des réplications trouvés
+    }
 replication-checker-progress-copying-readonly = Copie des éléments de la bibliothèque en lecture seule vers la bibliothèque personnelle...
 
 ## Alerts
@@ -28,11 +33,28 @@ replication-checker-alert-no-originals-available = Aucune étude originale dispo
 replication-checker-alert-no-doi = L'élément sélectionné n'a pas de DOI.
 replication-checker-add-original-success = "{ $title }" ajouté avec succès dans "{ $folderName }".
 replication-checker-add-original-exists = "{ $title }" est déjà dans votre bibliothèque — étiquettes, notes et relations mises à jour dans "{ $folderName }".
-replication-checker-add-original-confirm = { $count } étude(s) originale(s) trouvée(s) pour cette réplication. Voulez-vous toutes les ajouter à votre bibliothèque ?
+replication-checker-add-original-add-all-btn = Ajouter tous les originaux
+replication-checker-add-original-confirm =
+    { $count ->
+        [one] 1 article original trouvé pour cette réplication. Veuillez sélectionner les originaux que vous souhaitez ajouter à votre bibliothèque.
+       *[other] { $count } articles originaux trouvés pour cette réplication. Veuillez sélectionner les originaux que vous souhaitez ajouter à votre bibliothèque.
+    }
 replication-checker-add-original-select-btn = Sélectionner les originaux à ajouter
-replication-checker-add-original-batch-success = { $newCount } nouvelle(s) et { $existingCount } étude(s) originale(s) existante(s) mise(s) à jour dans "{ $folderName }".
-replication-checker-add-original-batch-new-only = { $count } étude(s) originale(s) ajoutée(s) avec succès dans "{ $folderName }".
-replication-checker-add-original-batch-exists-only = { $count } étude(s) originale(s) déjà dans votre bibliothèque — étiquettes, notes et relations mises à jour dans "{ $folderName }".
+replication-checker-add-original-batch-success =
+    { $newCount ->
+        [one] 1 nouvelle étude originale ajoutée et { $existingCount } existante mise à jour dans "{ $folderName }".
+       *[other] { $newCount } nouvelles études originales ajoutées et { $existingCount } existantes mises à jour dans "{ $folderName }".
+    }
+replication-checker-add-original-batch-new-only =
+    { $count ->
+        [one] 1 étude originale ajoutée avec succès dans "{ $folderName }".
+       *[other] { $count } études originales ajoutées avec succès dans "{ $folderName }".
+    }
+replication-checker-add-original-batch-exists-only =
+    { $count ->
+        [one] 1 étude originale déjà dans votre bibliothèque — étiquettes, notes et relations mises à jour dans "{ $folderName }".
+       *[other] { $count } études originales déjà dans votre bibliothèque — étiquettes, notes et relations mises à jour dans "{ $folderName }".
+    }
 replication-checker-error-title = Replication Checker - Erreur
 replication-checker-error-api = Impossible de récupérer les données depuis l'API - vérifiez votre connexion Internet ou réessayez plus tard.
 replication-checker-error-body =
@@ -48,10 +70,17 @@ replication-checker-target-collection = la collection sélectionnée
 ## Ban Feature
 replication-checker-ban-title = Bannir les réplications
 replication-checker-ban-confirm =
-    Êtes-vous sûr de vouloir bannir { $count } réplication(s) ?
+    { $count ->
+        [one] Êtes-vous sûr de vouloir bannir 1 réplication ?
+       *[other] Êtes-vous sûr de vouloir bannir { $count } réplications ?
+    }
 
     Ces éléments seront déplacés vers la corbeille et ne seront pas rajoutés lors des vérifications futures.
-replication-checker-ban-success = { $count } réplication(s) bannie(s) avec succès.
+replication-checker-ban-success =
+    { $count ->
+        [one] 1 réplication bannie avec succès.
+       *[other] { $count } réplications bannies avec succès.
+    }
 replication-checker-alert-no-replications-selected = Aucun élément de réplication sélectionné.
 
 ## Dialog
@@ -59,29 +88,52 @@ replication-checker-dialog-title = Études de réplication trouvées
 replication-checker-dialog-intro =
     Études de réplication trouvées pour :
     "{ $title }"
-replication-checker-dialog-count = { $count } réplication(s) trouvée(s) :
+replication-checker-dialog-count =
+    { $count ->
+        [one] 1 réplication trouvée :
+       *[other] { $count } réplications trouvées :
+    }
 replication-checker-dialog-item =
     { $index }. { $title }
     ({ $year })
        Résultat : { $outcome }
-replication-checker-dialog-more = ...et { $count } réplication(s) supplémentaire(s)
+replication-checker-dialog-more =
+    { $count ->
+        [one] ...et 1 réplication supplémentaire
+       *[other] ...et { $count } réplications supplémentaires
+    }
 replication-checker-dialog-question = Souhaitez-vous ajouter des informations de réplication ?
 replication-checker-dialog-progress-title = Informations de réplication ajoutées
 replication-checker-dialog-progress-line = Informations de réplication ajoutées à "{ $title }"
-replication-checker-notif-replication-new = { $count } nouvelle(s) réplication(s) ajoutée(s) avec succès dans "{ $folderName }".
-replication-checker-notif-replication-exists = { $count } réplication(s) déjà dans votre bibliothèque — étiquettes, notes et relations mises à jour dans "{ $folderName }".
-replication-checker-notif-replication-mixed = { $newCount } nouvelle(s) et { $existingCount } réplication(s) existante(s) mises à jour dans "{ $folderName }".
+replication-checker-notif-replication-new =
+    { $count ->
+        [one] 1 nouvelle réplication ajoutée avec succès dans "{ $folderName }".
+       *[other] { $count } nouvelles réplications ajoutées avec succès dans "{ $folderName }".
+    }
+replication-checker-notif-replication-exists =
+    { $count ->
+        [one] 1 réplication déjà dans votre bibliothèque — étiquettes, notes et relations mises à jour dans "{ $folderName }".
+       *[other] { $count } réplications déjà dans votre bibliothèque — étiquettes, notes et relations mises à jour dans "{ $folderName }".
+    }
+replication-checker-notif-replication-mixed =
+    { $newCount ->
+        [one] 1 nouvelle et { $existingCount } réplication existante mises à jour dans "{ $folderName }".
+       *[other] { $newCount } nouvelles et { $existingCount } réplications existantes mises à jour dans "{ $folderName }".
+    }
 replication-checker-dialog-is-replication-title = Étude originale trouvée
 replication-checker-dialog-is-replication-message =
-    Aucune réplication trouvée, mais il semble que ce soit une étude de réplication.
-    Trouvé { $count } article(s) original(aux).
-
-    Souhaitez-vous les ajouter à votre bibliothèque ?
+    { $count ->
+        [one] Aucune réplication trouvée, mais il semble que ce soit une étude de réplication. 1 article original trouvé. Souhaitez-vous l'ajouter à votre bibliothèque ?
+       *[other] Aucune réplication trouvée, mais il semble que ce soit une étude de réplication. { $count } articles originaux trouvés. Veuillez sélectionner les originaux que vous souhaitez ajouter à votre bibliothèque.
+    }
 
 ## Read-Only Library Handling
 replication-checker-readonly-dialog-title = Bibliothèque en lecture seule détectée
 replication-checker-readonly-dialog-message =
-    Cette bibliothèque est en lecture seule. Nous avons trouvé { $itemCount } élément(s) avec { $replicationCount } réplication(s).
+    { $replicationCount ->
+        [one] Cette bibliothèque est en lecture seule. Nous avons trouvé { $itemCount } élément(s) avec 1 réplication.
+       *[other] Cette bibliothèque est en lecture seule. Nous avons trouvé { $itemCount } élément(s) avec { $replicationCount } réplications.
+    }
 
     Souhaitez-vous copier les articles originaux et leurs réplications dans le "dossier réplications" de votre bibliothèque personnelle ?
 
@@ -91,14 +143,22 @@ replication-checker-results-title-selected = Analyse des éléments sélectionn�
 replication-checker-results-title-collection = Analyse de la collection terminée
 replication-checker-results-total = Total des éléments vérifiés : { $count }
 replication-checker-results-dois = Éléments avec des DOI : { $count }
-replication-checker-results-found = { $count } élément(s) ont des réplications, stockés dans "{ $folderName }".
+replication-checker-results-found =
+    { $count ->
+        [one] 1 élément a des réplications, stocké dans "{ $folderName }".
+       *[other] { $count } éléments ont des réplications, stockés dans "{ $folderName }".
+    }
 replication-checker-results-none = Aucune réplication trouvée.
-replication-checker-results-reproductions-found = { $count } élément(s) ont des reproductions, stockés dans "{ $folderName }".
+replication-checker-results-reproductions-found =
+    { $count ->
+        [one] 1 élément a des reproductions, stocké dans "{ $folderName }".
+       *[other] { $count } éléments ont des reproductions, stockés dans "{ $folderName }".
+    }
 replication-checker-results-reproductions-none = Aucune reproduction trouvée.
 replication-checker-results-footer = Consultez les notes pour plus de détails ou sélectionnez des éléments à revérifier.
 
 ## Tags
-replication-checker-tag = A une réplication
+replication-checker-tag = A été répliqué
 replication-checker-tag-is-replication = Est une réplication
 replication-checker-tag-added-by-checker = Ajouté par Replication Checker
 replication-checker-tag-success = Réplication : Réussie
@@ -204,7 +264,7 @@ onboarding-scan-content =
 reproduction-checker-context-menu-ban = Bannir la reproduction
 
 ## Reproduction Feature - Tags
-reproduction-checker-tag = A une reproduction
+reproduction-checker-tag = A été reproduit
 reproduction-checker-tag-is-reproduction = Est une reproduction
 reproduction-checker-tag-added-by-checker = Ajouté par Replication Checker
 reproduction-checker-tag-readonly-origin = Original présent dans une bibliothèque en lecture seule
@@ -239,23 +299,42 @@ reproduction-checker-li-link = Cette étude a un rapport lié :
 reproduction-checker-alert-no-reproductions-selected = Aucun élément de reproduction sélectionné.
 reproduction-checker-ban-title = Bannir les reproductions
 reproduction-checker-ban-confirm =
-    Êtes-vous sûr de vouloir bannir { $count } reproduction(s) ?
+    { $count ->
+        [one] Êtes-vous sûr de vouloir bannir 1 reproduction ?
+       *[other] Êtes-vous sûr de vouloir bannir { $count } reproductions ?
+    }
 
     Ces éléments seront déplacés vers la corbeille et ne seront pas rajoutés lors des vérifications futures.
-reproduction-checker-ban-success = { $count } reproduction(s) bannie(s) avec succès.
+reproduction-checker-ban-success =
+    { $count ->
+        [one] 1 reproduction bannie avec succès.
+       *[other] { $count } reproductions bannies avec succès.
+    }
 
 ## Reproduction Feature - Dialog
 reproduction-checker-dialog-title = Études de reproduction trouvées
 reproduction-checker-dialog-intro = Études de reproduction trouvées pour :\n"{ $title }"
-reproduction-checker-dialog-count = { $count } reproduction(s) trouvée(s) :
+reproduction-checker-dialog-count =
+    { $count ->
+        [one] 1 reproduction trouvée :
+       *[other] { $count } reproductions trouvées :
+    }
 reproduction-checker-dialog-item = { $index }. { $title }\n({ $year })\n   Résultat : { $outcome }
-reproduction-checker-dialog-more = ...et { $count } reproduction(s) supplémentaire(s)
+reproduction-checker-dialog-more =
+    { $count ->
+        [one] ...et 1 reproduction supplémentaire
+       *[other] ...et { $count } reproductions supplémentaires
+    }
 reproduction-checker-dialog-question = Souhaitez-vous ajouter des informations de reproduction ?
 reproduction-checker-dialog-progress-title = Informations de reproduction ajoutées
 reproduction-checker-dialog-progress-line = Informations de reproduction ajoutées à "{ $title }"
 
 ## Reproduction Feature - Progress
-reproduction-checker-progress-reproductions-found = { $count } élément(s) avec des reproductions trouvé(s)
+reproduction-checker-progress-reproductions-found =
+    { $count ->
+        [one] 1 élément avec des reproductions trouvé
+       *[other] { $count } éléments avec des reproductions trouvés
+    }
 
 ## Preference Pane
 pref-autocheck-title = Vérification automatique de la bibliothèque pour les réplications
@@ -290,8 +369,16 @@ pref-stats-originals = Articles originaux suivis
 pref-stats-refresh = Actualiser les statistiques
 pref-stats-fetch-flora = Récupérer depuis FLoRA
 pref-stats-fetching = Récupération depuis FLoRA…
-pref-stats-fetch-result = FLoRA a trouvé { $matchedCount } de vos { $origCount } article(s) original(aux).
-pref-stats-fetch-breakdown = Total connu : { $repCount } réplication(s) et { $reproCount } reproduction(s) pour ces articles.
+pref-stats-fetch-result =
+    { $matchedCount ->
+        [one] FLoRA a trouvé 1 de vos { $origCount } articles originaux.
+       *[other] FLoRA a trouvé { $matchedCount } de vos { $origCount } articles originaux.
+    }
+pref-stats-fetch-breakdown =
+    { $repCount ->
+        [one] Total connu : 1 réplication et { $reproCount } reproductions pour ces articles.
+       *[other] Total connu : { $repCount } réplications et { $reproCount } reproductions pour ces articles.
+    }
 pref-stats-no-originals = Aucun article original suivi trouvé dans votre bibliothèque. Effectuez d'abord une vérification des réplications.
 pref-stats-fetch-error = Impossible d'atteindre FLoRA — vérifiez votre connexion Internet et réessayez.
 pref-stats-view-flora = Voir la base de données FLoRA →

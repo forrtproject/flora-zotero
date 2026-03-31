@@ -13,7 +13,8 @@ import { getString } from "./utils/strings";
 import {
   TAG_IS_REPLICATION, TAG_IS_REPRODUCTION, itemHasTag,
   TAG_HAS_REPLICATION, TAG_HAS_REPRODUCTION,
-  TAG_HAS_BEEN_REPLICATED,
+  TAG_HAS_BEEN_REPLICATED, TAG_HAS_BEEN_REPRODUCED,
+  TAG_REPLICATION_MULTIPLE_ORIGINALS, TAG_REPRODUCTION_MULTIPLE_ORIGINALS,
   getTag,
 } from "./utils/tags";
 import {
@@ -355,9 +356,22 @@ export async function onMainWindowLoad(win: _ZoteroTypes.MainWindow) {
       getVisibility: (elem, ev) => {
         // Show for items tagged as "Is Replication" or "Is Reproduction"
         const selectedItems = Zotero.getActiveZoteroPane().getSelectedItems();
-        return selectedItems.some((item: Zotero.Item) =>
+        const isVisible = selectedItems.some((item: Zotero.Item) =>
           itemHasTag(item, TAG_IS_REPLICATION) || itemHasTag(item, TAG_IS_REPRODUCTION)
         );
+        if (isVisible) {
+          // Use "Add Original(s)" when any selected item has multiple originals
+          const hasMultiple = selectedItems.some((item: Zotero.Item) =>
+            itemHasTag(item, TAG_REPLICATION_MULTIPLE_ORIGINALS) ||
+            itemHasTag(item, TAG_REPRODUCTION_MULTIPLE_ORIGINALS)
+          );
+          elem.setAttribute("label", getString(
+            hasMultiple
+              ? "replication-checker-context-menu-add-originals"
+              : "replication-checker-context-menu-add-original"
+          ));
+        }
+        return isVisible;
       },
       commandListener: () => {
         replicationChecker.addOriginalStudy();
@@ -1044,14 +1058,24 @@ export async function initStatsUI(doc: Document): Promise<void> {
         "stat-is-replication", "stat-has-reproduction", "stat-is-reproduction",
       ]) setText(id, "…");
 
-      const [total, originals, hasRep, isRep, hasRepro, isRepro] = await Promise.all([
+      const [total, hasRep, isRep, hasRepro, isRepro] = await Promise.all([
         countAllItems(),
         countByTag(getTag(TAG_HAS_BEEN_REPLICATED)),
-        countByTag(getTag(TAG_HAS_REPLICATION)),
         countByTag(getTag(TAG_IS_REPLICATION)),
-        countByTag(getTag(TAG_HAS_REPRODUCTION)),
+        countByTag(getTag(TAG_HAS_BEEN_REPRODUCED)),
         countByTag(getTag(TAG_IS_REPRODUCTION)),
       ]);
+      // Original articles tracked = unique items tagged with either "Has Been Replicated"
+      // or "Has Been Reproduced" (deduplicated so items with both tags count once)
+      const libraryID = Zotero.Libraries.userLibraryID;
+      const repSearch = new Zotero.Search();
+      repSearch.addCondition("libraryID", "is", String(libraryID));
+      repSearch.addCondition("tag", "is", getTag(TAG_HAS_BEEN_REPLICATED));
+      const reproSearch = new Zotero.Search();
+      reproSearch.addCondition("libraryID", "is", String(libraryID));
+      reproSearch.addCondition("tag", "is", getTag(TAG_HAS_BEEN_REPRODUCED));
+      const [repIDs, reproIDs] = await Promise.all([repSearch.search(), reproSearch.search()]);
+      const originals = new Set([...repIDs, ...reproIDs]).size;
 
       setText("stat-total",            total.toLocaleString());
       setText("stat-originals",        String(originals));
@@ -1081,10 +1105,15 @@ export async function initStatsUI(doc: Document): Promise<void> {
 
     try {
       const libraryID = Zotero.Libraries.userLibraryID;
-      const search = new Zotero.Search();
-      search.addCondition("libraryID", "is", String(libraryID));
-      search.addCondition("tag", "is", getTag(TAG_HAS_BEEN_REPLICATED));
-      const ids = await search.search();
+      // Collect IDs tagged with either "Has Been Replicated" or "Has Been Reproduced"
+      const repSearch = new Zotero.Search();
+      repSearch.addCondition("libraryID", "is", String(libraryID));
+      repSearch.addCondition("tag", "is", getTag(TAG_HAS_BEEN_REPLICATED));
+      const reproSearch = new Zotero.Search();
+      reproSearch.addCondition("libraryID", "is", String(libraryID));
+      reproSearch.addCondition("tag", "is", getTag(TAG_HAS_BEEN_REPRODUCED));
+      const [repIDs, reproIDs] = await Promise.all([repSearch.search(), reproSearch.search()]);
+      const ids = [...new Set([...repIDs, ...reproIDs])];
 
       const dois: string[] = [];
       for (const id of ids) {
@@ -1135,10 +1164,15 @@ export async function initStatsUI(doc: Document): Promise<void> {
   async function openAnnotator(): Promise<void> {
     try {
       const libraryID = Zotero.Libraries.userLibraryID;
-      const search = new Zotero.Search();
-      search.addCondition("libraryID", "is", String(libraryID));
-      search.addCondition("tag", "is", getTag(TAG_HAS_BEEN_REPLICATED));
-      const ids = await search.search();
+      // Collect all original articles: tagged "Has Been Replicated" or "Has Been Reproduced"
+      const repSearch = new Zotero.Search();
+      repSearch.addCondition("libraryID", "is", String(libraryID));
+      repSearch.addCondition("tag", "is", getTag(TAG_HAS_BEEN_REPLICATED));
+      const reproSearch = new Zotero.Search();
+      reproSearch.addCondition("libraryID", "is", String(libraryID));
+      reproSearch.addCondition("tag", "is", getTag(TAG_HAS_BEEN_REPRODUCED));
+      const [repIDs, reproIDs] = await Promise.all([repSearch.search(), reproSearch.search()]);
+      const ids = [...new Set([...repIDs, ...reproIDs])];
 
       const dois: string[] = [];
       for (const id of ids) {
