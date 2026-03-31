@@ -3,7 +3,7 @@ a:not(.flora-btn) { color: #b80205; }
 a:not(.flora-btn):hover { color: #ff84d0; }
 .flora-btn {
   display: inline-block;
-  background-color: #b80205;
+  background-color: #b80205 !important;
   color: #fff !important;
   padding: 14px 36px;
   border-radius: 8px;
