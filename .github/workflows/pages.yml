@@ -280,14 +280,14 @@ jobs:
               /* Main content area */
               .container {
                 max-width: 1200px;
-                margin: 3rem auto 4rem;
+                margin: 1.5rem auto 4rem;
                 padding: 0 2rem;
                 background: transparent !important;
               }
 
               .content {
                 background: var(--background-cream) !important;
-                padding: 3.5rem;
+                padding: 2rem 3.5rem 3.5rem;
                 border-radius: 8px;
               }
 
