@@ -86,7 +86,7 @@ describe("Item Creation", function () {
     const updatedOriginal = await Zotero.Items.getAsync(original.id);
     const tags = updatedOriginal!.getTags().map((t: any) => t.tag);
 
-    assert.include(tags, "Has Replication");
+    assert.include(tags, "Has Been Replicated");
     assert.include(tags, "Replication: Successful");
   });
 
