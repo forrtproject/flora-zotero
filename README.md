@@ -248,6 +248,14 @@ The plugin supports multiple languages and automatically uses your Zotero langua
 Want to use the plugin in your language? See [LOCALIZATION.md](docs/LOCALIZATION.md) for a complete guide on adding translations. Contributing a translation is easy - just copy the English `.ftl` file and translate the strings while preserving placeholders.
 
 
+## Citation
+
+If you use this plugin in your research, please cite it as:
+
+> Wallrich, L., Tondlekar, R., Weinerova, J., Röseler, L., Baldoni, C., Fouilloux, A., Meier, M., Flores Kanter, P. E., Trajano, I., Vaidis, D. C., Müller, M., Arriaga, P., & Coulson, H. D. (2026). *Zotero Replication Checker* [Software]. <https://doi.org/10.5281/zenodo.18671300>
+
+A `citation.cff` file is also included in the repository for automated citation tools (e.g. GitHub's "Cite this repository" button).
+
 ## Feedback
 
 Do you have feedback for us? Open an issue [here](https://github.com/forrtproject/flora_zotero/issues) if you encounter bugs or documentation issues. You can also [contact us anonymously about the Replication Checker](https://tinyurl.com/y5evebv9).
