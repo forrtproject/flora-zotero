@@ -20,7 +20,7 @@ npm run build
 
 The built XPI is written to `.scaffold/build/zotero-replication-checker.xpi`.
 
-**Install in Zotero:** Tools → Add-ons → ⚙️ → Install Add-on From File, then select the XPI.
+**Install in Zotero:** Tools → Add-ons (or Plugins) → gear icon ⚙️ → Install Add-on (or Plugins) From File, then select the XPI.
 
 ---
 

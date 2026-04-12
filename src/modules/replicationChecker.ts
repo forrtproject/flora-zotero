@@ -2135,10 +2135,13 @@ export class ReplicationCheckerPlugin {
             if (authors && Array.isArray(authors) && authors.length > 0) {
               const creators: Array<_ZoteroTypes.Item.CreatorJSON> = [];
               for (const author of authors) {
+                const firstName = author.given || "";
+                const lastName = author.family || "";
+                if (firstName === "" && lastName === "") continue;
                 creators.push({
                   creatorType: "author",
-                  firstName: author.given || "",
-                  lastName: author.family || "",
+                  firstName,
+                  lastName,
                 });
               }
               try {
@@ -2439,11 +2442,13 @@ export class ReplicationCheckerPlugin {
     // single saveTx() call — this fires the item-add notifier exactly once,
     // preventing a second notifier fire from bypassing pluginAddedItems guards.
     if (study.authors && Array.isArray(study.authors) && study.authors.length > 0) {
-      const creators = study.authors.map((author) => ({
-        creatorType: "author" as const,
-        firstName: author.given || "",
-        lastName: author.family || "",
-      }));
+      const creators = study.authors
+        .map((author) => ({
+          creatorType: "author" as const,
+          firstName: author.given || "",
+          lastName: author.family || "",
+        }))
+        .filter((c) => c.firstName !== "" || c.lastName !== "");
       if (creators.length > 0) {
         newItem.setCreators(creators);
       }
@@ -2595,11 +2600,13 @@ export class ReplicationCheckerPlugin {
         }
 
         if (Array.isArray(authors) && authors.length > 0) {
-          const creators = authors.map((author: any) => ({
-            creatorType: "author" as const,
-            firstName: author.given || "",
-            lastName: author.family || "",
-          }));
+          const creators = authors
+            .map((author: any) => ({
+              creatorType: "author" as const,
+              firstName: author.given || "",
+              lastName: author.family || "",
+            }))
+            .filter((c: any) => c.firstName !== "" || c.lastName !== "");
           const savedItem = await Zotero.Items.getAsync(newItemID);
           if (savedItem && creators.length > 0) {
             savedItem.setCreators(creators);

@@ -7,6 +7,8 @@ import {
 } from "../fixtures/helpers";
 import {
   singleReplicationMatch,
+  failureReplicationMatch,
+  mixedReplicationMatch,
   noBibtexMatch,
   createMockHTTPHandler,
   TEST_DOIS,
@@ -186,6 +188,72 @@ describe("Item Creation", function () {
     testItems.push(item!);
     assert.equal(item!.getField("title"), "Replication Without BibTeX");
     assert.equal(item!.getField("DOI"), TEST_DOIS.noBibtex);
+  });
+
+  it("adds Replication: Failure tag for failed outcome", async function () {
+    restoreHTTP = mockHTTP(createMockHTTPHandler(failureReplicationMatch));
+
+    const original = await createTestItem(
+      TEST_DOIS.originalA,
+      "The Original Study A",
+    );
+    testItems.push(original);
+
+    const checker = getChecker();
+    const articles = Object.values(failureReplicationMatch.results).flat();
+    const article = articles.find((a) => a.doi === TEST_DOIS.originalA)!;
+    await checker.notifyUserAndAddReplications(
+      original.id,
+      article.record.replications,
+    );
+
+    const updatedOriginal = await Zotero.Items.getAsync(original.id);
+    const tags = updatedOriginal!.getTags().map((t: any) => t.tag);
+    assert.include(tags, "Has Been Replicated");
+    assert.include(tags, "Replication: Failure");
+    assert.notInclude(tags, "Replication: Successful");
+    assert.notInclude(tags, "Replication: Mixed");
+
+    // Clean up the created replication item
+    const search = new Zotero.Search({ libraryID: Zotero.Libraries.userLibraryID });
+    search.addCondition("DOI", "is", TEST_DOIS.replicationFailure);
+    for (const id of await search.search()) {
+      const item = await Zotero.Items.getAsync(id);
+      if (item) testItems.push(item);
+    }
+  });
+
+  it("adds Replication: Mixed tag for mixed outcome", async function () {
+    restoreHTTP = mockHTTP(createMockHTTPHandler(mixedReplicationMatch));
+
+    const original = await createTestItem(
+      TEST_DOIS.originalA,
+      "The Original Study A",
+    );
+    testItems.push(original);
+
+    const checker = getChecker();
+    const articles = Object.values(mixedReplicationMatch.results).flat();
+    const article = articles.find((a) => a.doi === TEST_DOIS.originalA)!;
+    await checker.notifyUserAndAddReplications(
+      original.id,
+      article.record.replications,
+    );
+
+    const updatedOriginal = await Zotero.Items.getAsync(original.id);
+    const tags = updatedOriginal!.getTags().map((t: any) => t.tag);
+    assert.include(tags, "Has Been Replicated");
+    assert.include(tags, "Replication: Mixed");
+    assert.notInclude(tags, "Replication: Successful");
+    assert.notInclude(tags, "Replication: Failure");
+
+    // Clean up the created replication item
+    const search = new Zotero.Search({ libraryID: Zotero.Libraries.userLibraryID });
+    search.addCondition("DOI", "is", TEST_DOIS.replicationMixed);
+    for (const id of await search.search()) {
+      const item = await Zotero.Items.getAsync(id);
+      if (item) testItems.push(item);
+    }
   });
 
   it("adds replication item to collection", async function () {

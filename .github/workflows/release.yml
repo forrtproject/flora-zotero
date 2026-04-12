@@ -155,9 +155,10 @@ jobs:
             ### 📥 Installation
 
             1. Click the **Direct Download** link above, or download the `.xpi` file from **Assets** below
-            2. In Zotero: **Tools → Add-ons**
-            3. Click gear icon ⚙️ → **Install Add-on From File**
-            4. Select the downloaded XPI file
+            2. Open Zotero version 7+
+            3. Go to **Tools → Add-ons (or Plugins)**
+            4. Click the gear icon ⚙️ → **Install Add-on (or Plugins) From File**
+            5. Select the downloaded `.xpi` file
 
             ---
 

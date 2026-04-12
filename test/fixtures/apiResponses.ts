@@ -84,6 +84,8 @@ export const TEST_DOIS = {
   originalA: "10.1234/test.original.a",
   originalB: "10.1234/test.original.b",
   replication: "10.5678/test.replication.001",
+  replicationFailure: "10.5678/test.replication.failure",
+  replicationMixed: "10.5678/test.replication.mixed",
   replicationMulti: "10.5678/test.replication.multi",
   cycleA: "10.9999/test.cycle.a",
   cycleB: "10.9999/test.cycle.b",
@@ -230,6 +232,101 @@ export const singleReproductionMatch = buildPrefixLookupResponse([
 ]);
 
 export const TEST_REPRODUCTION_DOI = "10.6666/test.reproduction.001";
+export const TEST_REPRODUCTION_DOIS = {
+  csRobust: "10.6666/test.reproduction.001",
+  csChallenges: "10.6666/test.reproduction.cs-challenges",
+  csNotChecked: "10.6666/test.reproduction.cs-not-checked",
+  ciRobust: "10.6666/test.reproduction.ci-robust",
+  ciChallenges: "10.6666/test.reproduction.ci-challenges",
+  ciNotChecked: "10.6666/test.reproduction.ci-not-checked",
+};
+
+/** Original A → 1 replication with outcome "failed" */
+export const failureReplicationMatch = buildPrefixLookupResponse([
+  makeArticle({
+    doi: TEST_DOIS.originalA,
+    title: "The Original Study A",
+    replications: [
+      makeRelatedStudy({
+        doi: TEST_DOIS.replicationFailure,
+        title: "A Failed Replication of Study A",
+        outcome: "failed",
+      }),
+    ],
+  }),
+]);
+
+/** Original A → 1 replication with outcome "mixed" */
+export const mixedReplicationMatch = buildPrefixLookupResponse([
+  makeArticle({
+    doi: TEST_DOIS.originalA,
+    title: "The Original Study A",
+    replications: [
+      makeRelatedStudy({
+        doi: TEST_DOIS.replicationMixed,
+        title: "A Mixed Replication of Study A",
+        outcome: "mixed",
+      }),
+    ],
+  }),
+]);
+
+/** Helper: build a reproduction match for a given outcome string */
+function makeReproductionMatch(
+  reproDoi: string,
+  reproTitle: string,
+  outcome: string,
+): PrefixLookupResponse {
+  return buildPrefixLookupResponse([
+    makeArticle({
+      doi: TEST_DOIS.originalA,
+      title: "The Original Study A",
+      reproductions: [
+        {
+          doi: reproDoi,
+          doi_hash: CryptoJS.MD5(reproDoi).toString(),
+          title: reproTitle,
+          authors: [{ given: "Repro", family: "Author", sequence: "first" as const }],
+          journal: "Journal of Reproducibility",
+          year: 2023,
+          apa_ref: `Author, R. (2023). ${reproTitle}. Journal of Reproducibility.`,
+          bibtex_ref: `@article{reproAuthor2023, title={${reproTitle}}, author={Author, Repro}, journal={Journal of Reproducibility}, year={2023}, doi={${reproDoi}}}`,
+          outcome,
+        },
+      ],
+    }),
+  ]);
+}
+
+export const reproductionCsChallengesMatch = makeReproductionMatch(
+  TEST_REPRODUCTION_DOIS.csChallenges,
+  "Reproduction with CS Challenges",
+  "computationally successful, robustness challenges",
+);
+
+export const reproductionCsNotCheckedMatch = makeReproductionMatch(
+  TEST_REPRODUCTION_DOIS.csNotChecked,
+  "Reproduction with CS Not Checked",
+  "computationally successful, robustness not checked",
+);
+
+export const reproductionCiRobustMatch = makeReproductionMatch(
+  TEST_REPRODUCTION_DOIS.ciRobust,
+  "Reproduction with CI Robust",
+  "computational issues, robust",
+);
+
+export const reproductionCiChallengesMatch = makeReproductionMatch(
+  TEST_REPRODUCTION_DOIS.ciChallenges,
+  "Reproduction with CI Challenges",
+  "computational issues, robustness challenges",
+);
+
+export const reproductionCiNotCheckedMatch = makeReproductionMatch(
+  TEST_REPRODUCTION_DOIS.ciNotChecked,
+  "Reproduction with CI Not Checked",
+  "computational issues, robustness not checked",
+);
 
 /** Empty response */
 export const emptyResponse: PrefixLookupResponse = { results: {} };

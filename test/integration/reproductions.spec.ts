@@ -9,9 +9,15 @@ import {
 } from "../fixtures/helpers";
 import {
   singleReproductionMatch,
+  reproductionCsChallengesMatch,
+  reproductionCsNotCheckedMatch,
+  reproductionCiRobustMatch,
+  reproductionCiChallengesMatch,
+  reproductionCiNotCheckedMatch,
   createMockHTTPHandler,
   TEST_DOIS,
   TEST_REPRODUCTION_DOI,
+  TEST_REPRODUCTION_DOIS,
 } from "../fixtures/apiResponses";
 
 describe("Reproductions", function () {
@@ -95,7 +101,7 @@ describe("Reproductions", function () {
 
     const updated = await Zotero.Items.getAsync(original.id);
     const tags = updated!.getTags().map((t: any) => t.tag);
-    assert.include(tags, "Has Reproduction");
+    assert.include(tags, "Has Been Reproduced");
     assert.include(
       tags,
       "Reproduction: Computationally Successful, Robust",
@@ -296,6 +302,80 @@ describe("Reproductions", function () {
     // Cleanup blacklist
     await blacklistManager.removeFromBlacklist(TEST_REPRODUCTION_DOI);
   });
+
+  // ── Reproduction outcome tag variants ───────────────────────────────────────
+
+  const outcomeVariants: Array<{
+    label: string;
+    fixture: typeof singleReproductionMatch;
+    doi: string;
+    expectedTag: string;
+  }> = [
+    {
+      label: "computationally successful, robustness challenges",
+      fixture: reproductionCsChallengesMatch,
+      doi: TEST_REPRODUCTION_DOIS.csChallenges,
+      expectedTag: "Reproduction: Computationally Successful, Robustness Challenges",
+    },
+    {
+      label: "computationally successful, robustness not checked",
+      fixture: reproductionCsNotCheckedMatch,
+      doi: TEST_REPRODUCTION_DOIS.csNotChecked,
+      expectedTag: "Reproduction: Computationally Successful, Robustness Not Checked",
+    },
+    {
+      label: "computational issues, robust",
+      fixture: reproductionCiRobustMatch,
+      doi: TEST_REPRODUCTION_DOIS.ciRobust,
+      expectedTag: "Reproduction: Computational Issues, Robust",
+    },
+    {
+      label: "computational issues, robustness challenges",
+      fixture: reproductionCiChallengesMatch,
+      doi: TEST_REPRODUCTION_DOIS.ciChallenges,
+      expectedTag: "Reproduction: Computational Issues, Robustness Challenges",
+    },
+    {
+      label: "computational issues, robustness not checked",
+      fixture: reproductionCiNotCheckedMatch,
+      doi: TEST_REPRODUCTION_DOIS.ciNotChecked,
+      expectedTag: "Reproduction: Computational Issues, Robustness Not Checked",
+    },
+  ];
+
+  for (const variant of outcomeVariants) {
+    it(`adds correct outcome tag for: ${variant.label}`, async function () {
+      const handler = getReproductionHandler();
+      restoreHTTP = mockHTTP(createMockHTTPHandler(variant.fixture));
+
+      const original = await createTestItem(
+        TEST_DOIS.originalA,
+        "The Original Study A",
+      );
+      testItems.push(original);
+
+      const reproductions = Object.values(variant.fixture.results)
+        .flat()
+        .find((a) => a.doi === TEST_DOIS.originalA)!.record.reproductions;
+
+      await handler.processReproductions(original.id, reproductions);
+
+      const updated = await Zotero.Items.getAsync(original.id);
+      const tags = updated!.getTags().map((t: any) => t.tag);
+      assert.include(tags, "Has Been Reproduced");
+      assert.include(tags, variant.expectedTag);
+
+      // Clean up the created reproduction item
+      const search = new Zotero.Search({
+        libraryID: Zotero.Libraries.userLibraryID,
+      });
+      search.addCondition("DOI", "is", variant.doi);
+      for (const id of await search.search()) {
+        const item = await Zotero.Items.getAsync(id);
+        if (item) testItems.push(item);
+      }
+    });
+  }
 
   it("note not duplicated on re-check", async function () {
     const handler = getReproductionHandler();
