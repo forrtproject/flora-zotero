@@ -1214,14 +1214,13 @@ export class ReplicationCheckerPlugin {
 
       // Confirm action
       const promptWin = this.getPromptWindow();
-      if (!promptWin) return;
 
       const message = getString("replication-checker-ban-confirm", {
         count: itemsToBan.length
       });
 
       const confirmed = Services.prompt.confirm(
-        promptWin,
+        promptWin!,
         getString("replication-checker-ban-title"),
         message
       );
