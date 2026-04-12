@@ -52,8 +52,8 @@ Zotero version 7 or later. Guidance on installation and updating for Zotero is a
 
 1. Download the latest `zotero-replication-checker.xpi` from releases
 2. Open Zotero version 7+
-3. Go to **Tools → Add-ons**
-4. Click the gear icon (⚙️) → **Install Add-on From File**
+3. Go to **Tools → Add-ons (or Plug-ins)**
+4. Click the gear icon (⚙️) → **Install Add-on (or Plug-in) From File**
 5. Select `zotero-replication-checker.xpi`
 
 ## Usage
