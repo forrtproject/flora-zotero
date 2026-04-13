@@ -1197,9 +1197,13 @@ export class ReplicationCheckerPlugin {
    * Ban selected items (replications or reproductions)
    * Unified method that handles both types
    */
-  async banSelectedItems(): Promise<void> {
+  async banSelectedItems(
+    _selectedItemsOverride?: Zotero.Item[],
+    _confirmOverride?: boolean,
+  ): Promise<void> {
     try {
-      const selectedItems = Zotero.getActiveZoteroPane().getSelectedItems();
+      const selectedItems = _selectedItemsOverride
+        ?? Zotero.getActiveZoteroPane().getSelectedItems();
 
       // Filter for replication or reproduction items
       const itemsToBan = selectedItems.filter((item: Zotero.Item) =>
@@ -1213,17 +1217,20 @@ export class ReplicationCheckerPlugin {
       }
 
       // Confirm action
-      const promptWin = this.getPromptWindow();
-
-      const message = getString("replication-checker-ban-confirm", {
-        count: itemsToBan.length
-      });
-
-      const confirmed = Services.prompt.confirm(
-        promptWin!,
-        getString("replication-checker-ban-title"),
-        message
-      );
+      let confirmed: boolean;
+      if (_confirmOverride !== undefined) {
+        confirmed = _confirmOverride;
+      } else {
+        const promptWin = this.getPromptWindow();
+        const message = getString("replication-checker-ban-confirm", {
+          count: itemsToBan.length
+        });
+        confirmed = Services.prompt.confirm(
+          promptWin!,
+          getString("replication-checker-ban-title"),
+          message
+        );
+      }
 
       if (!confirmed) return;
 

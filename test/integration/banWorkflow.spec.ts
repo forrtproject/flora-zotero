@@ -19,13 +19,9 @@ describe("Ban Workflow", function () {
 
   const testItems: Zotero.Item[] = [];
   let restoreHTTP: (() => void) | null = null;
-  let restoreGetPane: (() => void) | null = null;
-  let restoreConfirm: (() => void) | null = null;
 
   afterEach(async function () {
     if (restoreHTTP) { restoreHTTP(); restoreHTTP = null; }
-    if (restoreGetPane) { restoreGetPane(); restoreGetPane = null; }
-    if (restoreConfirm) { restoreConfirm(); restoreConfirm = null; }
 
     // Un-trash items before erasing (eraseTx requires non-deleted state in some versions)
     for (const item of testItems) {
@@ -48,20 +44,6 @@ describe("Ban Workflow", function () {
     const bm = getPlugin().blacklistManager;
     await bm.clearBlacklist();
   });
-
-  /** Mock the Zotero pane so getSelectedItems() returns the given items */
-  function mockSelectedItems(items: Zotero.Item[]) {
-    const original = Zotero.getActiveZoteroPane;
-    (Zotero as any).getActiveZoteroPane = () => ({ getSelectedItems: () => items });
-    restoreGetPane = () => { (Zotero as any).getActiveZoteroPane = original; };
-  }
-
-  /** Mock Services.prompt.confirm to always return the given value */
-  function mockConfirm(returnValue: boolean) {
-    const original = (Services.prompt as any).confirm;
-    (Services.prompt as any).confirm = () => returnValue;
-    restoreConfirm = () => { (Services.prompt as any).confirm = original; };
-  }
 
   /** Set up: create original + replication items with proper tags and relation */
   async function createLinkedPair(): Promise<{
@@ -100,11 +82,8 @@ describe("Ban Workflow", function () {
   it("ban moves replication item to trash", async function () {
     const { replication } = await createLinkedPair();
 
-    mockSelectedItems([replication]);
-    mockConfirm(true);
-
     const checker = getChecker();
-    await checker.banSelectedItems();
+    await checker.banSelectedItems([replication], true);
 
     const refreshed = await Zotero.Items.getAsync(replication.id);
     assert.isTrue(refreshed!.deleted, "Banned item should be in trash");
@@ -113,11 +92,8 @@ describe("Ban Workflow", function () {
   it("ban adds item to blacklist by DOI", async function () {
     const { replication } = await createLinkedPair();
 
-    mockSelectedItems([replication]);
-    mockConfirm(true);
-
     const checker = getChecker();
-    await checker.banSelectedItems();
+    await checker.banSelectedItems([replication], true);
 
     const bm = getPlugin().blacklistManager;
     const isBlacklisted = bm.isBlacklisted(TEST_DOIS.replication);
@@ -135,11 +111,8 @@ describe("Ban Workflow", function () {
       "Original should have related items before ban",
     );
 
-    mockSelectedItems([replication]);
-    mockConfirm(true);
-
     const checker = getChecker();
-    await checker.banSelectedItems();
+    await checker.banSelectedItems([replication], true);
 
     const updatedOriginal = await Zotero.Items.getAsync(original.id);
     const relatedAfter = updatedOriginal!.relatedItems;
@@ -153,11 +126,8 @@ describe("Ban Workflow", function () {
   it("ban cancelled when user declines confirmation", async function () {
     const { replication } = await createLinkedPair();
 
-    mockSelectedItems([replication]);
-    mockConfirm(false); // user clicks Cancel
-
     const checker = getChecker();
-    await checker.banSelectedItems();
+    await checker.banSelectedItems([replication], false);
 
     const refreshed = await Zotero.Items.getAsync(replication.id);
     assert.isFalse(
@@ -175,11 +145,8 @@ describe("Ban Workflow", function () {
   it("banned replication is not re-added on subsequent check", async function () {
     const { original, replication } = await createLinkedPair();
 
-    mockSelectedItems([replication]);
-    mockConfirm(true);
-
     const checker = getChecker();
-    await checker.banSelectedItems();
+    await checker.banSelectedItems([replication], true);
 
     // Count items — should not include the banned replication after a second run
     const countBefore = await (async () => {
@@ -235,11 +202,8 @@ describe("Ban Workflow", function () {
     const reproItem = await Zotero.Items.getAsync(ids[0]);
     testItems.push(reproItem!);
 
-    mockSelectedItems([reproItem!]);
-    mockConfirm(true);
-
     const checker = getChecker();
-    await checker.banSelectedItems();
+    await checker.banSelectedItems([reproItem!], true);
 
     const bm = getPlugin().blacklistManager;
     const entries = bm.getEntriesWithMetadata();
