@@ -79,6 +79,16 @@ describe("Ban Workflow", function () {
     return { original, replication: replication! };
   }
 
+  it("setup: replication item is created with correct tags", async function () {
+    const { replication } = await createLinkedPair();
+    const tags = replication.getTags().map((t: any) => t.tag);
+    assert.include(
+      tags,
+      "Is Replication",
+      `Expected "Is Replication" in tags but found: ${tags.join(", ")}`,
+    );
+  });
+
   it("ban moves replication item to trash", async function () {
     const { replication } = await createLinkedPair();
 
