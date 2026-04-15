@@ -4,7 +4,7 @@
 ## Menu Items
 replication-checker-tools-menu = Vérifier la bibliothèque actuelle pour les réplications
 replication-checker-context-menu = Vérifier les réplications
-replication-checker-context-menu-ban = Bannir la réplication
+replication-checker-context-menu-ban = Exclure la réplication
 replication-checker-context-menu-add-original = Ajouter l'original
 replication-checker-context-menu-add-originals = Ajouter les originaux
 
@@ -68,18 +68,18 @@ replication-checker-target-selected = les éléments sélectionnés
 replication-checker-target-collection = la collection sélectionnée
 
 ## Ban Feature
-replication-checker-ban-title = Bannir les réplications
+replication-checker-ban-title = Exclure les réplications
 replication-checker-ban-confirm =
     { $count ->
-        [one] Êtes-vous sûr de vouloir bannir 1 réplication ?
-       *[other] Êtes-vous sûr de vouloir bannir { $count } réplications ?
+        [one] Êtes-vous sûr de vouloir exclure 1 réplication ?
+       *[other] Êtes-vous sûr de vouloir exclure { $count } réplications ?
     }
 
     Ces éléments seront déplacés vers la corbeille et ne seront pas rajoutés lors des vérifications futures.
 replication-checker-ban-success =
     { $count ->
-        [one] 1 réplication bannie avec succès.
-       *[other] { $count } réplications bannies avec succès.
+        [one] 1 réplication exclue avec succès.
+       *[other] { $count } réplications exclues avec succès.
     }
 replication-checker-alert-no-replications-selected = Aucun élément de réplication sélectionné.
 
@@ -215,7 +215,7 @@ onboarding-welcome-content =
     • Propose d'ajouter l'étude originale lorsqu'une réplication est détectée
     • Prise en charge des bibliothèques de groupe en lecture seule — copie les éléments dans la bibliothèque personnelle
     • Noms de dossiers configurables pour les réplications et reproductions
-    • Bannit les réplications indésirables des vérifications futures
+    • Exclut les réplications indésirables des vérifications futures
 
     Faisons un tour rapide pour commencer !
 
@@ -239,8 +239,8 @@ onboarding-context-content =
     📄 Pour les éléments individuels :
     Clic droit sur les éléments → Vérifier les réplications
 
-    🚫 Bannir des réplications :
-    Clic droit sur les éléments de réplication → Bannir la réplication
+    🚫 Exclure des réplications :
+    Clic droit sur les éléments de réplication → Exclure la réplication
     • Empêche les réplications indésirables d'être rajoutées
 
     ⚙️ Préférences :
@@ -261,7 +261,7 @@ onboarding-scan-content =
     Aide → Guide d'utilisation de Replication Checker
 
 ## Reproduction Feature - Menu Items
-reproduction-checker-context-menu-ban = Bannir la reproduction
+reproduction-checker-context-menu-ban = Exclure la reproduction
 
 ## Reproduction Feature - Tags
 reproduction-checker-tag = A été reproduit
@@ -297,18 +297,18 @@ reproduction-checker-li-link = Cette étude a un rapport lié :
 
 ## Reproduction Feature - Alerts
 reproduction-checker-alert-no-reproductions-selected = Aucun élément de reproduction sélectionné.
-reproduction-checker-ban-title = Bannir les reproductions
+reproduction-checker-ban-title = Exclure les reproductions
 reproduction-checker-ban-confirm =
     { $count ->
-        [one] Êtes-vous sûr de vouloir bannir 1 reproduction ?
-       *[other] Êtes-vous sûr de vouloir bannir { $count } reproductions ?
+        [one] Êtes-vous sûr de vouloir exclure 1 reproduction ?
+       *[other] Êtes-vous sûr de vouloir exclure { $count } reproductions ?
     }
 
     Ces éléments seront déplacés vers la corbeille et ne seront pas rajoutés lors des vérifications futures.
 reproduction-checker-ban-success =
     { $count ->
-        [one] 1 reproduction bannie avec succès.
-       *[other] { $count } reproductions bannies avec succès.
+        [one] 1 reproduction exclue avec succès.
+       *[other] { $count } reproductions exclues avec succès.
     }
 
 ## Reproduction Feature - Dialog
@@ -383,13 +383,13 @@ pref-stats-no-originals = Aucun article original suivi trouvé dans votre biblio
 pref-stats-fetch-error = Impossible d'atteindre FLoRA — vérifiez votre connexion Internet et réessayez.
 pref-stats-view-flora = Voir la base de données FLoRA →
 
-pref-blacklist-title = Réplications bannies
-pref-blacklist-description = Gérer les réplications que vous avez bannies de votre bibliothèque
+pref-blacklist-title = Réplications exclues
+pref-blacklist-description = Gérer les réplications que vous avez exclues de votre bibliothèque
 pref-blacklist-col-replication = Article de réplication
 pref-blacklist-col-original = Article original
 pref-blacklist-col-type = Type
-pref-blacklist-col-banned = Banni le
-pref-blacklist-empty = Aucune réplication bannie
+pref-blacklist-col-banned = Exclu le
+pref-blacklist-empty = Aucune réplication exclue
 pref-blacklist-remove = Supprimer la sélection
-pref-blacklist-clear = Effacer toutes les réplications bannies
-pref-blacklist-hint = Les réplications bannies ne seront pas rajoutées lors des vérifications futures. Vous pouvez bannir des réplications depuis le menu contextuel.
+pref-blacklist-clear = Effacer toutes les réplications exclues
+pref-blacklist-hint = Les réplications exclues ne seront pas rajoutées lors des vérifications futures. Vous pouvez exclure des réplications depuis le menu contextuel.
