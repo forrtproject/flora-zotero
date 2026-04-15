@@ -132,6 +132,23 @@ jobs:
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>{{ page.title | default: site.title }}</title>
+            <meta name="description" content="{{ page.description | default: site.description }}">
+            <!-- Open Graph / LinkedIn / Facebook -->
+            <meta property="og:type" content="website">
+            <meta property="og:site_name" content="{{ site.title }}">
+            <meta property="og:title" content="{{ page.title | default: site.title }}">
+            <meta property="og:description" content="{{ page.description | default: site.description }}">
+            <meta property="og:url" content="https://forrt.org/flora_zotero{{ page.url }}">
+            <meta property="og:image" content="https://forrt.org/flora_zotero/assets/replication-checker-logo.png">
+            <meta property="og:image:alt" content="Replication Checker for Zotero by FORRT">
+            <meta property="og:image:width" content="1200">
+            <meta property="og:image:height" content="400">
+            <!-- Twitter / X card -->
+            <meta name="twitter:card" content="summary_large_image">
+            <meta name="twitter:title" content="{{ page.title | default: site.title }}">
+            <meta name="twitter:description" content="{{ page.description | default: site.description }}">
+            <meta name="twitter:image" content="https://forrt.org/flora_zotero/assets/replication-checker-logo.png">
+            <meta name="twitter:image:alt" content="Replication Checker for Zotero by FORRT">
             <link rel="icon" type="image/png" href="{{ site.baseurl }}/assets/favicon.png">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown.min.css">
             <link rel="preconnect" href="https://fonts.googleapis.com">
