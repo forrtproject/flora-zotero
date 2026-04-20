@@ -6,6 +6,14 @@ Versions are listed newest-first.
 
 ---
 
+## [v0.1.13] - 2026-04-20
+- Added **Zotero 9 support**: the plugin now loads in Zotero 9 (`strict_max_version` bumped to `9.*`); full backward compatibility with Zotero 7 and 8 is retained
+- Added **French (fr) language support**: the plugin is now fully translated into French, bringing total supported languages to 6 (English, German, Spanish, French, Portuguese Brazil, Portuguese Europe)
+- Replaced **"Fetch from FLoRA" + "FLoRA Annotator" buttons** with a single **"Open in FLoRA Atlas ↗"** button in the Stats preferences pane: clicking it opens the [FLoRA Replication Atlas](https://forrt.org/flora-replication-atlas/) pre-loaded with your tracked original DOIs via URL (`?dois=doi1,doi2,...`); for libraries with many tracked originals the DOIs are copied to the clipboard instead and the Atlas opens at its homepage
+- Fixed **integration test suite** for the Ban workflow: tests now inject items and confirmation state directly into `banSelectedItems` to bypass XPCOM dialogs that block Mocha's async runner in CI
+- Updated **dependency versions**: `zotero-plugin-toolkit` 5.1.2, `zotero-plugin-scaffold` 0.8.6, `zotero-types` 4.1.2; menu registration rewritten to use direct XUL DOM manipulation after `ztoolkit.Menu` was removed in toolkit 5.1.x
+
+
 ## [v0.1.12] - 2026-03-31
 - Fixed **"Ban Replication" context menu appearing on non-replication items**: the menu item is now visible only on items tagged `Is Replication` or `Is Reproduction`, removing the broader `Added by Replication Checker` condition that caused it to show on unrelated items
 - Added **FLoRA Stats pane** in Preferences: shows live counts (total library items, originals tracked, articles with/identified as replications, articles with/identified as reproductions); updates automatically whenever items change in Zotero — no manual refresh needed; "Fetch from FLoRA" button posts tracked original DOIs to the FLoRA API and reports how many are known to FLoRA and their total replication/reproduction counts; "Open in FLoRA Annotator →" opens the FLoRA Annotator page for users to see the complete replication report
