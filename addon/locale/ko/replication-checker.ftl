@@ -367,20 +367,8 @@ pref-stats-has-reproduction = 재현 연구가 있는 논문
 pref-stats-is-replication = 복제 연구로 식별된 논문
 pref-stats-originals = 추적된 원본 논문
 pref-stats-refresh = 통계 새로 고침
-pref-stats-fetch-flora = FLoRA에서 가져오기
-pref-stats-fetching = FLoRA에서 가져오는 중…
-pref-stats-fetch-result =
-    { $matchedCount ->
-        [one] FLoRA가 { $origCount }개의 원본 논문 중 1개를 찾았습니다.
-       *[other] FLoRA가 { $origCount }개의 원본 논문 중 { $matchedCount }개를 찾았습니다.
-    }
-pref-stats-fetch-breakdown =
-    { $repCount ->
-        [one] 총 알려진 수: 복제 연구 1개와 재현 연구 { $reproCount }개.
-       *[other] 총 알려진 수: 복제 연구 { $repCount }개와 재현 연구 { $reproCount }개.
-    }
 pref-stats-no-originals = 라이브러리에서 추적된 원본 논문을 찾을 수 없습니다. 먼저 복제 연구 확인을 실행하세요.
-pref-stats-fetch-error = FLoRA에 접근할 수 없습니다 — 인터넷 연결을 확인하고 다시 시도하세요.
+pref-stats-open-atlas = FLoRA Atlas에서 열기 ↗
 pref-stats-view-flora = FLoRA 데이터베이스 보기 →
 
 pref-blacklist-title = 차단된 복제 연구

@@ -26,7 +26,7 @@ This plugin was developed as a [FORRT](https://forrt.org/) project to build a wo
 - 🔄 **Bidirectional linking**: Automatically links original studies with their replications as related items
 - 🚫 **Blacklist management**: Ban unwanted replications from being re-added during future checks
 - ⚡ **Auto-check**: Checks newly added items automatically; scheduled checks (daily/weekly/monthly) also available
-- 🌍 **Multi-language support**: Available in 5 languages (English, German, Spanish, Portuguese Brazil, Portuguese Europe)
+- 🌍 **Multi-language support**: Available in 6 languages (English, German, Spanish, French, Portuguese Brazil, Portuguese Europe)
 
 ## About the dataset
 
@@ -237,6 +237,7 @@ The plugin supports multiple languages and automatically uses your Zotero langua
 - English (en-US) ✅
 - German (de) ✅
 - Spanish (es) ✅
+- French (fr) ✅
 - Portuguese / Brazil (pt-BR) ✅
 - Portuguese / Europe (pt-PT) ✅
 

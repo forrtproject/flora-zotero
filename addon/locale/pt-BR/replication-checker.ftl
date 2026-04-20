@@ -370,20 +370,8 @@ pref-stats-has-reproduction = Artigos com reproduções
 pref-stats-is-replication = Artigos identificados como replicações
 pref-stats-originals = Artigos originais rastreados
 pref-stats-refresh = Atualizar Estatísticas
-pref-stats-fetch-flora = Buscar do FLoRA
-pref-stats-fetching = Buscando do FLoRA…
-pref-stats-fetch-result =
-    { $matchedCount ->
-        [one] FLoRA encontrou 1 de seus { $origCount } artigos originais.
-       *[other] FLoRA encontrou { $matchedCount } de seus { $origCount } artigos originais.
-    }
-pref-stats-fetch-breakdown =
-    { $repCount ->
-        [one] Total conhecido: 1 replicação e { $reproCount } reproduções nesses artigos.
-       *[other] Total conhecido: { $repCount } replicações e { $reproCount } reproduções nesses artigos.
-    }
 pref-stats-no-originals = Nenhum artigo original rastreado encontrado em sua biblioteca. Execute primeiro uma verificação de replicações.
-pref-stats-fetch-error = Não foi possível acessar o FLoRA — verifique sua conexão com a Internet e tente novamente.
+pref-stats-open-atlas = Abrir no FLoRA Atlas ↗
 pref-stats-view-flora = Ver Base de Dados FLoRA →
 
 pref-blacklist-title = Replicações Banidas

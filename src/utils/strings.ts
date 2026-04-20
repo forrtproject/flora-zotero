@@ -162,12 +162,8 @@ export const strings = {
   "pref-stats-is-replication": "Articles identified as replications",
   "pref-stats-originals": "Original articles tracked",
   "pref-stats-refresh": "Refresh Stats",
-  "pref-stats-fetch-flora": "Fetch from FLoRA",
-  "pref-stats-fetching": "Fetching from FLoRA…",
-  "pref-stats-fetch-result": "FLoRA matched { $matchedCount } of your { $origCount } original article(s).",
-  "pref-stats-fetch-breakdown": "Total known: { $repCount } replication(s) and { $reproCount } reproduction(s) across those articles.",
   "pref-stats-no-originals": "No tracked originals found in your library. Run a replication check first.",
-  "pref-stats-fetch-error": "Could not reach FLoRA — check your internet connection and try again.",
+  "pref-stats-open-atlas": "Open in FLoRA Atlas ↗",
   "pref-stats-view-flora": "View FLoRA Database →",
 
   // Preference Pane

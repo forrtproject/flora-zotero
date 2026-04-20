@@ -1,7 +1,7 @@
 {
   "name": "zotero-replication-checker",
   "type": "module",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Privacy-preserving Zotero plugin for checking item replications in research",
   "config": {
     "addonName": "Replication Checker for Zotero",
@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "crypto-js": "^4.2.0",
-    "zotero-plugin-toolkit": "^5.1.0-beta.4"
+    "zotero-plugin-toolkit": "^5.1.2"
   },
   "devDependencies": {
     "@types/chai": "^5.2.2",
@@ -50,8 +50,8 @@
     "prettier": "^3.6.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.2",
-    "zotero-plugin-scaffold": "^0.8.0",
-    "zotero-types": "^4.1.0-beta.1"
+    "zotero-plugin-scaffold": "^0.8.6",
+    "zotero-types": "^4.1.2"
   },
   "prettier": {
     "printWidth": 80,

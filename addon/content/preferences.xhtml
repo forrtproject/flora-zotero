@@ -248,22 +248,15 @@
     </html:tbody>
   </html:table>
 
-  <!-- FLoRA API result (shown after Fetch) -->
-  <html:div id="stats-flora-area" style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 10px 12px; margin-bottom: 10px; background: #fafafa; display: none;">
-    <html:p id="stats-flora-result"    style="font-size: 0.9em; color: #333; margin: 0 0 4px 0; font-weight: 600;"></html:p>
-    <html:p id="stats-flora-breakdown" style="font-size: 0.85em; color: #666; margin: 0;"></html:p>
-  </html:div>
-  <html:p id="stats-flora-error" style="font-size: 0.85em; color: #c0392b; margin: 0 0 10px 0; display: none;"></html:p>
+  <html:p id="stats-atlas-error" style="font-size: 0.85em; color: #c0392b; margin: 0 0 10px 0; display: none;"></html:p>
 
   <!-- Action buttons row -->
   <html:div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-    <html:button id="stats-fetch-flora-btn" style="font-size: 0.85em;">Fetch from FLoRA</html:button>
-    <html:button id="stats-annotator-btn"  style="font-size: 0.85em;">Open in FLoRA Annotator ↗</html:button>
+    <html:button id="stats-atlas-btn" style="font-size: 0.85em;">Open in FLoRA Atlas ↗</html:button>
   </html:div>
 
   <html:p style="margin-top: 10px; font-size: 0.8em; color: #aaa; line-height: 1.5;">
-    <html:strong>Fetch from FLoRA</html:strong> — looks up your tracked originals and reports known replication/reproduction counts globally.<html:br/>
-    <html:strong>Open in FLoRA Annotator</html:strong> — copies your tracked original DOIs to clipboard and opens the annotator; paste them in the Input References field to generate a report.
+    <html:strong>Open in FLoRA Atlas</html:strong> — opens the FLoRA Replication Atlas pre-loaded with your tracked original DOIs. For large libraries the DOIs are copied to clipboard instead — paste them into the Atlas search field.
   </html:p>
 </groupbox>
 

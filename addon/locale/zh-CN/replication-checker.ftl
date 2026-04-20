@@ -367,20 +367,8 @@ pref-stats-has-reproduction = 有再现研究的文章
 pref-stats-is-replication = 被标识为重复研究的文章
 pref-stats-originals = 已追踪的原始文章
 pref-stats-refresh = 刷新统计数据
-pref-stats-fetch-flora = 从 FLoRA 获取
-pref-stats-fetching = 正在从 FLoRA 获取…
-pref-stats-fetch-result =
-    { $matchedCount ->
-        [one] FLoRA 在您的 { $origCount } 篇原始文章中找到了 1 篇。
-       *[other] FLoRA 在您的 { $origCount } 篇原始文章中找到了 { $matchedCount } 篇。
-    }
-pref-stats-fetch-breakdown =
-    { $repCount ->
-        [one] 已知总计：1 篇重复研究和 { $reproCount } 篇再现研究。
-       *[other] 已知总计：{ $repCount } 篇重复研究和 { $reproCount } 篇再现研究。
-    }
 pref-stats-no-originals = 在您的文献库中未找到已追踪的原始文章。请先运行重复研究检查。
-pref-stats-fetch-error = 无法访问 FLoRA——请检查您的网络连接并重试。
+pref-stats-open-atlas = 在 FLoRA Atlas 中打开 ↗
 pref-stats-view-flora = 查看 FLoRA 数据库 →
 
 pref-blacklist-title = 已屏蔽的重复研究

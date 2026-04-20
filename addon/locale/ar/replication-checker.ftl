@@ -367,20 +367,8 @@ pref-stats-has-reproduction = مقالات لها استنساخات
 pref-stats-is-replication = مقالات محددة كتكرارات
 pref-stats-originals = المقالات الأصلية المتتبعة
 pref-stats-refresh = تحديث الإحصاءات
-pref-stats-fetch-flora = جلب من FLoRA
-pref-stats-fetching = جارٍ الجلب من FLoRA…
-pref-stats-fetch-result =
-    { $matchedCount ->
-        [one] وجد FLoRA مقالة أصلية واحدة من { $origCount } مقالة/مقالات.
-       *[other] وجد FLoRA { $matchedCount } من { $origCount } مقالة/مقالات أصلية.
-    }
-pref-stats-fetch-breakdown =
-    { $repCount ->
-        [one] الإجمالي المعروف: تكرار واحد و{ $reproCount } استنساخ/استنساخات في تلك المقالات.
-       *[other] الإجمالي المعروف: { $repCount } تكرار/تكرارات و{ $reproCount } استنساخ/استنساخات في تلك المقالات.
-    }
 pref-stats-no-originals = لم يتم العثور على مقالات أصلية متتبعة في مكتبتك. قم بإجراء فحص التكرارات أولاً.
-pref-stats-fetch-error = تعذّر الوصول إلى FLoRA — تحقق من اتصالك بالإنترنت وأعد المحاولة.
+pref-stats-open-atlas = افتح في FLoRA Atlas ↗
 pref-stats-view-flora = عرض قاعدة بيانات FLoRA ←
 
 pref-blacklist-title = التكرارات المحظورة

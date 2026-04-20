@@ -288,79 +288,109 @@ export async function onMainWindowLoad(win: _ZoteroTypes.MainWindow) {
   Zotero.debug("[ReplicationChecker] Loading main window");
 
   try {
-    // Register Tools menu item with theme-aware icon
-    ztoolkit.Menu.register("menuTools", {
-      tag: "menuitem",
-      id: "replication-checker-tools-menu",
-      label: getString("replication-checker-tools-menu"),
-      icon: getThemedIconPath(),
-      commandListener: () => {
-        replicationChecker.checkEntireLibrary();
-      },
-    });
+    const doc = win.document;
+
+    // Zotero popup element IDs for each menu location
+    const MENU_POPUPS: Record<string, string> = {
+      menuTools: "menu_ToolsPopup",
+      menuHelp: "menu_HelpPopup",
+      item: "zotero-itemmenu",
+      collection: "zotero-collectionmenu",
+    };
+
+    // Listeners added to popup elements, tracked for cleanup in onMainWindowUnload
+    const popupListeners: Array<{ popup: Element; listener: EventListener }> = [];
+    (win as any)._rcMenuPopupListeners = popupListeners;
+
+    function addMenuItem(
+      menuType: string,
+      id: string,
+      label: string,
+      commandFn: () => void,
+      visibilityFn?: (elem: Element) => boolean,
+    ): void {
+      const popup = doc.getElementById(MENU_POPUPS[menuType]);
+      if (!popup) return;
+
+      const item = ztoolkit.UI.createElement(doc, "menuitem", {
+        id,
+        attributes: {
+          label,
+          image: getThemedIconPath(),
+          class: "menuitem-iconic",
+        },
+        listeners: [{ type: "command", listener: commandFn }],
+      });
+
+      if (visibilityFn) {
+        const onShowing: EventListener = () => {
+          (item as any).hidden = !visibilityFn(item as Element);
+        };
+        popup.addEventListener("popupshowing", onShowing);
+        popupListeners.push({ popup, listener: onShowing });
+      }
+
+      popup.appendChild(item);
+    }
+
+    // Tools menu
+    addMenuItem(
+      "menuTools",
+      "replication-checker-tools-menu",
+      getString("replication-checker-tools-menu"),
+      () => replicationChecker.checkEntireLibrary(),
+    );
     Zotero.debug("[ReplicationChecker] Added Tools menu item");
 
-    // Register Help menu - User Guide
-    ztoolkit.Menu.register("menuHelp", {
-      tag: "menuitem",
-      id: "replication-checker-help-guide",
-      label: "Replication Checker User Guide",
-      icon: getThemedIconPath(),
-      commandListener: async () => {
+    // Help menu - User Guide
+    addMenuItem(
+      "menuHelp",
+      "replication-checker-help-guide",
+      "Replication Checker User Guide",
+      async () => {
         Zotero.debug("[ReplicationChecker] Opening user guide");
-        // Don't show scan prompt when opened from Help menu
         await onboardingManager.showOnboarding(false);
       },
-    });
+    );
     Zotero.debug("[ReplicationChecker] Added Help menu item");
 
-    // Register Item context menu item
-    ztoolkit.Menu.register("item", {
-      tag: "menuitem",
-      id: "replication-checker-item-menu",
-      label: getString("replication-checker-context-menu"),
-      icon: getThemedIconPath(),
-      commandListener: () => {
-        replicationChecker.checkSelectedItems();
-      },
-    });
+    // Item context menu - check replications
+    addMenuItem(
+      "item",
+      "replication-checker-item-menu",
+      getString("replication-checker-context-menu"),
+      () => replicationChecker.checkSelectedItems(),
+    );
     Zotero.debug("[ReplicationChecker] Added Item context menu item");
 
-    // Register "Ban Replication" context menu item - handles both replications and reproductions
-    ztoolkit.Menu.register("item", {
-      tag: "menuitem",
-      id: "replication-checker-ban-menu",
-      label: getString("replication-checker-context-menu-ban"),
-      icon: getThemedIconPath(),
-      getVisibility: (elem, ev) => {
-        // Show for replication or reproduction items
+    // Item context menu - ban replication/reproduction
+    addMenuItem(
+      "item",
+      "replication-checker-ban-menu",
+      getString("replication-checker-context-menu-ban"),
+      () => replicationChecker.banSelectedItems(),
+      () => {
         const selectedItems = Zotero.getActiveZoteroPane().getSelectedItems();
         return selectedItems.some((item: Zotero.Item) =>
           itemHasTag(item, TAG_IS_REPLICATION) ||
           itemHasTag(item, TAG_IS_REPRODUCTION)
         );
       },
-      commandListener: () => {
-        // Call the unified ban function that handles both types
-        replicationChecker.banSelectedItems();
-      },
-    });
+    );
     Zotero.debug("[ReplicationChecker] Added Ban Replication context menu item");
 
-    // Register "Add Original Study" context menu item - for both replications and reproductions
-    ztoolkit.Menu.register("item", {
-      tag: "menuitem",
-      id: "replication-checker-add-original-menu",
-      label: getString("replication-checker-context-menu-add-original"),
-      icon: getThemedIconPath(),
-      getVisibility: (elem, ev) => {
-        // Show for items tagged as "Is Replication" or "Is Reproduction"
+    // Item context menu - add original study
+    addMenuItem(
+      "item",
+      "replication-checker-add-original-menu",
+      getString("replication-checker-context-menu-add-original"),
+      () => replicationChecker.addOriginalStudy(),
+      (elem) => {
         const selectedItems = Zotero.getActiveZoteroPane().getSelectedItems();
         const isVisible = selectedItems.some((item: Zotero.Item) =>
           itemHasTag(item, TAG_IS_REPLICATION) || itemHasTag(item, TAG_IS_REPRODUCTION)
         );
         if (isVisible) {
-          // Use "Add Original(s)" when any selected item has multiple originals
           const hasMultiple = selectedItems.some((item: Zotero.Item) =>
             itemHasTag(item, TAG_REPLICATION_MULTIPLE_ORIGINALS) ||
             itemHasTag(item, TAG_REPRODUCTION_MULTIPLE_ORIGINALS)
@@ -373,22 +403,16 @@ export async function onMainWindowLoad(win: _ZoteroTypes.MainWindow) {
         }
         return isVisible;
       },
-      commandListener: () => {
-        replicationChecker.addOriginalStudy();
-      },
-    });
+    );
     Zotero.debug("[ReplicationChecker] Added Add Original Study context menu item");
 
-    // Register Collection context menu item
-    ztoolkit.Menu.register("collection", {
-      tag: "menuitem",
-      id: "replication-checker-collection-menu",
-      label: getString("replication-checker-context-menu"),
-      icon: getThemedIconPath(),
-      commandListener: () => {
-        replicationChecker.checkSelectedCollection();
-      },
-    });
+    // Collection context menu
+    addMenuItem(
+      "collection",
+      "replication-checker-collection-menu",
+      getString("replication-checker-context-menu"),
+      () => replicationChecker.checkSelectedCollection(),
+    );
     Zotero.debug("[ReplicationChecker] Added Collection context menu item");
 
     // Show onboarding on first run
@@ -647,6 +671,13 @@ export async function onMainWindowUnload(win: Window) {
         elem.remove();
       }
     }
+
+    const popupListeners: Array<{ popup: Element; listener: EventListener }> =
+      (win as any)._rcMenuPopupListeners ?? [];
+    for (const { popup, listener } of popupListeners) {
+      popup.removeEventListener("popupshowing", listener);
+    }
+    delete (win as any)._rcMenuPopupListeners;
   } catch (e) {
     Zotero.debug("[ReplicationChecker] Error cleaning up window menu items: " + e);
   }
@@ -1090,81 +1121,25 @@ export async function initStatsUI(doc: Document): Promise<void> {
     }
   }
 
-  // ── FLoRA API lookup ─────────────────────────────────────────────────────
+  // ── Open FLoRA Replication Atlas ─────────────────────────────────────────
+  // Passes tracked original DOIs via URL (?dois=doi1,doi2,...).
+  // URLs above 4000 chars may hit proxy limits, so fall back to clipboard
+  // for large libraries and open the Atlas homepage instead.
 
-  async function fetchFloraStats(): Promise<void> {
-    const btn = doc.getElementById("stats-fetch-flora-btn") as HTMLButtonElement | null;
-    const resultArea = doc.getElementById("stats-flora-area");
-    const resultEl   = doc.getElementById("stats-flora-result");
-    const breakdownEl = doc.getElementById("stats-flora-breakdown");
-    const errorEl    = doc.getElementById("stats-flora-error");
+  async function openAtlas(): Promise<void> {
+    const ATLAS_BASE = "https://forrt.org/flora-replication-atlas/";
+    const URL_LIMIT = 4000;
+    const errorEl = doc.getElementById("stats-atlas-error");
 
-    if (btn) { btn.disabled = true; btn.textContent = "Fetching…"; }
-    if (resultArea) (resultArea as HTMLElement).style.display = "none";
-    if (errorEl)   { (errorEl as HTMLElement).style.display = "none"; errorEl.textContent = ""; }
+    const showError = (msg: string) => {
+      if (!errorEl) return;
+      errorEl.textContent = msg;
+      (errorEl as HTMLElement).style.display = "block";
+      setTimeout(() => { (errorEl as HTMLElement).style.display = "none"; }, 6000);
+    };
 
     try {
       const libraryID = Zotero.Libraries.userLibraryID;
-      // Collect IDs tagged with either "Has Been Replicated" or "Has Been Reproduced"
-      const repSearch = new Zotero.Search();
-      repSearch.addCondition("libraryID", "is", String(libraryID));
-      repSearch.addCondition("tag", "is", getTag(TAG_HAS_BEEN_REPLICATED));
-      const reproSearch = new Zotero.Search();
-      reproSearch.addCondition("libraryID", "is", String(libraryID));
-      reproSearch.addCondition("tag", "is", getTag(TAG_HAS_BEEN_REPRODUCED));
-      const [repIDs, reproIDs] = await Promise.all([repSearch.search(), reproSearch.search()]);
-      const ids = [...new Set([...repIDs, ...reproIDs])];
-
-      const dois: string[] = [];
-      for (const id of ids) {
-        const item = await Zotero.Items.getAsync(id);
-        if (!item) continue;
-        const doi = (item.getField("DOI") as string | undefined)?.trim().toLowerCase();
-        if (doi) dois.push(doi);
-      }
-
-      if (dois.length === 0) {
-        if (errorEl) { errorEl.textContent = "No tracked originals found. Run a replication check first."; (errorEl as HTMLElement).style.display = "block"; }
-        return;
-      }
-
-      const resp = await Zotero.HTTP.request("POST", "https://rep-api.forrt.org/v1/original-lookup", {
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dois }),
-      });
-
-      const data = JSON.parse(resp.responseText ?? "");
-      const results = (data.results || {}) as Record<string, any>;
-
-      let matched = 0, totalRep = 0, totalRepro = 0;
-      for (const doi in results) {
-        const stats = results[doi]?.record?.stats;
-        if (!stats) continue;
-        matched++;
-        totalRep   += (stats.n_replications_total  as number) || 0;
-        totalRepro += (stats.n_reproductions_total as number) || 0;
-      }
-
-      if (resultEl) resultEl.textContent =
-        `FLoRA matched ${matched} of your ${dois.length} original article${dois.length !== 1 ? "s" : ""}.`;
-      if (breakdownEl) breakdownEl.textContent =
-        `Total known: ${totalRep} replication${totalRep !== 1 ? "s" : ""} and ${totalRepro} reproduction${totalRepro !== 1 ? "s" : ""} across those articles.`;
-      if (resultArea) (resultArea as HTMLElement).style.display = "block";
-
-    } catch (error) {
-      Zotero.debug("[ReplicationChecker Prefs] FLoRA fetch error: " + error);
-      if (errorEl) { errorEl.textContent = "Could not reach FLoRA — check your internet connection."; (errorEl as HTMLElement).style.display = "block"; }
-    } finally {
-      if (btn) { btn.disabled = false; btn.textContent = "Fetch from FLoRA"; }
-    }
-  }
-
-  // ── Open FLoRA Annotator (copies DOIs to clipboard first) ────────────────
-
-  async function openAnnotator(): Promise<void> {
-    try {
-      const libraryID = Zotero.Libraries.userLibraryID;
-      // Collect all original articles: tagged "Has Been Replicated" or "Has Been Reproduced"
       const repSearch = new Zotero.Search();
       repSearch.addCondition("libraryID", "is", String(libraryID));
       repSearch.addCondition("tag", "is", getTag(TAG_HAS_BEEN_REPLICATED));
@@ -1182,36 +1157,44 @@ export async function initStatsUI(doc: Document): Promise<void> {
         if (doi) dois.push(doi);
       }
 
-      if (dois.length > 0) {
+      if (dois.length === 0) {
+        showError("No tracked originals found. Run a replication check first.");
+        return;
+      }
+
+      const urlWithDOIs = `${ATLAS_BASE}?dois=${dois.join(",")}`;
+
+      if (urlWithDOIs.length <= URL_LIMIT) {
+        Zotero.launchURL(urlWithDOIs);
+      } else {
+        // Too many DOIs — copy as comma-separated and open the Atlas homepage
         const clipHelper = (Components.classes as any)[
           "@mozilla.org/widget/clipboardhelper;1"
         ].getService((Components.interfaces as any).nsIClipboardHelper);
-        clipHelper.copyString(dois.join("\n"));
+        clipHelper.copyString(dois.join(","));
 
         const progressWin = new Zotero.ProgressWindow();
-        progressWin.changeHeadline("FLoRA Annotator");
+        progressWin.changeHeadline("FLoRA Replication Atlas");
         progressWin.addLines(
-          `${dois.length} DOI${dois.length !== 1 ? "s" : ""} copied — paste into the Input References field`,
+          `${dois.length} DOIs copied — paste into the Atlas DOI search field`,
           ""
         );
         progressWin.show();
-        progressWin.startCloseTimer(4000);
-        Zotero.debug(`[ReplicationChecker Prefs] Copied ${dois.length} DOIs to clipboard for Annotator`);
+        progressWin.startCloseTimer(5000);
+
+        Zotero.launchURL(ATLAS_BASE);
       }
 
-      Zotero.launchURL("https://forrt.org/annotator/");
+      Zotero.debug(`[ReplicationChecker Prefs] Opening Atlas with ${dois.length} DOIs`);
     } catch (error) {
-      Zotero.debug("[ReplicationChecker Prefs] Error opening annotator: " + error);
+      Zotero.debug("[ReplicationChecker Prefs] Error opening Atlas: " + error);
     }
   }
 
   // ── Wire up buttons ───────────────────────────────────────────────────────
 
-  const fetchBtn = doc.getElementById("stats-fetch-flora-btn");
-  if (fetchBtn) fetchBtn.addEventListener("click", () => { fetchFloraStats(); });
-
-  const annotatorBtn = doc.getElementById("stats-annotator-btn");
-  if (annotatorBtn) annotatorBtn.addEventListener("click", () => { openAnnotator(); });
+  const atlasBtn = doc.getElementById("stats-atlas-btn");
+  if (atlasBtn) atlasBtn.addEventListener("click", () => { openAtlas(); });
 
   // ── Auto-update via Zotero Notifier ──────────────────────────────────────
 

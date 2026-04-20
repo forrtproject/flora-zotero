@@ -1,1 +1,7 @@
 <!-- Update this file before each release. It will be inserted into the GitHub Release body under "✨ New in This Release" and prepended to CHANGELOG.md. Use markdown bullet points. -->
+
+- Added **Zotero 9 support**: the plugin now loads in Zotero 9 (`strict_max_version` bumped to `9.*`); full backward compatibility with Zotero 7 and 8 is retained
+- Added **French (fr) language support**: the plugin is now fully translated into French, bringing total supported languages to 6 (English, German, Spanish, French, Portuguese Brazil, Portuguese Europe)
+- Replaced **"Fetch from FLoRA" + "FLoRA Annotator" buttons** with a single **"Open in FLoRA Atlas ↗"** button in the Stats preferences pane: clicking it opens the [FLoRA Replication Atlas](https://forrt.org/flora-replication-atlas/) pre-loaded with your tracked original DOIs via URL (`?dois=doi1,doi2,...`); for libraries with many tracked originals the DOIs are copied to the clipboard instead and the Atlas opens at its homepage
+- Fixed **integration test suite** for the Ban workflow: tests now inject items and confirmation state directly into `banSelectedItems` to bypass XPCOM dialogs that block Mocha's async runner in CI
+- Updated **dependency versions**: `zotero-plugin-toolkit` 5.1.2, `zotero-plugin-scaffold` 0.8.6, `zotero-types` 4.1.2; menu registration rewritten to use direct XUL DOM manipulation after `ztoolkit.Menu` was removed in toolkit 5.1.x
