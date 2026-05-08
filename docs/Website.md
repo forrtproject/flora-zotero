@@ -17,7 +17,7 @@ a:not(.flora-btn):hover { color: #ff84d0; }
 </style>
 
 <p align="center">
-  <a href="https://github.com/forrtproject/flora_zotero/releases/latest" class="flora-btn">⬇️ Download Latest Version</a>
+  <a href="https://github.com/forrtproject/flora-zotero/releases/latest" class="flora-btn">⬇️ Download Latest Version</a>
 </p>
 
 A Zotero plugin that discovers replication studies for items in your library using the [FORRT Library of Reproduction and Replication Attempts (FLoRA)](https://forrt.org/replication-hub/flora/). It scans your local library for DOIs, checks against FLoRA using privacy-preserving prefix matching, notifies you when reproductions and replications exist, and allows easy addition to your library — all without sending identifiable data off your machine.
@@ -60,11 +60,11 @@ Replications can range from close/direct (same methods, same population) to conc
 
 **Key distinction**: If new data are collected or used (e.g., an additional decade of data), it is a *replication*. If the same data are re-analysed to verify the original results, it is a *reproduction*.
 
-For more information on usage and functionality, head to [Documentation](https://forrt.org/flora_zotero/documentation).
+For more information on usage and functionality, head to [Documentation](https://forrt.org/flora-zotero/documentation).
 
 ## Feedback
 
-Do you have feedback for us? Open an issue [here](https://github.com/forrtproject/flora_zotero/issues) if you encounter bugs or documentation issues. You can also [contact us anonymously about the Replication Checker](https://tinyurl.com/y5evebv9).
+Do you have feedback for us? Open an issue [here](https://github.com/forrtproject/flora-zotero/issues) if you encounter bugs or documentation issues. You can also [contact us anonymously about the Replication Checker](https://tinyurl.com/y5evebv9).
 
 ## Funding
 

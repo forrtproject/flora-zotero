@@ -3,8 +3,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/forrtproject/flora_zotero/releases/latest"><img src="https://img.shields.io/github/downloads/forrtproject/flora_zotero/total?label=Total%20Downloads&style=flat-square" alt="Total Downloads"></a>
-  <a href="https://github.com/forrtproject/flora_zotero/releases/latest"><img src="https://img.shields.io/github/downloads/forrtproject/flora_zotero/latest/total?label=Latest%20Release%20Downloads&style=flat-square" alt="Latest Release Downloads"></a>
+  <a href="https://github.com/forrtproject/flora-zotero/releases/latest"><img src="https://img.shields.io/github/downloads/forrtproject/flora-zotero/total?label=Total%20Downloads&style=flat-square" alt="Total Downloads"></a>
+  <a href="https://github.com/forrtproject/flora-zotero/releases/latest"><img src="https://img.shields.io/github/downloads/forrtproject/flora-zotero/latest/total?label=Latest%20Release%20Downloads&style=flat-square" alt="Latest Release Downloads"></a>
 </p>
 
 A Zotero plugin that discovers replication studies for items in your library using the [FORRT Library of Reproduction and Replication Attempts (FLoRA)](https://forrt.org/replication-hub/flora/). It scans your local library for DOIs, checks against FLoRA using privacy-preserving prefix matching, notifies you when reproductions and replications exist, and allows easy addition to your library — all without sending identifiable data off your machine.
@@ -264,4 +264,4 @@ A `citation.cff` file is also included in the repository for automated citation 
 
 ## Feedback
 
-Do you have feedback for us? Open an issue [here](https://github.com/forrtproject/flora_zotero/issues) if you encounter bugs or documentation issues. You can also [contact us anonymously about the Replication Checker](https://tinyurl.com/y5evebv9).
+Do you have feedback for us? Open an issue [here](https://github.com/forrtproject/flora-zotero/issues) if you encounter bugs or documentation issues. You can also [contact us anonymously about the Replication Checker](https://tinyurl.com/y5evebv9).

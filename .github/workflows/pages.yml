@@ -72,7 +72,7 @@ jobs:
           # Download update.json from the latest GitHub release
           # The release workflow creates update.json with the correct hash for the release XPI
           echo "Fetching update.json from latest release..."
-          LATEST_RELEASE=$(curl -s https://api.github.com/repos/forrtproject/flora_zotero/releases/latest)
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/forrtproject/flora-zotero/releases/latest)
           UPDATE_JSON_URL=$(echo "$LATEST_RELEASE" | jq -r '.assets[]? | select(.name == "update.json") | .browser_download_url' 2>/dev/null || echo "")
 
           if [ -n "$UPDATE_JSON_URL" ] && [ "$UPDATE_JSON_URL" != "null" ]; then
@@ -95,6 +95,7 @@ jobs:
           cat > docs/_config.yml << 'EOF'
           title: Zotero Replication Checker
           description: Privacy-first plugin to discover replications from the FORRT Library of Replication Attempts (FLoRA)
+          baseurl: /flora-zotero
 
           # Navigation
           navigation:
@@ -107,7 +108,7 @@ jobs:
 
           # GitHub metadata
           github:
-            repository_url: https://github.com/forrtproject/flora_zotero
+            repository_url: https://github.com/forrtproject/flora-zotero
 
           # FORRT branding
           forrt:
@@ -138,8 +139,8 @@ jobs:
             <meta property="og:site_name" content="{{ site.title }}">
             <meta property="og:title" content="{{ page.title | default: site.title }}">
             <meta property="og:description" content="{{ page.description | default: site.description }}">
-            <meta property="og:url" content="https://forrt.org/flora_zotero{{ page.url }}">
-            <meta property="og:image" content="https://forrt.org/flora_zotero/assets/replication-checker-logo.png">
+            <meta property="og:url" content="https://forrt.org/flora-zotero{{ page.url }}">
+            <meta property="og:image" content="https://forrt.org/flora-zotero/assets/replication-checker-logo.png">
             <meta property="og:image:alt" content="Replication Checker for Zotero by FORRT">
             <meta property="og:image:width" content="1200">
             <meta property="og:image:height" content="400">
@@ -147,7 +148,7 @@ jobs:
             <meta name="twitter:card" content="summary_large_image">
             <meta name="twitter:title" content="{{ page.title | default: site.title }}">
             <meta name="twitter:description" content="{{ page.description | default: site.description }}">
-            <meta name="twitter:image" content="https://forrt.org/flora_zotero/assets/replication-checker-logo.png">
+            <meta name="twitter:image" content="https://forrt.org/flora-zotero/assets/replication-checker-logo.png">
             <meta name="twitter:image:alt" content="Replication Checker for Zotero by FORRT">
             <link rel="icon" type="image/png" href="{{ site.baseurl }}/assets/favicon.png">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown.min.css">

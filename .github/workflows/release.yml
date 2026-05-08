@@ -95,7 +95,7 @@ jobs:
                 "updates": [
                   {
                     "version": "$VERSION_NUM",
-                    "update_link": "https://github.com/forrtproject/flora_zotero/releases/download/${VERSION}/${XPI_NAME}",
+                    "update_link": "https://github.com/forrtproject/flora-zotero/releases/download/${VERSION}/${XPI_NAME}",
                     "update_hash": "sha512:${XPI_HASH}",
                     "applications": {
                       "zotero": {
@@ -142,7 +142,7 @@ jobs:
 
             Privacy-first plugin to discover replications from the FORRT Literature Database (FLoRA).
 
-            **Direct Download:** [`${{ env.XPI_NAME }}`](https://github.com/forrtproject/flora_zotero/releases/download/${{ steps.version.outputs.VERSION }}/${{ env.XPI_NAME }})
+            **Direct Download:** [`${{ env.XPI_NAME }}`](https://github.com/forrtproject/flora-zotero/releases/download/${{ steps.version.outputs.VERSION }}/${{ env.XPI_NAME }})
 
             ---
 

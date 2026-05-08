@@ -27,7 +27,7 @@ The built XPI is written to `.scaffold/build/zotero-replication-checker.xpi`.
 ## Project Structure
 
 ```text
-flora_zotero/
+flora-zotero/
 ├── addon/                           # Static assets packaged into the XPI
 │   ├── bootstrap.js                 # XPI bootstrap entry point (loads index.ts exports)
 │   ├── content/

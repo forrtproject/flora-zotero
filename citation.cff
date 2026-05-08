@@ -5,8 +5,8 @@ title: "Zotero Replication Checker"
 version: "0.1.12"
 date-released: "2026"
 doi: 10.5281/zenodo.18671300
-url: "https://github.com/forrtproject/flora_zotero"
-repository-code: "https://github.com/forrtproject/flora_zotero"
+url: "https://github.com/forrtproject/flora-zotero"
+repository-code: "https://github.com/forrtproject/flora-zotero"
 license: AGPL-3.0-or-later
 authors:
   - family-names: Wallrich
