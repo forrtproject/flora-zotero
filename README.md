@@ -3,8 +3,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/forrtproject/flora-zotero/releases/latest"><img src="https://img.shields.io/github/downloads/forrtproject/flora-zotero/total?label=Total%20Downloads&style=flat-square" alt="Total Downloads"></a>
-  <a href="https://github.com/forrtproject/flora-zotero/releases/latest"><img src="https://img.shields.io/github/downloads/forrtproject/flora-zotero/latest/total?label=Latest%20Release%20Downloads&style=flat-square" alt="Latest Release Downloads"></a>
+  <a href="https://github.com/forrtproject/flora-zotero/releases/latest"><img src="https://badgen.net/github/assets-dl/forrtproject/flora-zotero?label=Total+Downloads" alt="Total Downloads"></a>
+  <a href="https://github.com/forrtproject/flora-zotero/releases/latest"><img src="https://badgen.net/github/assets-dl/forrtproject/flora-zotero/latest?label=Latest+Release+Downloads" alt="Latest Release Downloads"></a>
 </p>
 
 A Zotero plugin that discovers replication studies for items in your library using the [FORRT Library of Reproduction and Replication Attempts (FLoRA)](https://forrt.org/replication-hub/flora/). It scans your local library for DOIs, checks against FLoRA using privacy-preserving prefix matching, notifies you when reproductions and replications exist, and allows easy addition to your library — all without sending identifiable data off your machine.
@@ -204,7 +204,7 @@ If both a reproduction and replication are found, separate notes and tags are cr
 
 ### What Does Replication Outcome Mean?
 
-The plugin automatically creates a tag and an entry in the note based on the FLoRA Database outcome column. This is coded based on how authors interpreted their results. Tags are created only for outcomes "Replication: Successful", "Replication: Failure" and "Replication: Mixed". This is to enable filtering in Zotero based on the replication outcome. Full info about coding of this variable can be found [here](https://github.com/forrtproject/FLoRA-data/blob/main/cos_report.html).
+The plugin automatically creates a tag and an entry in the note based on the FLoRA Database outcome column. This is coded based on how authors interpreted their results. Tags are created only for outcomes "Replication: Successful", "Replication: Failure" and "Replication: Mixed". This is to enable filtering in Zotero based on the replication outcome.
 
 ### What Does Reproduction Outcome Mean?
 
