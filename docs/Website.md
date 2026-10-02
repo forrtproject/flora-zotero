@@ -14,6 +14,31 @@ a:not(.flora-btn):hover { color: #ff84d0; }
   transition: background-color 0.15s;
 }
 .flora-btn:hover { background-color: #ff84d0; color: #fff !important; }
+.markdown-body .flora-video {
+  margin: 1.5rem auto 0;
+  max-width: 900px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000 !important;
+  box-shadow: 0 6px 24px rgba(0, 64, 85, 0.18);
+}
+.markdown-body .flora-video video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: auto 16 / 9;
+  background: #000 !important;
+}
+.markdown-body .flora-note {
+  max-width: 900px;
+  margin: 1rem auto 1.5rem;
+  padding: 0.85rem 1.1rem;
+  border-left: 4px solid #981D1F;
+  border-radius: 6px;
+  background: #fbeeee !important;
+  color: #212529;
+  font-size: 0.95em;
+}
 </style>
 
 <p align="center">
@@ -23,6 +48,20 @@ a:not(.flora-btn):hover { color: #ff84d0; }
 A Zotero plugin that discovers replication studies for items in your library using the [FORRT Library of Reproduction and Replication Attempts (FLoRA)](https://forrt.org/replication-hub/flora/). It scans your local library for DOIs, checks against FLoRA using privacy-preserving prefix matching, notifies you when reproductions and replications exist, and allows easy addition to your library — all without sending identifiable data off your machine.
 
 This plugin was developed as a [FORRT](https://forrt.org/) project to build a working prototype for the open science community. It helps researchers discover replication studies by identifying items with known replications and unobtrusively notifying them via tags and notes.  
+
+## Video tutorial
+
+New to the Replication Checker? Watch this short walkthrough to see the plugin in action.
+
+<div class="flora-video">
+  <video controls preload="metadata" playsinline poster="media/flora-zotero-tutorial-poster.jpg">
+    <source src="media/flora-zotero-tutorial.mp4" type="video/mp4">
+    Your browser cannot play this video. <a href="media/flora-zotero-tutorial.mp4">Download the tutorial (MP4)</a>.
+  </video>
+</div>
+<div class="flora-note" role="note">
+  <strong>Recorded with an earlier version.</strong> The plugin now keeps all of its collections inside a single <strong>FLoRA</strong> folder, and a few newer features are not shown in the video. See <a href="documentation#collection-layout">Collection layout</a> in the documentation for the current structure.
+</div>
 
 ## Features
 

@@ -86,6 +86,10 @@ docs/.doctrees/
 # Zip files (except XPI which is already listed)
 *.zip
 
+# Raw screen recordings - convert with scripts/encode-tutorial-video.sh and
+# commit the resulting docs/media/*.mp4 instead (GitHub rejects files > 100 MB)
+*.mov
+
 # Old structure (if converting)
 chrome-OLD-DELETE-LATER/
 *.manifest-OLD
