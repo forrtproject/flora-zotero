@@ -1,0 +1,104 @@
+# Documentation information architecture.
+#
+# One file, two readers:
+#   - scripts/build_docs.py slices README.md by the headings named below and
+#     writes one page per entry, so each page covers a single task.
+#   - docs/_layouts/default.html renders the same groups as the docs sidebar.
+# Because both read this, the nav and the pages cannot drift apart.
+#
+# `sections` names headings in README.md verbatim. The builder fails the build
+# if a named heading is missing, or if a README heading is neither placed on a
+# page nor listed under `excluded` — nothing can quietly disappear.
+
+groups:
+  - title: Getting started
+    pages:
+      - title: Installation
+        slug: installation
+        lede: >-
+          What you need, and how to install the plugin into Zotero from the
+          released XPI file.
+        sections:
+          - Installation
+
+  - title: Using the plugin
+    pages:
+      - title: Running a check
+        slug: running-a-check
+        lede: >-
+          Check a whole library, a selection, or a collection — and have new
+          items checked automatically as they arrive.
+        sections:
+          - Check Current Library or Group Libraries
+          - Check Selected Items or Collections
+          - Check Newly Added Items
+
+      - title: What lands in your library
+        slug: what-gets-added
+        lede: >-
+          The collections, tags and notes a check creates, and how to ban a
+          replication you do not want back.
+        sections:
+          - Collection layout
+          - What Gets Added to Zotero Items
+          - Ban Replications
+
+      - title: Preferences
+        slug: preferences
+        lede: >-
+          Scheduled checks, automatic checking of new items, and the list of
+          replications you have banned.
+        sections:
+          - Preferences
+
+  - title: Understanding results
+    pages:
+      - title: Reading an outcome
+        slug: outcomes
+        lede: >-
+          What the replication and reproduction outcome labels mean, and what a
+          linked report is.
+        sections:
+          - What Does Replication Outcome Mean?
+          - What Does Reproduction Outcome Mean?
+          - What Does it Mean if "The study has a linked report"
+
+      - title: How matching works
+        slug: how-matching-works
+        lede: >-
+          How the plugin queries FLoRA with hash prefixes instead of your DOIs,
+          and where the data comes from.
+        sections:
+          - Privacy-Preserving Architecture
+          - Data Source
+
+  - title: Reference
+    pages:
+      - title: Languages
+        slug: languages
+        lede: >-
+          The languages the plugin ships in, what gets translated, and how to
+          contribute a new translation.
+        sections:
+          - Localization
+
+      - title: Citing the plugin
+        slug: citation
+        lede: >-
+          How to cite the Replication Checker in your research.
+        sections:
+          - Citation
+
+# README headings deliberately kept out of the documentation, and where their
+# content lives instead. The builder checks this list is exhaustive.
+excluded:
+  Features: >-
+    The home page covers this under "What it does"; repeating the list here
+    pushes Installation below the fold.
+  About the dataset: >-
+    The home page covers this in full under "Where the data comes from".
+  Feedback: >-
+    Surfaced as "Report an issue" in the top bar, the footer and the
+    "Keep reading" row of every page.
+  Usage: Container heading only; its subsections are split across pages.
+  How It Works: Container heading only; its subsections are split across pages.

@@ -93,3 +93,14 @@ docs/.doctrees/
 # Old structure (if converting)
 chrome-OLD-DELETE-LATER/
 *.manifest-OLD
+
+# Local GitHub Pages preview built by scripts/preview-pages.py
+docs/.preview/
+
+# Pages content assembled by scripts/build_docs.py (CI builds these; they are
+# derived from README.md, Contributing.md and .github/RELEASE_GUIDE.md)
+docs/index.md
+docs/documentation/
+docs/contributing/
+docs/release-guide/
+docs/update.json

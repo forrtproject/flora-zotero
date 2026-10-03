@@ -1,0 +1,63 @@
+title: Replication Checker for Zotero
+description: >-
+  A Zotero plugin that finds the replications and reproductions of the studies
+  already in your library, using FORRT's Library of Reproduction and Replication
+  Attempts (FLoRA) — without sending identifiable data off your machine.
+baseurl: /flora-zotero
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter: rouge
+
+# Every generated page gets the Atlas-styled shell. The workflow that copies
+# the source markdown in also prepends front matter, so pages are rendered
+# rather than served as raw .md.
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+
+# Sources that live in docs/ for humans, not for the site.
+exclude:
+  - Website.md
+  - README_dev.md
+  - Release.md
+  - LOCALIZATION.md
+
+# Top-bar navigation, also used for the footer row and the "Keep reading" links
+# at the foot of every document page. Outbound links (Replication Atlas, Report
+# Issue) and the Download CTA live in the layout, since they are not site pages.
+# URLs carry a trailing slash: each page is built as <name>/index.html.
+navigation:
+  - title: Home
+    url: /
+  - title: Documentation
+    url: /documentation/
+  - title: Contributing
+    url: /contributing/
+  - title: Release Guide
+    url: /release-guide/
+
+# GitHub metadata
+github:
+  repository_url: https://github.com/forrtproject/flora-zotero
+
+# FORRT branding and sibling properties
+forrt:
+  main_site: https://forrt.org/
+  project_name: FORRT
+  tagline: Framework for Open and Reproducible Research Training
+  hub: https://forrt.org/replication-hub/
+  flora: https://forrt.org/replication-hub/flora/
+  atlas: https://forrt.org/flora-replication-atlas/
+  explorer: https://forrt.org/flora-explorer/
+  contributors: https://forrt.org/contributors/?project=flora-zotero-plugin&&collapse-filter
+
+# Plugin info
+plugin:
+  min_zotero: "7.0"
+  max_zotero: "8.*"
+  languages: 6

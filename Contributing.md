@@ -4,9 +4,10 @@ Thank you for your interest in contributing to the Zotero Replication Checker pl
 
 This document outlines how you can contribute and align with FORRT's values and guidelines.
 
-How to Contribute
+## How to Contribute
 
-- We welcome contributions in many forms, including:
+We welcome contributions in many forms, including:
+
 - Reporting bugs or suggesting improvements
 - Enhancing plugin features or code
 - Improving documentation, including this guide

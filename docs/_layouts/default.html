@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if page.url == "/" %}{{ site.title }}{% else %}{{ page.title | default: site.title }} — {{ site.title }}{% endif %}</title>
+  <meta name="description" content="{{ page.lede | default: page.description | default: site.description }}">
+  <meta name="theme-color" content="#853953">
+  <link rel="canonical" href="https://forrt.org/flora-zotero{{ page.url }}">
+
+  <!-- Open Graph / LinkedIn / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{ site.title }}">
+  <meta property="og:title" content="{{ page.title | default: site.title }}">
+  <meta property="og:description" content="{{ page.lede | default: page.description | default: site.description }}">
+  <meta property="og:url" content="https://forrt.org/flora-zotero{{ page.url }}">
+  <meta property="og:image" content="https://forrt.org/flora-zotero/assets/replication-checker-social.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:alt" content="Replication Checker for Zotero by FORRT">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="1200">
+  <!-- Twitter / X card (square image, so the small "summary" card) -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{{ page.title | default: site.title }}">
+  <meta name="twitter:description" content="{{ page.lede | default: page.description | default: site.description }}">
+  <meta name="twitter:image" content="https://forrt.org/flora-zotero/assets/replication-checker-social.png">
+  <meta name="twitter:image:alt" content="Replication Checker for Zotero by FORRT">
+
+  <link rel="icon" type="image/png" href="{{ site.baseurl }}/assets/favicon.png">
+
+  <!-- Same two faces as the FLoRA Replication Atlas: Domine for display,
+       Source Sans 3 for body. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Domine:wght@400;500;600;700&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap">
+
+  <link rel="stylesheet" href="{{ site.baseurl }}/assets/css/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+
+  <!-- ═══ Top bar: the Atlas bar, with this site's nav in place of its search ═══ -->
+  <div class="topbar-wrapper">
+    <nav class="topbar">
+      <div class="topbar-left">
+        <a class="topbar-brand" href="{{ site.baseurl }}/">
+          <div class="topbar-icon">
+            <img src="{{ site.baseurl }}/logo/forrt-mark.svg" alt="FORRT" width="20" height="20">
+          </div>
+          <div class="topbar-name">
+            <strong>FLoRA</strong>
+            <span>Replication Checker</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="topbar-right">
+        {% for item in site.navigation %}
+        <a class="topbar-link{% if item.url == "/" %}{% if page.url == "/" or page.url == "/index.html" %} active{% endif %}{% elsif page.url contains item.url %} active{% endif %}"
+           href="{{ site.baseurl }}{{ item.url }}">{{ item.title }}</a>
+        {% endfor %}
+        <a class="topbar-link" href="{{ site.forrt.atlas }}" target="_blank" rel="noopener">Replication Atlas</a>
+        <a class="topbar-link" href="{{ site.github.repository_url }}/issues" target="_blank" rel="noopener">Report Issue</a>
+        <a class="topbar-cta" href="{{ site.github.repository_url }}/releases/latest" target="_blank" rel="noopener">Download</a>
+      </div>
+
+      <button class="topbar-hamburger" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobile-menu">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+
+    <div class="topbar-mobile-menu" id="mobile-menu">
+      {% for item in site.navigation %}
+      <a class="topbar-mobile-link" href="{{ site.baseurl }}{{ item.url }}">{{ item.title }}</a>
+      {% endfor %}
+      <a class="topbar-mobile-link" href="{{ site.forrt.atlas }}" target="_blank" rel="noopener">Replication Atlas</a>
+      <a class="topbar-mobile-link" href="{{ site.github.repository_url }}/issues" target="_blank" rel="noopener">Report Issue</a>
+      <a class="topbar-mobile-cta" href="{{ site.github.repository_url }}/releases/latest" target="_blank" rel="noopener">Download</a>
+    </div>
+  </div>
+
+  <!-- ═══ Content ═══
+       The home page ships its own landing sections, so it takes the `.landing`
+       grid wrapper; every other page is prose and takes the Atlas `.ssg`
+       document column, with a title block and a where-to-next row around it so
+       a page assembled from a repo file still reads as a page of this site. -->
+  {% if page.layout_variant == "landing" %}
+  <main id="content" class="landing">
+    {{ content }}
+  </main>
+  {% else %}
+  <main id="content" class="ssg{% if page.section == "docs" %} ssg--docs{% endif %}">
+    <!-- ═══ Docs sidebar ═══
+         The documentation is many short pages rather than one long one, so it
+         carries a persistent map of itself. Both this and the page split come
+         from docs/_data/docs_nav.yml, so the nav cannot list a page that does
+         not exist. -->
+    {% if page.section == "docs" %}
+    <nav class="docs-nav" aria-label="Documentation">
+      <details class="disclosure docs-nav-box" data-collapse-below="1024">
+        <summary class="disclosure-label">All documentation</summary>
+        <div class="docs-nav-links">
+          <a class="docs-nav-home{% if page.slug == "index" %} active{% endif %}" href="{{ site.baseurl }}/documentation/">Overview</a>
+          {% for group in site.data.docs_nav.groups %}
+          <div class="docs-nav-group">
+            <div class="docs-nav-group-title">{{ group.title }}</div>
+            {% for item in group.pages %}
+            <a class="docs-nav-link{% if page.slug == item.slug %} active{% endif %}"
+               href="{{ site.baseurl }}/documentation/{{ item.slug }}/">{{ item.title }}</a>
+            {% endfor %}
+          </div>
+          {% endfor %}
+        </div>
+      </details>
+    </nav>
+    {% endif %}
+
+    <header class="ssg-head">
+      <h1>{{ page.title | default: site.title }}</h1>
+      {% if page.lede %}<p class="ssg-lede">{{ page.lede }}</p>{% endif %}
+    </header>
+
+    <div class="ssg-body">
+      <!-- Contents rail. These pages run to twenty-odd sections, so they get a
+           map of themselves in the column the 68ch measure leaves empty. It is
+           filled in from the headings below after load: navigation only, so a
+           reader without scripting still has the whole document. -->
+      <aside class="doc-toc" id="doc-toc" hidden>
+        <details class="disclosure doc-toc-box" data-collapse-below="1025">
+          <summary class="disclosure-label">On this page</summary>
+          <nav class="doc-toc-links" aria-label="Sections of this page"></nav>
+        </details>
+      </aside>
+
+      <article class="ssg-article">
+        {{ content }}
+
+        <!-- The documentation overview lists what the section contains, the
+             way a docs index should, rather than repeating any of it. -->
+        {% if page.slug == "index" %}
+        {% for group in site.data.docs_nav.groups %}
+        <h2 class="docs-index-group">{{ group.title }}</h2>
+        <div class="docs-index-cards">
+          {% for item in group.pages %}
+          <a class="docs-index-card" href="{{ site.baseurl }}/documentation/{{ item.slug }}/">
+            <span class="docs-index-card-title">{{ item.title }}</span>
+            <span class="docs-index-card-lede">{{ item.lede }}</span>
+          </a>
+          {% endfor %}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <nav class="ssg-related" aria-label="Other pages on this site">
+          <div class="ssg-related-label">Keep reading</div>
+          <div class="ssg-related-links">
+            {% for item in site.navigation %}{% if page.url != item.url %}<a href="{{ site.baseurl }}{{ item.url }}">{{ item.title }}</a>{% endif %}{% endfor %}
+            {% if page.source %}<a href="{{ site.github.repository_url }}/blob/main/{{ page.source }}">Edit this page</a>{% endif %}
+            <a href="{{ site.github.repository_url }}/issues">Report an issue</a>
+          </div>
+        </nav>
+      </article>
+    </div>
+  </main>
+  {% endif %}
+
+  <!-- ═══ Footer bar ═══ -->
+  <footer class="footer-bar">
+    <span>{{ site.forrt.project_name }} &middot; {{ site.forrt.tagline }}</span>
+    <div>
+      {% for item in site.navigation %}{% if item.url != "/" %}<a href="{{ site.baseurl }}{{ item.url }}">{{ item.title }}</a>{% endif %}{% endfor %}
+      <a href="{{ site.forrt.flora }}" target="_blank" rel="noopener">FLoRA</a>
+      <a href="{{ site.forrt.atlas }}" target="_blank" rel="noopener">Replication Atlas</a>
+      <a href="{{ site.github.repository_url }}" target="_blank" rel="noopener">GitHub</a>
+      <a href="mailto:flora@forrt.org">Contact</a>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var toggle = document.querySelector(".topbar-hamburger");
+      var menu = document.getElementById("mobile-menu");
+      if (!toggle || !menu) return;
+      toggle.addEventListener("click", function () {
+        var open = menu.classList.toggle("open");
+        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+    })();
+
+    // Side panels (docs nav, contents rail) are plain lists where they have a
+    // column to sit in, and collapse to a disclosure below that width. Driven
+    // here rather than in CSS: a closed <details> hides its content with
+    // content-visibility, which no display rule can override.
+    (function () {
+      var panels = document.querySelectorAll(".disclosure[data-collapse-below]");
+      Array.prototype.forEach.call(panels, function (box) {
+        var query = window.matchMedia(
+          "(max-width: " + (parseInt(box.dataset.collapseBelow, 10) - 1) + "px)"
+        );
+        var sync = function () {
+          box.open = !query.matches;
+        };
+        sync();
+        if (query.addEventListener) query.addEventListener("change", sync);
+      });
+    })();
+
+    // Contents rail + heading anchors for the document pages.
+    (function () {
+      var article = document.querySelector(".ssg-article");
+      var rail = document.getElementById("doc-toc");
+      if (!article || !rail) return;
+
+      var headings = [].slice.call(article.querySelectorAll("h2[id], h3[id]"));
+      if (headings.length < 3) return;
+
+      var links = rail.querySelector(".doc-toc-links");
+      var byId = {};
+
+      headings.forEach(function (h) {
+        var a = document.createElement("a");
+        a.href = "#" + h.id;
+        a.textContent = h.textContent.trim();
+        a.className = "doc-toc-link doc-toc-link--" + h.tagName.toLowerCase();
+        links.appendChild(a);
+        byId[h.id] = a;
+
+        // A quiet permalink, so any section can be linked to directly.
+        var anchor = document.createElement("a");
+        anchor.href = "#" + h.id;
+        anchor.className = "heading-anchor";
+        anchor.setAttribute("aria-label", "Link to this section");
+        anchor.textContent = "#";
+        h.appendChild(anchor);
+      });
+
+      rail.hidden = false;
+      // Only now does the body give up a column for the rail, so a page with
+      // too few headings keeps the full width.
+      article.parentNode.classList.add("has-toc");
+
+      // Mark the section the reader is in. Observed against a band just under
+      // the sticky bar so the highlight changes as a heading reaches the top.
+      if (!("IntersectionObserver" in window)) return;
+      var active = null;
+      var observer = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            if (active) active.classList.remove("active");
+            active = byId[entry.target.id];
+            if (active) active.classList.add("active");
+          });
+        },
+        { rootMargin: "-68px 0px -75% 0px", threshold: 0 }
+      );
+      headings.forEach(function (h) {
+        observer.observe(h);
+      });
+    })();
+  </script>
+</body>
+</html>

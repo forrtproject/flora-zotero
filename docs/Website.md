@@ -1,118 +1,323 @@
-<style>
-a:not(.flora-btn) { color: #b80205; }
-a:not(.flora-btn):hover { color: #ff84d0; }
-.flora-btn {
-  display: inline-block;
-  background-color: #b80205 !important;
-  color: #fff !important;
-  padding: 14px 36px;
-  border-radius: 8px;
-  font-size: 1.15em;
-  font-weight: bold;
-  text-decoration: none !important;
-  letter-spacing: 0.01em;
-  transition: background-color 0.15s;
-}
-.flora-btn:hover { background-color: #ff84d0; color: #fff !important; }
-.markdown-body .flora-video {
-  margin: 1.5rem auto 0;
-  max-width: 900px;
-  border-radius: 10px;
-  overflow: hidden;
-  background: #000 !important;
-  box-shadow: 0 6px 24px rgba(0, 64, 85, 0.18);
-}
-.markdown-body .flora-video video {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: auto 16 / 9;
-  background: #000 !important;
-}
-.markdown-body .flora-note {
-  max-width: 900px;
-  margin: 1rem auto 1.5rem;
-  padding: 0.85rem 1.1rem;
-  border-left: 4px solid #981D1F;
-  border-radius: 6px;
-  background: #fbeeee !important;
-  color: #212529;
-  font-size: 0.95em;
-}
-</style>
+---
+layout: default
+layout_variant: landing
+title: Replication Checker for Zotero
+---
 
-<p align="center">
-  <a href="https://github.com/forrtproject/flora-zotero/releases/latest" class="flora-btn">⬇️ Download Latest Version</a>
-</p>
+<!-- The home page is laid out as the FLoRA Replication Atlas landing page:
+     left-aligned hero, then sections separated by a hairline rule, each one a
+     bento trio / worked example / definition rows / prose-with-a-link-rail.
+     Markup is plain HTML on purpose — kramdown does not process markdown
+     inside block-level HTML without markdown="1" on every container. -->
 
-A Zotero plugin that discovers replication studies for items in your library using the [FORRT Library of Reproduction and Replication Attempts (FLoRA)](https://forrt.org/replication-hub/flora/). It scans your local library for DOIs, checks against FLoRA using privacy-preserving prefix matching, notifies you when reproductions and replications exist, and allows easy addition to your library — all without sending identifiable data off your machine.
+<section class="landing-hero">
+  <div class="landing-hero-inner">
+    <h1 class="landing-title">Has anything in your library been replicated?</h1>
+    <p class="landing-lede">
+      The Replication Checker scans your Zotero library for DOIs, matches them
+      against FORRT's Library of Reproduction and Replication Attempts (FLoRA),
+      and files what it finds as tags, notes and collections — all without
+      sending identifiable data off your machine.
+    </p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="https://github.com/forrtproject/flora-zotero/releases/latest">Download the latest version</a>
+      <a class="btn-ghost" href="{{ site.baseurl }}/documentation/">Read the documentation</a>
+    </div>
+    <p class="hero-meta">
+      Works with Zotero {{ site.plugin.min_zotero }} – {{ site.plugin.max_zotero }}
+      &middot; Free and open source (AGPL-3.0)
+      &middot; <a href="https://github.com/forrtproject/flora-zotero/releases">Release notes</a>
+    </p>
+    <div class="welcome-examples">
+      <div class="welcome-examples-label">Start here</div>
+      <a class="welcome-doi" href="#see-it-in-action">
+        <span>Video tutorial</span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+      </a>
+      <a class="welcome-doi" href="#what-it-does">
+        <span>What it does</span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+      </a>
+      <a class="welcome-doi" href="#where-the-data-comes-from">
+        <span>About the dataset</span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+      </a>
+      <a class="welcome-doi" href="https://github.com/forrtproject/flora-zotero/issues">
+        <span>Report an issue</span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
 
-This plugin was developed as a [FORRT](https://forrt.org/) project to build a working prototype for the open science community. It helps researchers discover replication studies by identifying items with known replications and unobtrusively notifying them via tags and notes.  
+<section class="landing-section" id="what-it-does">
+  <h2 class="landing-h2">What it does</h2>
 
-## Video tutorial
+  <div class="landing-bento">
+    <div class="lb-cell lb-cell--feature">
+      <p class="lb-headline">Your library never leaves your machine</p>
+      <div class="lb-title">Privacy-preserving matching</div>
+      <p class="lb-sub">
+        The plugin sends short hashed prefixes of your DOIs, never the DOIs
+        themselves, so FLoRA can answer the question without learning what you
+        are reading.
+      </p>
+      <a class="lb-go" href="{{ site.baseurl }}/documentation/how-matching-works/">
+        How the matching works
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+      </a>
+    </div>
 
-New to the Replication Checker? Watch this short walkthrough to see the plugin in action.
+    <a class="lb-cell" href="#where-the-data-comes-from">
+      <div class="lb-figure">2</div>
+      <div class="lb-title">kinds of evidence</div>
+      <p class="lb-sub">
+        Replications, which repeat prior research, and computational
+        reproductions, which re-analyse the original data. Each gets its own
+        tags, notes and collection.
+      </p>
+      <span class="lb-go">
+        What counts as which
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+      </span>
+    </a>
 
-<div class="flora-video">
-  <video controls preload="metadata" playsinline poster="media/flora-zotero-tutorial-poster.jpg">
-    <source src="media/flora-zotero-tutorial.mp4" type="video/mp4">
-    Your browser cannot play this video. <a href="media/flora-zotero-tutorial.mp4">Download the tutorial (MP4)</a>.
-  </video>
-</div>
-<div class="flora-note" role="note">
-  <strong>Recorded with an earlier version.</strong> The plugin now keeps all of its collections inside a single <strong>FLoRA</strong> folder, and a few newer features are not shown in the video. See <a href="documentation#collection-layout">Collection layout</a> in the documentation for the current structure.
-</div>
+    <a class="lb-cell lb-cell--alt" href="{{ site.baseurl }}/documentation/languages/">
+      <div class="lb-figure">{{ site.plugin.languages }}</div>
+      <div class="lb-title">interface languages</div>
+      <p class="lb-sub">
+        English, German, Spanish, French, Brazilian Portuguese and European
+        Portuguese. Runs on Zotero {{ site.plugin.min_zotero }} through
+        {{ site.plugin.max_zotero }}.
+      </p>
+      <span class="lb-go">
+        Read the documentation
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+      </span>
+    </a>
+  </div>
 
-## Features
+  <h3 class="landing-h3">Everything in the plugin</h3>
+  <ul class="landing-features">
+    <li><strong>Privacy-preserving matching</strong> — hash prefixes query the database without exposing your library contents</li>
+    <li><strong>Batch processing</strong> — checks the whole library, selected items, or a collection in one operation</li>
+    <li><strong>Replication support</strong> — detects replications, adds outcome-tagged notes, and tags items "Has Replication" / "Is Replication"</li>
+    <li><strong>Reproduction support</strong> — detects computational reproductions with their own notes and "Has Reproduction" / "Is Reproduction" tags</li>
+    <li><strong>Multiple originals</strong> — items with more than one original get an "Original Articles" note listing each original's title, DOI and outcome</li>
+    <li><strong>Read-only libraries</strong> — detects read-only group libraries and offers to copy originals and replications into your personal library</li>
+    <li><strong>Automatic tagging</strong> — contextual tags including outcomes and "Original present in Read-Only Library"</li>
+    <li><strong>Detailed notes</strong> — child notes carrying title, authors, journal, outcome and DOI</li>
+    <li><strong>One tidy container</strong> — every collection the plugin creates lives inside a single top-level "FLoRA" collection, and all names are configurable</li>
+    <li><strong>Smart organisation</strong> — separate collections for originals from read-only libraries and their replications</li>
+    <li><strong>Per-library stats</strong> — Preferences shows live FLoRA counts for your personal or any group library, and opens the Replication Atlas pre-loaded with that library's tracked DOIs</li>
+    <li><strong>Bidirectional linking</strong> — originals and their replications are linked as related items</li>
+    <li><strong>Blacklist management</strong> — ban unwanted replications from being re-added on future checks</li>
+    <li><strong>Auto-check</strong> — new items are checked as they arrive; daily, weekly or monthly scheduled checks are also available</li>
+  </ul>
+</section>
 
-- 🔍 **Privacy-preserving matching**: Uses hash prefixes to query the database without exposing your library contents
-- 📚 **Batch processing**: Checks entire library, selected items, or collections in one operation
-- 🔁 **Replication support**: Detects replication studies, adds outcome-tagged notes, and tags items with "Has Replication" / "Is Replication"
-- 🧪 **Reproduction support**: Detects computational reproductions with dedicated notes and "Has Reproduction" / "Is Reproduction" tags
-- 📄 **Multiple originals support**: Items with more than one original study receive an "Original Articles" note listing each original's title, DOI, and outcome
-- 📖 **Read-only library support**: Automatically detects read-only group libraries and offers to copy originals and replications to your Personal library
-- 🏷️ **Automatic tagging**: Adds contextual tags including "Has Replication", "Is Replication", outcome tags, and "Original present in Read-Only Library"
-- 📝 **Detailed notes**: Creates child notes with replication/reproduction details (title, authors, journal, outcome, DOI)
-- 🗂️ **Configurable folders**: Customize the collection names for replications and reproductions in Preferences
-- 🔗 **Smart organization**: Creates separate collections for originals from read-only libraries and their replications
-- 🔄 **Bidirectional linking**: Automatically links original studies with their replications as related items
-- 🚫 **Blacklist management**: Ban unwanted replications from being re-added during future checks
-- ⚡ **Auto-check**: Checks newly added items automatically; scheduled checks (daily/weekly/monthly) also available
-- 🌍 **Multi-language support**: Available in 6 languages (English, German, Spanish, French, Portuguese Brazil, Portuguese Europe)
+<section class="landing-section" id="see-it-in-action">
+  <h2 class="landing-h2">See it in action</h2>
+  <p class="landing-sub">
+    New to the Replication Checker? This short walkthrough shows the plugin
+    running against a real library.
+  </p>
+  <div class="flora-video">
+    <video controls preload="metadata" playsinline poster="{{ site.baseurl }}/media/flora-zotero-tutorial-poster.jpg">
+      <source src="{{ site.baseurl }}/media/flora-zotero-tutorial.mp4" type="video/mp4">
+      Your browser cannot play this video.
+      <a href="{{ site.baseurl }}/media/flora-zotero-tutorial.mp4">Download the tutorial (MP4)</a>.
+    </video>
+  </div>
+  <div class="flora-note" role="note">
+    <strong>Recorded with an earlier version.</strong> The plugin now keeps all
+    of its collections inside a single <strong>FLoRA</strong> folder, and a few
+    newer features are not shown in the video. See
+    <a href="{{ site.baseurl }}/documentation/what-gets-added/#collection-layout">Collection layout</a>
+    in the documentation for the current structure.
+  </div>
+</section>
 
-## About the dataset
+<section class="landing-section" id="what-you-get">
+  <h2 class="landing-h2">What lands in Zotero</h2>
 
-The Replication Checker uses the [FORRT Literature Database (FLoRA)](https://forrt.org/replication-hub/flora/) that contains replications and reproductions of studies from many different areas of science. These are distinct divided into:
+  <div class="landing-record">
+    <figure class="lr-figure">
+      <div class="lr-card">
+        <div class="lr-orig">
+          <span class="lr-tag">Already in your library</span>
+          <h3 class="lr-title">Power posing: Brief nonverbal displays affect neuroendocrine levels and risk tolerance</h3>
+          <p class="lr-meta">Carney, Cuddy &amp; Yap (2010)</p>
+          <p class="lr-journal">Psychological Science</p>
+          <p class="lr-doi">10.1177/0956797610383437</p>
+          <div class="lr-tags">
+            <span class="lr-chip">Has Replication</span>
+            <span class="lr-chip">Failed</span>
+          </div>
+        </div>
+        <div class="lr-rep">
+          <span class="lr-outcome lr-outcome--failed">failed</span>
+          <div class="lr-rep-body">
+            <p class="lr-meta"><strong>Ranehill et al. (2015)</strong> — Assessing the robustness of power posing</p>
+            <p class="lr-journal">Psychological Science</p>
+            <p class="lr-note">
+              Added under <strong>FLoRA &rsaquo; Replications</strong>, linked to
+              the original as a related item, and summarised in a child note
+              carrying the authors, journal, outcome and DOI.
+            </p>
+          </div>
+        </div>
+      </div>
+      <figcaption class="lr-caption">
+        An illustration of one matched pair. Browse records like this in the
+        <a href="{{ site.forrt.atlas }}">FLoRA Replication Atlas</a>.
+      </figcaption>
+    </figure>
 
-**Replications** are studies that intentionally repeat prior research to test whether the original findings hold. To be included in FLoRA, a study must:
+    <dl class="landing-defs">
+      <div class="ld-row">
+        <dt>Tags on the items you already have</dt>
+        <dd>
+          <code>Has Replication</code>, <code>Is Replication</code>,
+          <code>Has Reproduction</code>, <code>Is Reproduction</code>, the
+          outcome itself, and <code>Original present in Read-Only Library</code>
+          where that applies.
+        </dd>
+      </div>
+      <div class="ld-row">
+        <dt>A child note per attempt</dt>
+        <dd>
+          Title, authors, journal, outcome and DOI, so the evidence travels with
+          the item rather than living in a separate list.
+        </dd>
+      </div>
+      <div class="ld-row">
+        <dt>Collections inside one FLoRA folder</dt>
+        <dd>
+          Replications and reproductions are filed into their own collections
+          under a single top-level container. Every name is configurable in
+          Preferences.
+        </dd>
+      </div>
+      <div class="ld-row">
+        <dt>Links in both directions</dt>
+        <dd>
+          Each original is linked to its replications as a Zotero related item,
+          and each replication back to its original.
+        </dd>
+      </div>
+      <div class="ld-row">
+        <dt>A route out to the full record</dt>
+        <dd>
+          Preferences reports live FLoRA counts per library and opens the
+          Replication Atlas pre-loaded with that library's tracked DOIs, where
+          each outcome shows the passage it was read from.
+        </dd>
+      </div>
+    </dl>
+  </div>
+</section>
 
-- Self-identify as a replication (e.g., "replication of Author (Year)") *before* reporting results — replication must be an aim, not just a result
-- Identify specific target study/studies that it replicates
-- Replicate a study or experiment, not just a single association or finding
+<section class="landing-section" id="where-the-data-comes-from">
+  <h2 class="landing-h2">Where the data comes from</h2>
 
-Replications can range from close/direct (same methods, same population) to conceptual (testing the same hypothesis with different methods), as long as the above criteria are met. The plugin tags replication outcomes as **Successful**, **Failed**, or **Mixed**, based on how the replication authors characterise their results.
+  <div class="landing-about">
+    <div class="landing-about-main">
+      <p>
+        The Replication Checker reads FLoRA, the
+        <a href="{{ site.forrt.flora }}">FORRT Library of Reproduction and Replication Attempts</a>,
+        which records replications and reproductions of studies across many
+        areas of science. Entries fall into two kinds.
+      </p>
+      <p>
+        <strong>Replications</strong> are studies that intentionally repeat
+        prior research to test whether the original findings hold. To be
+        included in FLoRA, a study must:
+      </p>
+      <ul>
+        <li>self-identify as a replication (e.g. "replication of Author (Year)") <em>before</em> reporting results — replication must be an aim, not just a result;</li>
+        <li>identify the specific target study or studies it replicates;</li>
+        <li>replicate a study or experiment, not just a single association or finding.</li>
+      </ul>
+      <p>
+        Replications range from close or direct (same methods, same population)
+        to conceptual (the same hypothesis by different methods), as long as
+        those criteria are met. The plugin tags outcomes as
+        <strong>Successful</strong>, <strong>Failed</strong> or
+        <strong>Mixed</strong>, following how the replication authors
+        characterise their own results.
+      </p>
+      <p>
+        <strong>Reproductions</strong> are attempts to computationally verify
+        that the reported results can be obtained from the original study's data
+        and methods. They are coded along two dimensions:
+      </p>
+      <ul>
+        <li><strong>Computational success</strong> — were the original results obtained? (<em>Computationally Successful</em> vs <em>Computational Issues</em>)</li>
+        <li><strong>Robustness</strong> — do the results hold under reasonable alternative specifications? (<em>Robust</em>, <em>Robustness Challenges</em>, or <em>Robustness Not Checked</em>)</li>
+      </ul>
+      <p>
+        <strong>The key distinction:</strong> if new data are collected or used
+        (an additional decade of observations, say), it is a
+        <em>replication</em>. If the same data are re-analysed to verify the
+        original results, it is a <em>reproduction</em>.
+      </p>
+      <p>
+        Coverage is not complete, and no record should be read as a verdict on
+        any single paper. If a replication is missing or a record looks wrong,
+        sending it in is the fastest way to get it fixed.
+      </p>
+    </div>
 
-**Reproductions** are attempts to computationally verify whether reported results can be obtained from the original study's data and methods. Reproductions are coded along two dimensions:
+    <aside class="landing-about-aside">
+      <a href="{{ site.forrt.flora }}">FLoRA database</a>
+      <a href="{{ site.forrt.hub }}">FORRT Replication Hub</a>
+      <a href="{{ site.forrt.atlas }}">FLoRA Replication Atlas</a>
+      <a href="{{ site.forrt.explorer }}">FLoRA Explorer</a>
+      <a href="{{ site.baseurl }}/documentation/">Plugin documentation</a>
+    </aside>
+  </div>
+</section>
 
-- **Computational success**: Were the original results obtained? (*Computationally Successful* vs *Computational Issues*)
-- **Robustness**: Do results hold under reasonable alternative specifications? (*Robust*, *Robustness Challenges*, or *Robustness Not Checked*)
+<section class="landing-section" id="about-the-project">
+  <h2 class="landing-h2">About the project</h2>
 
-**Key distinction**: If new data are collected or used (e.g., an additional decade of data), it is a *replication*. If the same data are re-analysed to verify the original results, it is a *reproduction*.
+  <div class="landing-about">
+    <div class="landing-about-main">
+      <p>
+        The Replication Checker was built as a <a href="{{ site.forrt.main_site }}">FORRT</a>
+        project — a working prototype for the open science community that helps
+        researchers notice, unobtrusively, when something they are citing has
+        been tested again.
+      </p>
+      <p>
+        <strong>Feedback.</strong> Found a bug, or something unclear in the
+        documentation?
+        <a href="https://github.com/forrtproject/flora-zotero/issues">Open an issue</a>.
+        You can also
+        <a href="https://tinyurl.com/y5evebv9">contact us anonymously about the Replication Checker</a>.
+      </p>
+      <p>
+        <strong>Contributors.</strong> The plugin is built and maintained by the
+        FORRT community —
+        <a href="{{ site.forrt.contributors }}">see everyone who has contributed</a>.
+      </p>
+      <p>
+        <strong>Funding.</strong> Development was funded by UKRI as part of the
+        <a href="https://forrt.org/marco/">Making Replications Count</a> project.
+      </p>
+      <span class="funding-logo">
+        <img src="{{ site.baseurl }}/logo/ukri_logo.png" alt="UKRI logo" height="60">
+      </span>
+    </div>
 
-For more information on usage and functionality, head to [Documentation](https://forrt.org/flora-zotero/documentation).
-
-## Feedback
-
-Do you have feedback for us? Open an issue [here](https://github.com/forrtproject/flora-zotero/issues) if you encounter bugs or documentation issues. You can also [contact us anonymously about the Replication Checker](https://tinyurl.com/y5evebv9).
-
-## Funding
-
-The development of the Zotero Replication Checker was funded by UKRI as part of the [Making Replications Count](https://forrt.org/marco/) project.
-
-<img src="logo/ukri_logo.png" alt="UKRI logo" height="60" style="background-color:#fff;">
-
-## Contributors
-
-This plugin is built and maintained by the FORRT community. View all contributors at:
-
-[forrt.org/contributors](https://forrt.org/contributors/?project=flora-zotero-plugin&&collapse-filter)
+    <aside class="landing-about-aside">
+      <a href="https://github.com/forrtproject/flora-zotero/releases/latest">Download the plugin</a>
+      <a href="{{ site.baseurl }}/documentation/">Documentation</a>
+      <a href="{{ site.baseurl }}/contributing/">Contributing guide</a>
+      <a href="{{ site.baseurl }}/release-guide/">Release guide</a>
+      <a href="https://github.com/forrtproject/flora-zotero">Source on GitHub</a>
+      <a href="https://github.com/forrtproject/flora-zotero/issues">Report an issue</a>
+    </aside>
+  </div>
+</section>

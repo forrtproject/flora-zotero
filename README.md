@@ -14,21 +14,21 @@ This plugin was developed as a [FORRT](https://forrt.org/) project to build a wo
 
 ## Features
 
-- 🔍 **Privacy-preserving matching**: Uses hash prefixes to query the database without exposing your library contents
-- 📚 **Batch processing**: Checks entire library, selected items, or collections in one operation
-- 🔁 **Replication support**: Detects replication studies, adds outcome-tagged notes, and tags items with "Has Replication" / "Is Replication"
-- 🧪 **Reproduction support**: Detects computational reproductions with dedicated notes and "Has Reproduction" / "Is Reproduction" tags
-- 📄 **Multiple originals support**: Items with more than one original study receive an "Original Articles" note listing each original's title, DOI, and outcome
-- 📖 **Read-only library support**: Automatically detects read-only group libraries and offers to copy originals and replications to your Personal library
-- 🏷️ **Automatic tagging**: Adds contextual tags including "Has Replication", "Is Replication", outcome tags, and "Original present in Read-Only Library"
-- 📝 **Detailed notes**: Creates child notes with replication/reproduction details (title, authors, journal, outcome, DOI)
-- 🗂️ **One tidy container**: Every collection the plugin creates lives inside a single top-level "FLoRA" collection; all names are configurable in Preferences
-- 🔗 **Smart organization**: Creates separate collections for originals from read-only libraries and their replications
-- 📊 **Per-library stats**: The Preferences pane shows live FLoRA counts for your personal library or any group library you pick, and opens the Replication Atlas pre-loaded with that library's tracked DOIs
-- 🔄 **Bidirectional linking**: Automatically links original studies with their replications as related items
-- 🚫 **Blacklist management**: Ban unwanted replications from being re-added during future checks
-- ⚡ **Auto-check**: Checks newly added items automatically; scheduled checks (daily/weekly/monthly) also available
-- 🌍 **Multi-language support**: Available in 6 languages (English, German, Spanish, French, Portuguese Brazil, Portuguese Europe)
+- **Privacy-preserving matching**: Uses hash prefixes to query the database without exposing your library contents
+- **Batch processing**: Checks entire library, selected items, or collections in one operation
+- **Replication support**: Detects replication studies, adds outcome-tagged notes, and tags items with "Has Replication" / "Is Replication"
+- **Reproduction support**: Detects computational reproductions with dedicated notes and "Has Reproduction" / "Is Reproduction" tags
+- **Multiple originals support**: Items with more than one original study receive an "Original Articles" note listing each original's title, DOI, and outcome
+- **Read-only library support**: Automatically detects read-only group libraries and offers to copy originals and replications to your Personal library
+- **Automatic tagging**: Adds contextual tags including "Has Replication", "Is Replication", outcome tags, and "Original present in Read-Only Library"
+- **Detailed notes**: Creates child notes with replication/reproduction details (title, authors, journal, outcome, DOI)
+- **One tidy container**: Every collection the plugin creates lives inside a single top-level "FLoRA" collection; all names are configurable in Preferences
+- **Smart organization**: Creates separate collections for originals from read-only libraries and their replications
+- **Per-library stats**: The Preferences pane shows live FLoRA counts for your personal library or any group library you pick, and opens the Replication Atlas pre-loaded with that library's tracked DOIs
+- **Bidirectional linking**: Automatically links original studies with their replications as related items
+- **Blacklist management**: Ban unwanted replications from being re-added during future checks
+- **Auto-check**: Checks newly added items automatically; scheduled checks (daily/weekly/monthly) also available
+- **Multi-language support**: Available in 6 languages (English, German, Spanish, French, Portuguese Brazil, Portuguese Europe)
 
 ## About the dataset
 
@@ -60,7 +60,7 @@ Zotero version 7 or later. Guidance on installation and updating for Zotero is a
 1. Download the latest `zotero-replication-checker.xpi` from releases
 2. Open Zotero version 7+
 3. Go to **Tools → Add-ons (or Plugins)**
-4. Click the gear icon (⚙️) → **Install Add-on (or Plugins) From File**
+4. Click the gear icon → **Install Add-on (or Plugins) From File**
 5. Select `zotero-replication-checker.xpi`
 
 ## Usage
@@ -256,12 +256,12 @@ The plugin supports multiple languages and automatically uses your Zotero langua
 
 **Currently available languages:**
 
-- English (en-US) ✅
-- German (de) ✅
-- Spanish (es) ✅
-- French (fr) ✅
-- Portuguese / Brazil (pt-BR) ✅
-- Portuguese / Europe (pt-PT) ✅
+- English (en-US)
+- German (de)
+- Spanish (es)
+- French (fr)
+- Portuguese / Brazil (pt-BR)
+- Portuguese / Europe (pt-PT)
 
 **What gets translated:**
 
