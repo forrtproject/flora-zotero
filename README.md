@@ -284,6 +284,10 @@ If you use this plugin in your research, please cite it as:
 
 A `citation.cff` file is also included in the repository for automated citation tools (e.g. GitHub's "Cite this repository" button).
 
+## Contributing
+
+See [the contribution guide](Contributing.md) for developer setup, safe test profiles, translations, and pull requests.
+
 ## Feedback
 
 Do you have feedback for us? Open an issue [here](https://github.com/forrtproject/flora-zotero/issues) if you encounter bugs or documentation issues. You can also [contact us anonymously about the Replication Checker](https://tinyurl.com/y5evebv9).
