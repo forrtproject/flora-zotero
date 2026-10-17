@@ -18,9 +18,9 @@ Replication Checker for Zotero is a free plugin that looks up the papers in your
 - Adds a note to each paper listing its replications and reproductions, with authors, year, journal, DOI and outcome
 - Adds the replication and reproduction studies to your library, inside one `FLoRA` collection, and links them to the original
 - Looks up hash fragments of your DOIs rather than the DOIs themselves
-- Copies results from read-only group libraries to your personal library, after asking
+- Copies results from read-only group libraries to your personal library
 - Lets you ban a replication or reproduction so it is not added again
-- Shows how many papers in each library FLoRA lists, and opens them in the [FLoRA Replication Atlas](https://forrt.org/flora-replication-atlas/)
+- Shows how many papers in each library the plugin has identified, and opens them in the [FLoRA Replication Atlas](https://forrt.org/flora-replication-atlas/)
 - Available in nine languages
 
 ## About the dataset
@@ -70,19 +70,21 @@ FLoRA
 └── {LibraryName} [Read-Only]        (one per read-only group library)
 ```
 
-You can rename any of these collections in the plugin's settings, or directly in Zotero; the plugin keeps your names. Libraries organised by earlier versions are reorganised automatically the first time the new version starts. Collections and their items are moved, not recreated.
+You can rename the `FLoRA` collection and the four collections inside it, in the plugin's settings or directly in Zotero; the plugin keeps your names. Leave the `[Read-Only]` collections' names as they are: the plugin finds them by name. Libraries organised by earlier versions are reorganised automatically the first time the new version starts. Collections and their items are moved, not recreated.
 
 ### Check a whole library
 
 Select a library and choose **Tools → Check Current Library for Replications**. A progress window shows the scan. The check covers whichever library is selected: your personal library or a group library.
 
-In a library you can edit, the plugin tags each paper that FLoRA lists, adds notes, and adds the replication and reproduction studies to the library's `FLoRA` collection, linked to the original. In a group library, other members of the group see these items too. To see what a check does before running it on everything, start with one collection.
+In a library you can edit, the plugin tags each paper that has replications or reproductions in FLoRA, adds notes, and adds the replication and reproduction studies to the library's `FLoRA` collection, linked to the original. In a group library, other members of the group see these items too. To see what a check does before running it on everything, start with one collection.
 
-In a read-only group library, the plugin cannot change anything. It shows how many papers have replications and asks whether to copy them to your personal library. If you agree:
+In a read-only group library, the plugin cannot change anything, so it copies the results to your personal library instead. For replications, it shows how many papers have them and asks whether to copy them. If you agree:
 
 - the originals are copied to a `{LibraryName} [Read-Only]` collection in your personal library;
 - the replications are copied to `FLoRA Replications` in your personal library;
 - both are tagged `Original present in Read-Only Library`, linked to each other, and given the usual notes.
+
+Reproductions are copied in the same way, to `FLoRA Reproductions`.
 
 ### Check selected items or collections
 
@@ -94,7 +96,7 @@ When you add an item that FLoRA lists, the plugin shows what it found and asks w
 
 ### Ban a replication or reproduction
 
-To stop a replication or reproduction from being added again on later checks, right-click it (it carries the tag `Is Replication` or `Is Reproduction`) and choose **Ban Replication** or **Ban Reproduction**. After you confirm, the item is moved to the trash and added to your banned list.
+To stop a replication or reproduction from being added again on later checks, right-click it (it carries the tag `Is Replication` or `Is Reproduction`) and choose **Ban Replication**. The same command bans reproductions. After you confirm, the item is moved to the trash and added to your banned list.
 
 The note on the original paper still lists every replication, including banned ones. The ban only stops the item from being added to your library again.
 
@@ -107,10 +109,10 @@ Open **Edit → Settings → Replication Checker for Zotero** (on macOS: **Zoter
 - turn automatic checking of newly added items on or off (on by default);
 - schedule a check of the selected library: disabled, daily, weekly or monthly (default: monthly). The interval is counted from when Zotero starts, so a monthly check only runs if Zotero stays open for a month;
 - rename the collections the plugin uses;
-- see how many papers in each library FLoRA lists, and open them in the FLoRA Replication Atlas;
+- see how many papers in each library the plugin has identified, and open them in the FLoRA Replication Atlas;
 - manage your banned list.
 
-Uninstalling the plugin clears its settings, including the banned list.
+Uninstalling the plugin resets the automatic-check settings. The banned list and collection names are kept; clear the banned list in the settings first if you want a fresh start.
 
 ## How it works
 
@@ -125,7 +127,7 @@ To look up your items, the plugin:
 
 The server never receives your DOIs. There are 4,096 possible three-character codes, so each is shared by a very large number of DOIs, and a code does not show which of them you have. After a match, the plugin looks up the replications it found in the same way, to check whether they replicate more than one original. As with any web request, the server sees your IP address. The FLoRA server does not link requests together or track users.
 
-One feature sends more. **Open in FLoRA Atlas**, in the plugin's settings, opens the [FLoRA Replication Atlas](https://forrt.org/flora-replication-atlas/) with the DOIs of the papers in that library that FLoRA lists in the web address. If the list is too long for a web address, the plugin copies it to the clipboard instead. The Atlas does not link requests together or track users either.
+One feature sends more. **Open in FLoRA Atlas**, in the plugin's settings, opens the [FLoRA Replication Atlas](https://forrt.org/flora-replication-atlas/) with the DOIs of the papers the plugin has tagged in that library in the web address. If the list is too long for a web address, the plugin copies it to the clipboard instead. The Atlas does not link requests together or track users either.
 
 The plugin reads a DOI from an item's DOI field, from a `DOI:` line in the Extra field, or from a `doi.org` link in the URL field. Items without a DOI are not checked.
 
@@ -144,7 +146,7 @@ Tags on the replications and reproductions the plugin adds:
 
 | Tag | Meaning |
 | --- | --- |
-| `Is Replication`, `Is Reproduction` | The item is a replication or reproduction of a paper in your library |
+| `Is Replication`, `Is Reproduction` | The item is a replication or reproduction listed in FLoRA |
 | Outcome tag | The outcome, as on the original |
 | `Replication: Multiple Originals`, `Reproduction: Multiple Originals` | The study replicates or reproduces more than one original. It gets this tag instead of an outcome tag, and an "Original Articles" note listing each original with its DOI and outcome. |
 | `Added by Replication Checker` | The plugin added this item or filed it in a `FLoRA` collection |
@@ -155,7 +157,7 @@ Tags appear in your Zotero language. Items tagged by earlier versions, for examp
 
 Each paper with replications also gets a child note listing them, with title, authors, year, journal, DOI and outcome. Reproductions get a separate note. Originals and their replications or reproductions are linked as related items.
 
-The plugin writes these notes automatically. If you edit one, the plugin keeps your version and creates a new note on the next check.
+The plugin writes these notes and adds newly found replications to them on later checks. Keep your own comments in a separate note.
 
 When a replication is in your library but its original is not, right-click the replication and choose **Add Original** to add it.
 
@@ -192,7 +194,7 @@ The plugin follows your Zotero language setting. It is available in:
 - Chinese, Simplified (zh-CN)
 - Korean (ko)
 
-Menus, dialogs, progress messages, tags, notes and the settings pane are all translated. For example, `Is Replication` becomes `Ist Replikation` in German.
+Menus, dialogs, progress messages, tags, notes and the settings pane are translated, although a few newer messages and the "Original Articles" note are still in English. For example, `Is Replication` becomes `Ist Replikation` in German.
 
 To add a language, see [LOCALIZATION.md](docs/LOCALIZATION.md): copy the English `.ftl` file and translate the strings, keeping the placeholders.
 

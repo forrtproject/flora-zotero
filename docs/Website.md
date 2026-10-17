@@ -87,8 +87,8 @@ title: Replication Checker for Zotero
         Choose <strong>Tools → Check Current Library for Replications</strong>,
         or right-click items or a collection and choose
         <strong>Check for Replications</strong>. Items you add later are
-        checked automatically. For each paper with a match in FLoRA, the
-        plugin:
+        checked automatically. For each paper with replications or
+        reproductions in FLoRA, the plugin:
       </p>
       <ul>
         <li>tags the paper, for example <code>Has Been Replicated</code> and
@@ -102,8 +102,8 @@ title: Replication Checker for Zotero
       </ul>
       <p>
         To see what a check does before running it on everything, start with
-        one collection. In a read-only group library, the plugin asks before
-        copying anything to your personal library.
+        one collection. In a read-only group library, the plugin copies the
+        results to your personal library instead.
         <a href="{{ site.baseurl }}/documentation/what-gets-added/">What lands in your library</a>
       </p>
     </div>
