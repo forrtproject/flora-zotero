@@ -1,6 +1,6 @@
 ## Contributing
 
-Thank you for your interest in contributing to the Zotero Replication Checker plugin, which integrates with the FORRT Literature Database (FLoRA). Your contributions help advance open and reproducible science by making replication evidence more discoverable.
+Thank you for your interest in contributing to Replication Checker for Zotero, which draws on FLoRA, FORRT's Library of Reproduction and Replication Attempts. Your contributions help advance open and reproducible science by making replication evidence more discoverable.
 
 This document outlines how you can contribute and align with FORRT's values and guidelines.
 

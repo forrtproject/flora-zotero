@@ -873,7 +873,9 @@ a.lb-cell:active {
   color: var(--text-secondary);
   max-width: 62ch;
 }
-.ld-row dd code {
+.ld-row dd code,
+.landing-about-main code,
+.flora-note code {
   font-family: var(--font-mono);
   font-size: 0.9em;
   background: var(--surface-alt);

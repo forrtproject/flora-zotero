@@ -49,18 +49,18 @@
           </div>
           <div class="topbar-name">
             <strong>FLoRA</strong>
-            <span>Replication Checker</span>
+            <span>Replication Checker for Zotero</span>
           </div>
         </a>
       </div>
 
       <div class="topbar-right">
-        {% for item in site.navigation %}
+        {% for item in site.navigation %}{% if item.topbar %}
         <a class="topbar-link{% if item.url == "/" %}{% if page.url == "/" or page.url == "/index.html" %} active{% endif %}{% elsif page.url contains item.url %} active{% endif %}"
            href="{{ site.baseurl }}{{ item.url }}">{{ item.title }}</a>
-        {% endfor %}
+        {% endif %}{% endfor %}
         <a class="topbar-link" href="{{ site.forrt.atlas }}" target="_blank" rel="noopener">Replication Atlas</a>
-        <a class="topbar-link" href="{{ site.github.repository_url }}/issues" target="_blank" rel="noopener">Report Issue</a>
+        <a class="topbar-link" href="{{ site.github.repository_url }}/issues" target="_blank" rel="noopener">Report an issue</a>
         <a class="topbar-cta" href="{{ site.github.repository_url }}/releases/latest" target="_blank" rel="noopener">Download</a>
       </div>
 
@@ -70,11 +70,11 @@
     </nav>
 
     <div class="topbar-mobile-menu" id="mobile-menu">
-      {% for item in site.navigation %}
+      {% for item in site.navigation %}{% if item.topbar %}
       <a class="topbar-mobile-link" href="{{ site.baseurl }}{{ item.url }}">{{ item.title }}</a>
-      {% endfor %}
+      {% endif %}{% endfor %}
       <a class="topbar-mobile-link" href="{{ site.forrt.atlas }}" target="_blank" rel="noopener">Replication Atlas</a>
-      <a class="topbar-mobile-link" href="{{ site.github.repository_url }}/issues" target="_blank" rel="noopener">Report Issue</a>
+      <a class="topbar-mobile-link" href="{{ site.github.repository_url }}/issues" target="_blank" rel="noopener">Report an issue</a>
       <a class="topbar-mobile-cta" href="{{ site.github.repository_url }}/releases/latest" target="_blank" rel="noopener">Download</a>
     </div>
   </div>
