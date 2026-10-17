@@ -122,7 +122,7 @@ main {
   border-radius: var(--radius-sm);
 }
 
-:where(button, a.lb-cell, a.welcome-doi):active {
+:where(button):active {
   transform: translateY(1px);
 }
 
@@ -135,7 +135,7 @@ main {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  :where(button, a.lb-cell, a.welcome-doi):active {
+  :where(button):active {
     transform: none;
   }
 }
@@ -510,54 +510,6 @@ html {
   text-decoration: underline;
 }
 
-/* ─── Quick-link chips (the Atlas example-search chips) ─── */
-.welcome-examples {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-  width: 100%;
-  max-width: 480px;
-  margin-top: 1.25rem;
-}
-.welcome-examples-label {
-  grid-column: 1 / -1;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-.welcome-doi {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  padding: 0.55rem 0.85rem;
-  background: var(--white);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius);
-  font-size: 13px;
-  font-family: var(--font-body);
-  color: var(--text-secondary);
-  text-decoration: none;
-  transition:
-    border-color var(--transition-fast),
-    color var(--transition-fast),
-    background var(--transition-fast);
-}
-.welcome-doi:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  background: var(--primary-faint);
-}
-.welcome-doi svg {
-  opacity: 0.4;
-  flex-shrink: 0;
-}
-.welcome-doi:hover svg {
-  opacity: 0.8;
-}
-
 /* ─── Section rhythm ─── */
 .landing-section {
   padding-block: var(--space-6);
@@ -586,123 +538,6 @@ html {
   color: var(--text);
   margin: 0 0 var(--space-5);
   letter-spacing: -0.01em;
-}
-.landing-h3 {
-  font-family: var(--font-display);
-  font-size: var(--fs-7);
-  font-weight: 700;
-  color: var(--text);
-  margin: var(--space-6) 0 var(--space-3);
-}
-.landing-sub {
-  font-size: var(--fs-5);
-  line-height: 1.7;
-  color: var(--text-secondary);
-  max-width: 68ch;
-  margin: calc(var(--space-5) * -1) 0 var(--space-5);
-}
-
-/* ─── Bento trio: one feature cell plus two standard cells ─── */
-.landing-bento {
-  display: grid;
-  grid-template-columns: 1.15fr 1fr;
-  grid-template-rows: auto auto;
-  gap: var(--space-3);
-}
-.lb-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-2);
-  background: var(--white);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5);
-  text-align: left;
-  text-decoration: none;
-  color: inherit;
-  font-family: var(--font-body);
-  transition:
-    border-color var(--transition-fast),
-    box-shadow var(--transition-fast),
-    transform var(--transition-fast);
-}
-a.lb-cell:hover {
-  border-color: var(--primary-soft);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-}
-a.lb-cell:active {
-  transform: translateY(0);
-}
-.lb-cell--feature {
-  grid-row: span 2;
-  justify-content: center;
-  background:
-    radial-gradient(
-      120% 90% at 8% 4%,
-      rgba(133, 57, 83, 0.11),
-      transparent 62%
-    ),
-    var(--primary-faint);
-  border-color: var(--primary-soft);
-}
-.lb-cell--alt {
-  background: var(--surface-alt);
-}
-.lb-figure {
-  font-family: var(--font-display);
-  font-size: var(--fs-9);
-  line-height: 1;
-  font-weight: 700;
-  color: var(--primary);
-  letter-spacing: -0.02em;
-  margin-bottom: var(--space-3);
-}
-/* The feature cell's claim is a sentence, not a count. It takes the display
-   face at headline size so it still anchors the trio, without a lone numeral
-   reading as a value that failed to load. */
-.lb-headline {
-  font-family: var(--font-display);
-  font-size: var(--fs-8);
-  line-height: 1.15;
-  font-weight: 700;
-  color: var(--primary);
-  letter-spacing: -0.015em;
-  margin: 0 0 var(--space-3);
-  max-width: 18ch;
-  text-wrap: balance;
-}
-.lb-title {
-  font-size: var(--fs-6);
-  font-weight: 700;
-  color: var(--text);
-}
-.lb-sub {
-  font-size: var(--fs-5);
-  line-height: 1.55;
-  color: var(--text-secondary);
-  max-width: 40ch;
-  margin: 0;
-}
-.lb-cell--feature .lb-go {
-  margin-top: var(--space-4);
-}
-.lb-go {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  margin-top: auto;
-  padding-top: var(--space-3);
-  font-size: var(--fs-4);
-  font-weight: 600;
-  color: var(--primary);
-}
-.lb-go svg {
-  transition: transform var(--transition-fast);
-}
-.lb-cell:hover .lb-go svg {
-  transform: translateX(3px);
 }
 
 /* ─── Record preview: a worked example beside the list of its parts ─── */
@@ -845,35 +680,7 @@ a.lb-cell:active {
   text-decoration: underline;
 }
 
-/* ─── Definition rows ─── */
-.landing-defs {
-  margin: 0;
-  display: grid;
-  gap: 0;
-}
-.ld-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-1);
-  padding-block: var(--space-4);
-}
-.ld-row + .ld-row {
-  border-top: 1px solid var(--border-light);
-}
-.ld-row dt {
-  font-size: var(--fs-5);
-  font-weight: 700;
-  color: var(--text);
-  line-height: 1.4;
-}
-.ld-row dd {
-  margin: 0;
-  font-size: var(--fs-5);
-  line-height: 1.6;
-  color: var(--text-secondary);
-  max-width: 62ch;
-}
-.ld-row dd code,
+/* ─── Inline tag names in landing prose ─── */
 .landing-about-main code,
 .flora-note code {
   font-family: var(--font-mono);
@@ -887,13 +694,9 @@ a.lb-cell:active {
   white-space: nowrap;
 }
 
-/* ─── About: prose with a link rail ─── */
+/* ─── Prose sections ─── */
 .landing-about {
-  display: grid;
-  grid-template-columns: minmax(0, 62ch) minmax(0, 15rem);
-  justify-content: start;
-  gap: var(--space-7);
-  align-items: start;
+  max-width: 62ch;
 }
 .landing-about-main p {
   font-size: var(--fs-5);
@@ -927,47 +730,6 @@ a.lb-cell:active {
 }
 .landing-about-main a:hover {
   color: var(--primary-dark);
-}
-.landing-about-aside {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  border-left: 2px solid var(--primary-soft);
-  padding-left: var(--space-4);
-}
-.landing-about-aside a {
-  font-size: var(--fs-5);
-  font-weight: 600;
-  color: var(--primary);
-  text-decoration: none;
-  padding-block: var(--space-2);
-  transition: color var(--transition-fast);
-}
-.landing-about-aside a:hover {
-  color: var(--primary-dark);
-  text-decoration: underline;
-}
-
-/* ─── Feature list: two columns of the bento's cell, at list scale ─── */
-.landing-features {
-  list-style: none;
-  margin: var(--space-5) 0 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-2) var(--space-3);
-}
-.landing-features li {
-  background: var(--white);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius);
-  padding: 0.7rem 0.95rem;
-  font-size: var(--fs-5);
-  line-height: 1.55;
-  color: var(--text-secondary);
-}
-.landing-features li strong {
-  color: var(--text);
 }
 
 /* ─── Media frame ─── */
@@ -1020,31 +782,12 @@ a.lb-cell:active {
 }
 
 @media (max-width: 1024px) {
-  .landing-bento {
-    grid-template-columns: 1fr 1fr;
-  }
-  .lb-cell--feature {
-    grid-row: auto;
-    grid-column: span 2;
-  }
   .landing-record {
     grid-template-columns: 1fr;
     gap: var(--space-5);
   }
   .lr-figure {
     position: static;
-  }
-  .landing-about {
-    grid-template-columns: 1fr;
-  }
-  .landing-about-aside {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: var(--space-4);
-    border-left: 0;
-    border-top: 2px solid var(--primary-soft);
-    padding-left: 0;
-    padding-top: var(--space-3);
   }
 }
 @media (max-width: 768px) {
@@ -1057,24 +800,9 @@ a.lb-cell:active {
   .landing-section {
     padding-block: var(--space-5);
   }
-  .landing-bento {
-    grid-template-columns: 1fr;
-  }
-  .lb-cell--feature {
-    grid-column: auto;
-  }
-  .lb-cell {
-    padding: var(--space-4);
-  }
-  .landing-features {
-    grid-template-columns: 1fr;
-  }
   .lr-rep {
     flex-direction: column;
     gap: var(--space-2);
-  }
-  .welcome-examples {
-    grid-template-columns: 1fr;
   }
   .btn-primary,
   .btn-ghost {

@@ -107,7 +107,7 @@ The banned list is stored in Zotero's settings on your computer. You can view it
 Open **Edit → Settings → Replication Checker for Zotero** (on macOS: **Zotero → Preferences → Replication Checker for Zotero**). There you can:
 
 - turn automatic checking of newly added items on or off (on by default);
-- schedule a check of the selected library: disabled, daily, weekly or monthly (default: monthly). The interval is counted from when Zotero starts, so a monthly check only runs if Zotero stays open for a month;
+- schedule a check of the selected library: disabled, daily, weekly or monthly (default: monthly);
 - rename the collections the plugin uses;
 - see how many papers in each library the plugin has identified, and open them in the FLoRA Replication Atlas;
 - manage your banned list.

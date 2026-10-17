@@ -176,7 +176,7 @@ replication-checker-note-warning = يتم إنشاء هذه الملاحظة ت�
 replication-checker-note-intro = تمت دراسة هذا البحث بصورة مكررة:
 replication-checker-note-feedback = هل وجدت هذه النتيجة مفيدة؟ قدّم ملاحظاتك <a href="{ $url }" target="_blank">هنا</a>!
 replication-checker-note-data-issues = هل وجدت أي مشاكل في البيانات؟ يرجى الإبلاغ عنها <a href="{ $url }" target="_blank">هنا</a>!
-replication-checker-note-footer = تم إنشاؤه بواسطة Zotero Replication Checker باستخدام قاعدة بيانات الأدبيات FORRT (FLoRA)
+replication-checker-note-footer = تم إنشاؤه بواسطة Zotero Replication Checker باستخدام FLoRA (FORRT Library of Reproduction and Replication Attempts)
 
 ## Replication Item Details
 replication-checker-li-no-title = لا يوجد عنوان متاح
@@ -192,7 +192,7 @@ replication-checker-prompt-title = مرحباً بك في Zotero Replication Che
 replication-checker-prompt-first-run =
     شكراً لتثبيت Zotero Replication Checker!
 
-    يساعدك هذا الملحق في اكتشاف دراسات التكرار لأبحاثك من خلال فحص عناصر مكتبتك مقابل قاعدة بيانات الأدبيات FORRT (FLoRA).
+    يساعدك هذا الملحق في اكتشاف دراسات التكرار لأبحاثك من خلال فحص عناصر مكتبتك مقابل FLoRA (FORRT Library of Reproduction and Replication Attempts).
 
     هل تريد مسح مكتبتك بحثاً عن التكرارات الآن؟
 
@@ -204,7 +204,7 @@ onboarding-welcome-title = مرحباً بك في Replication Checker!
 onboarding-welcome-content =
     شكراً لتثبيت Zotero Replication Checker!
 
-    يساعدك هذا الملحق في اكتشاف دراسات التكرار والإعادة الحسابية من خلال الفحص التلقائي لعناصر مكتبتك مقابل قاعدة بيانات الأدبيات FORRT (FLoRA).
+    يساعدك هذا الملحق في اكتشاف دراسات التكرار والإعادة الحسابية من خلال الفحص التلقائي لعناصر مكتبتك مقابل FLoRA (FORRT Library of Reproduction and Replication Attempts).
 
     ✨ الميزات الرئيسية:
     • يفحص المكتبة بأكملها أو المجموعات أو العناصر الفردية
@@ -308,7 +308,7 @@ reproduction-checker-note-warning = يتم إنشاء هذه الملاحظة ت
 reproduction-checker-note-intro = تمت دراسة هذا البحث باستنساخه:
 reproduction-checker-note-feedback = هل وجدت هذه النتيجة مفيدة؟ قدّم ملاحظاتك <a href="{ $url }" target="_blank">هنا</a>!
 reproduction-checker-note-data-issues = هل وجدت أي مشاكل في البيانات؟ يرجى الإبلاغ عنها <a href="{ $url }" target="_blank">هنا</a>!
-reproduction-checker-note-footer = تم إنشاؤه بواسطة Zotero Replication Checker باستخدام قاعدة بيانات الأدبيات FORRT (FLoRA)
+reproduction-checker-note-footer = تم إنشاؤه بواسطة Zotero Replication Checker باستخدام FLoRA (FORRT Library of Reproduction and Replication Attempts)
 
 ## Reproduction Feature - Item Details
 reproduction-checker-li-no-title = لا يوجد عنوان متاح

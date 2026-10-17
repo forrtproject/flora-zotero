@@ -178,7 +178,7 @@ replication-checker-note-warning = Esta nota é gerada automaticamente. Se a edi
 replication-checker-note-intro = Este estudo foi replicado:
 replication-checker-note-feedback = Este resultado foi útil? Envie o seu feedback <a href="{ $url }" target="_blank">aqui</a>!
 replication-checker-note-data-issues = Encontrou algum problema nos dados? Por favor, reporte-o <a href="{ $url }" target="_blank">aqui</a>!
-replication-checker-note-footer = Gerado pelo Zotero Replication Checker com base na FORRT Literature Database (FLoRA)
+replication-checker-note-footer = Gerado pelo Zotero Replication Checker com base no FLoRA (FORRT Library of Reproduction and Replication Attempts)
 
 ## Replication Item Details
 replication-checker-li-no-title = Sem título disponível
@@ -194,7 +194,7 @@ replication-checker-prompt-title = Boas-vindas ao Zotero Replication Checker!
 replication-checker-prompt-first-run =
    Obrigado por instalar o Zotero Replication Checker!
 
-   Este plugin ajuda a encontrar estudos de replicação para a sua investigação, ao verificar os itens da sua biblioteca na FORRT Literature Database (FLoRA).
+   Este plugin ajuda a encontrar estudos de replicação para a sua investigação, ao verificar os itens da sua biblioteca no FLoRA (FORRT Library of Reproduction and Replication Attempts).
 
    Pretende analisar agora a sua biblioteca para procurar replicações?
 
@@ -206,7 +206,7 @@ onboarding-welcome-title = Boas-vindas ao Zotero Replication Checker!
 onboarding-welcome-content =
     Obrigado por instalar o Zotero Replication Checker!
 
-    Este plugin ajuda a encontrar estudos de replicação para a sua investigação, ao verificar os itens da sua biblioteca na FORRT Literature Database (FLoRA).
+    Este plugin ajuda a encontrar estudos de replicação para a sua investigação, ao verificar os itens da sua biblioteca no FLoRA (FORRT Library of Reproduction and Replication Attempts).
 
     ✨ Funcionalidades principais:
     • Verifica a biblioteca inteira, coleções ou itens individuais
@@ -314,7 +314,7 @@ reproduction-checker-note-warning = Esta nota é gerada automaticamente. Se a ed
 reproduction-checker-note-intro = Este estudo foi reproduzido:
 reproduction-checker-note-feedback = Este resultado foi útil? Envie o seu feedback <a href="{ $url }" target="_blank">aqui</a>!
 reproduction-checker-note-data-issues = Encontrou algum problema nos dados? Por favor, reporte-o <a href="{ $url }" target="_blank">aqui</a>!
-reproduction-checker-note-footer = Gerado pelo Zotero Replication Checker com base na FORRT Literature Database (FLoRA)
+reproduction-checker-note-footer = Gerado pelo Zotero Replication Checker com base no FLoRA (FORRT Library of Reproduction and Replication Attempts)
 
 ## Reproduction Feature - Item Details
 reproduction-checker-li-no-title = Sem título disponível
