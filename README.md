@@ -112,8 +112,6 @@ Open **Edit → Settings → Replication Checker for Zotero** (on macOS: **Zoter
 - see how many papers in each library the plugin has identified, and open them in the FLoRA Replication Atlas;
 - manage your banned list.
 
-Uninstalling the plugin resets the automatic-check settings. The banned list and collection names are kept; clear the banned list in the settings first if you want a fresh start.
-
 ## How it works
 
 ### Privacy
