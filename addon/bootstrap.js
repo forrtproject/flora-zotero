@@ -63,6 +63,7 @@ async function uninstall(data, reason) {
       "extensions.zotero.replication-checker.onboardingVersion",
       "extensions.zotero.replication-checker.firstRunDone",
       "extensions.zotero.replication-checker.autoCheckFrequency",
+      "extensions.zotero.replication-checker.lastAutoCheck",
       "extensions.zotero.replication-checker.autoCheckNewItems"
     ];
 

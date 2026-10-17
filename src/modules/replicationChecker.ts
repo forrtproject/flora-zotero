@@ -37,8 +37,16 @@ import {
   getOrCreateChildCollection,
 } from "../utils/collectionUtils";
 import { getSelectedCollections, getSelectedLibraryID } from "../utils/zoteroCompat";
+import {
+  AUTO_CHECK_POLL_MS,
+  AUTO_CHECK_STARTUP_DELAY_MS,
+  decideAutoCheck,
+  getAutoCheckIntervalMs,
+  parseLastAutoCheck,
+} from "../utils/autoCheckSchedule";
 
 const AUTO_CHECK_PREF = "replication-checker.autoCheckFrequency";
+const LAST_AUTO_CHECK_PREF = "replication-checker.lastAutoCheck";
 const NEW_ITEM_PREF = "replication-checker.autoCheckNewItems";
 
 type LocaleParams = Record<string, string | number>;
@@ -79,6 +87,8 @@ export class ReplicationCheckerPlugin {
   private rootURI: string = "";
   private notifierID: string | null = null;
   private autoCheckTimer: number | null = null;
+  private autoCheckStartupTimer: number | null = null;
+  private activeAutoCheckFrequency = "disabled";
   private prefObserverSymbols: symbol[] = [];
   private pluginAddedItems: Set<number> = new Set(); // Track items added by the plugin
   private isAddingOriginals = false; // Guard: suppress auto-check while batch-adding originals
@@ -203,6 +213,12 @@ export class ReplicationCheckerPlugin {
    * Restart the auto-check timer when preferences change
    */
   private restartAutoCheckTimer(): void {
+    // Switching scheduling on counts the period from now. A last-check time
+    // left over from before it was switched off would otherwise start a
+    // full-library check within the hour.
+    if (this.activeAutoCheckFrequency === "disabled") {
+      this.setLastAutoCheck(Date.now());
+    }
     this.stopAutoCheck();
     this.startAutoCheck();
   }
@@ -321,47 +337,93 @@ export class ReplicationCheckerPlugin {
    * Calculate auto-check interval in milliseconds
    */
   private getAutoCheckInterval(): number {
-    const frequency = this.getAutoCheckFrequency();
-    const intervals: { [key: string]: number } = {
-      disabled: 0,
-      test: 5 * 60 * 1000, // 5 minutes (for testing only)
-      daily: 24 * 60 * 60 * 1000, // 24 hours
-      weekly: 7 * 24 * 60 * 60 * 1000, // 7 days
-      monthly: 30 * 24 * 60 * 60 * 1000, // 30 days
-    };
-    return intervals[frequency] || 0;
+    return getAutoCheckIntervalMs(this.getAutoCheckFrequency());
+  }
+
+  /** Time of the last scheduled check, or null if none is recorded. */
+  private getLastAutoCheck(): number | null {
+    try {
+      return parseLastAutoCheck(Zotero.Prefs.get(LAST_AUTO_CHECK_PREF));
+    } catch (error) {
+      Zotero.debug(`Failed to read last auto-check time: ${error}`);
+      return null;
+    }
+  }
+
+  private setLastAutoCheck(timeMs: number): void {
+    try {
+      // A string: epoch milliseconds overflow an integer preference.
+      Zotero.Prefs.set(LAST_AUTO_CHECK_PREF, String(timeMs));
+    } catch (error) {
+      Zotero.debug(`Failed to store last auto-check time: ${error}`);
+    }
   }
 
   /**
-   * Start auto-check timer based on preferences
+   * Start the scheduled check. The last-check time is kept in a preference,
+   * so the period carries across Zotero restarts; a short timer looks once
+   * shortly after start-up and then hourly whether a check is due. See
+   * src/utils/autoCheckSchedule.ts for why this replaced a single long timer.
    */
   private startAutoCheck(): void {
     this.stopAutoCheck();
-    const interval = this.getAutoCheckInterval();
-    if (interval === 0) {
+    this.activeAutoCheckFrequency = this.getAutoCheckFrequency();
+    if (this.getAutoCheckInterval() === 0) {
       Zotero.debug("ReplicationChecker: Auto-check is disabled");
       return;
     }
 
-    const runAutoCheck = () => {
-      Zotero.debug(
-        `ReplicationChecker: Running auto-check (interval: ${this.getAutoCheckFrequency()})`
-      );
-      this.checkEntireLibrary();
-    };
+    // First start with scheduling on (new install, or an update from a
+    // version that kept no record): count the period from now.
+    if (this.getLastAutoCheck() === null) {
+      this.setLastAutoCheck(Date.now());
+    }
 
-    // Set up recurring check (starts after first interval)
-    this.autoCheckTimer = setInterval(runAutoCheck, interval) as unknown as number;
+    this.autoCheckStartupTimer = setTimeout(() => {
+      this.autoCheckStartupTimer = null;
+      this.runAutoCheckIfDue();
+    }, AUTO_CHECK_STARTUP_DELAY_MS) as unknown as number;
+    this.autoCheckTimer = setInterval(
+      () => this.runAutoCheckIfDue(),
+      AUTO_CHECK_POLL_MS,
+    ) as unknown as number;
 
     Zotero.debug(
-      `ReplicationChecker: Auto-check timer started (interval: ${this.getAutoCheckFrequency()}) - first check in ${interval / 1000 / 60} minutes`
+      `ReplicationChecker: Auto-check scheduled (${this.activeAutoCheckFrequency}); last check: ${
+        this.getLastAutoCheck() ?? "none recorded"
+      }`
     );
   }
 
+  /** Run the scheduled check if its period has passed since the last one. */
+  private runAutoCheckIfDue(): void {
+    const now = Date.now();
+    const decision = decideAutoCheck(this.getAutoCheckInterval(), this.getLastAutoCheck(), now);
+
+    if (decision === "reset") {
+      Zotero.debug("ReplicationChecker: No previous auto-check recorded; counting from now");
+      this.setLastAutoCheck(now);
+      return;
+    }
+    if (decision !== "run") return;
+
+    // Record the run before starting it, so an hourly tick during a long
+    // check cannot start a second one.
+    this.setLastAutoCheck(now);
+    Zotero.debug(
+      `ReplicationChecker: Running scheduled auto-check (${this.getAutoCheckFrequency()})`
+    );
+    void this.checkEntireLibrary();
+  }
+
   /**
-   * Stop auto-check timer
+   * Stop auto-check timers
    */
   private stopAutoCheck(): void {
+    if (this.autoCheckStartupTimer !== null) {
+      clearTimeout(this.autoCheckStartupTimer);
+      this.autoCheckStartupTimer = null;
+    }
     if (this.autoCheckTimer !== null) {
       clearInterval(this.autoCheckTimer);
       this.autoCheckTimer = null;

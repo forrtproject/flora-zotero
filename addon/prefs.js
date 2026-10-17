@@ -1,6 +1,8 @@
 // Default preferences for Replication Checker
 pref("extensions.zotero.replication-checker.autoCheckFrequency", "monthly");
 pref("extensions.zotero.replication-checker.autoCheckNewItems", true);
+// Epoch milliseconds of the last scheduled check, as a string ("" = none yet)
+pref("extensions.zotero.replication-checker.lastAutoCheck", "");
 pref("extensions.zotero.replication-checker.blacklist", "");
 pref("extensions.zotero.replication-checker.rootFolderName", "FLoRA");
 pref("extensions.zotero.replication-checker.rootCollectionIDs", "{}");
