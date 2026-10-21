@@ -168,7 +168,7 @@ def build(out_dir: Path) -> list[Path]:
     # The centred blocks are the logo and the shields badges; the site renders
     # that information in its own chrome.
     readme = re.sub(r'^<p align="center">.*?^</p>\n', "", readme, flags=re.S | re.M)
-    preamble, roots = parse_sections(readme)
+    _preamble, roots = parse_sections(readme)
 
     by_title: dict[str, Section] = {}
     for root in roots:
@@ -237,7 +237,9 @@ def build(out_dir: Path) -> list[Path]:
             + ", ".join(repr(t) for t in stale)
         )
 
-    # ── Documentation index: the README's own opening, then the sections ──
+    # ── Documentation index: the lede and the section cards from the layout ──
+    # The README's opening paragraph is not repeated here; it introduces the
+    # plugin, which the home page already does.
     index = out_dir / "documentation" / "index.md"
     write(
         index,
@@ -251,9 +253,7 @@ def build(out_dir: Path) -> list[Path]:
                 "Install the plugin, run your first check, and understand what "
                 "it adds to your library."
             ),
-        )
-        + repo_links("\n".join(strip_trailing_blanks(list(preamble)))).lstrip("\n")
-        + "\n",
+        ),
     )
     written.append(index)
 

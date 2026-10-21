@@ -176,7 +176,7 @@ replication-checker-note-warning = Diese Notiz wird automatisch generiert. Wenn 
 replication-checker-note-intro = Diese Studie wurde repliziert:
 replication-checker-note-feedback = War dieses Ergebnis hilfreich? Geben Sie <a href="{ $url }" target="_blank">hier</a> Feedback!
 replication-checker-note-data-issues = Haben Sie Probleme mit den Daten gefunden? Bitte melden Sie diese <a href="{ $url }" target="_blank">hier</a>!
-replication-checker-note-footer = Erstellt von Zotero Replication Checker unter Verwendung der FORRT Literaturdatenbank (FLoRA)
+replication-checker-note-footer = Erstellt von Zotero Replication Checker unter Verwendung von FLoRA (FORRT Library of Reproduction and Replication Attempts)
 
 ## Replication Item Details
 replication-checker-li-no-title = Kein Titel verfügbar
@@ -192,7 +192,7 @@ replication-checker-prompt-title = Willkommen beim Zotero Replication Checker!
 replication-checker-prompt-first-run =
     Vielen Dank für die Installation des Zotero Replication Checkers!
 
-    Dieses Plugin hilft Ihnen, Replikationsstudien für Ihre Forschung zu entdecken, indem es Ihre Bibliothekseinträge mit der FORRT Literaturdatenbank (FLoRA) abgleicht.
+    Dieses Plugin hilft Ihnen, Replikationsstudien für Ihre Forschung zu entdecken, indem es Ihre Bibliothekseinträge mit FLoRA (FORRT Library of Reproduction and Replication Attempts) abgleicht.
 
     Möchten Sie Ihre Bibliothek jetzt auf Replikationen scannen?
 
@@ -204,7 +204,7 @@ onboarding-welcome-title = Willkommen beim Replication Checker!
 onboarding-welcome-content =
     Vielen Dank für die Installation des Zotero Replication Checkers!
 
-    Dieses Plugin hilft Ihnen, Replikations- und Reproduktionsstudien zu entdecken, indem es Ihre Bibliothekseinträge automatisch mit der FORRT Literaturdatenbank (FLoRA) abgleicht.
+    Dieses Plugin hilft Ihnen, Replikations- und Reproduktionsstudien zu entdecken, indem es Ihre Bibliothekseinträge automatisch mit FLoRA (FORRT Library of Reproduction and Replication Attempts) abgleicht.
 
     ✨ Hauptfunktionen:
     • Prüft die gesamte Bibliothek, Sammlungen oder einzelne Einträge
@@ -311,7 +311,7 @@ reproduction-checker-note-warning = Diese Notiz wird automatisch generiert. Wenn
 reproduction-checker-note-intro = Diese Studie wurde reproduziert:
 reproduction-checker-note-feedback = War dieses Ergebnis hilfreich? Geben Sie <a href="{ $url }" target="_blank">hier</a> Feedback!
 reproduction-checker-note-data-issues = Haben Sie Probleme mit den Daten gefunden? Bitte melden Sie diese <a href="{ $url }" target="_blank">hier</a>!
-reproduction-checker-note-footer = Erstellt von Zotero Replication Checker unter Verwendung der FORRT Literaturdatenbank (FLoRA)
+reproduction-checker-note-footer = Erstellt von Zotero Replication Checker unter Verwendung von FLoRA (FORRT Library of Reproduction and Replication Attempts)
 
 ## Reproduction Feature - Item Details
 reproduction-checker-li-no-title = Kein Titel verfügbar

@@ -176,7 +176,7 @@ replication-checker-note-warning = 此笔记为自动生成。如果您对其进
 replication-checker-note-intro = 本研究已被重复验证：
 replication-checker-note-feedback = 您觉得此结果有用吗？请在<a href="{ $url }" target="_blank">此处</a>提供反馈！
 replication-checker-note-data-issues = 您发现数据中有任何问题吗？请在<a href="{ $url }" target="_blank">此处</a>反馈！
-replication-checker-note-footer = 由 Zotero Replication Checker 使用 FORRT 文献数据库（FLoRA）生成
+replication-checker-note-footer = 由 Zotero Replication Checker 使用 FLoRA（FORRT Library of Reproduction and Replication Attempts）生成
 
 ## Replication Item Details
 replication-checker-li-no-title = 无可用标题
@@ -192,7 +192,7 @@ replication-checker-prompt-title = 欢迎使用 Zotero Replication Checker！
 replication-checker-prompt-first-run =
     感谢安装 Zotero Replication Checker！
 
-    此插件通过对照 FORRT 文献数据库（FLoRA）检查您的文献库条目，帮助您发现相关的重复研究。
+    此插件通过对照 FLoRA（FORRT Library of Reproduction and Replication Attempts）检查您的文献库条目，帮助您发现相关的重复研究。
 
     是否现在扫描您的文献库以查找重复研究？
 
@@ -204,7 +204,7 @@ onboarding-welcome-title = 欢迎使用 Replication Checker！
 onboarding-welcome-content =
     感谢安装 Zotero Replication Checker！
 
-    此插件通过自动对照 FORRT 文献数据库（FLoRA）检查您的文献库条目，帮助您发现重复研究与再现研究。
+    此插件通过自动对照 FLoRA（FORRT Library of Reproduction and Replication Attempts）检查您的文献库条目，帮助您发现重复研究与再现研究。
 
     ✨ 主要功能：
     • 检查整个文献库、分组或单个条目
@@ -308,7 +308,7 @@ reproduction-checker-note-warning = 此笔记为自动生成。如果您对其�
 reproduction-checker-note-intro = 本研究已被重复验证（复现）：
 reproduction-checker-note-feedback = 您觉得此结果有用吗？请在<a href="{ $url }" target="_blank">此处</a>提供反馈！
 reproduction-checker-note-data-issues = 您发现数据中有任何问题吗？请在<a href="{ $url }" target="_blank">此处</a>反馈！
-reproduction-checker-note-footer = 由 Zotero Replication Checker 使用 FORRT 文献数据库（FLoRA）生成
+reproduction-checker-note-footer = 由 Zotero Replication Checker 使用 FLoRA（FORRT Library of Reproduction and Replication Attempts）生成
 
 ## Reproduction Feature - Item Details
 reproduction-checker-li-no-title = 无可用标题

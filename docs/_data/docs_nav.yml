@@ -29,9 +29,9 @@ groups:
           Check a whole library, a selection, or a collection — and have new
           items checked automatically as they arrive.
         sections:
-          - Check Current Library or Group Libraries
-          - Check Selected Items or Collections
-          - Check Newly Added Items
+          - Check a whole library
+          - Check selected items or collections
+          - Check newly added items
 
       - title: What lands in your library
         slug: what-gets-added
@@ -40,16 +40,16 @@ groups:
           replication you do not want back.
         sections:
           - Collection layout
-          - What Gets Added to Zotero Items
-          - Ban Replications
+          - What gets added to your items
+          - Ban a replication or reproduction
 
-      - title: Preferences
+      - title: Settings
         slug: preferences
         lede: >-
-          Scheduled checks, automatic checking of new items, and the list of
-          replications you have banned.
+          Automatic and scheduled checks, collection names, library statistics
+          and your banned list.
         sections:
-          - Preferences
+          - Settings
 
   - title: Understanding results
     pages:
@@ -59,18 +59,18 @@ groups:
           What the replication and reproduction outcome labels mean, and what a
           linked report is.
         sections:
-          - What Does Replication Outcome Mean?
-          - What Does Reproduction Outcome Mean?
-          - What Does it Mean if "The study has a linked report"
+          - Replication outcomes
+          - Reproduction outcomes
+          - Linked reports
 
       - title: How matching works
         slug: how-matching-works
         lede: >-
-          How the plugin queries FLoRA with hash prefixes instead of your DOIs,
-          and where the data comes from.
+          What the plugin sends to FLoRA instead of your DOIs, what the Atlas
+          button sends, and where the data comes from.
         sections:
-          - Privacy-Preserving Architecture
-          - Data Source
+          - Privacy
+          - Data source
 
   - title: Reference
     pages:
@@ -80,7 +80,7 @@ groups:
           The languages the plugin ships in, what gets translated, and how to
           contribute a new translation.
         sections:
-          - Localization
+          - Languages
 
       - title: Citing the plugin
         slug: citation
@@ -93,12 +93,12 @@ groups:
 # content lives instead. The builder checks this list is exhaustive.
 excluded:
   Features: >-
-    The home page covers this under "What it does"; repeating the list here
-    pushes Installation below the fold.
+    The home page covers this under "What a check does"; repeating the list
+    here pushes Installation below the fold.
   About the dataset: >-
-    The home page covers this in full under "Where the data comes from".
+    The home page covers this in full under "What the results mean".
   Feedback: >-
     Surfaced as "Report an issue" in the top bar, the footer and the
     "Keep reading" row of every page.
   Usage: Container heading only; its subsections are split across pages.
-  How It Works: Container heading only; its subsections are split across pages.
+  How it works: Container heading only; its subsections are split across pages.

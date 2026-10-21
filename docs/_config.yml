@@ -1,8 +1,8 @@
 title: Replication Checker for Zotero
 description: >-
-  A Zotero plugin that finds the replications and reproductions of the studies
-  already in your library, using FORRT's Library of Reproduction and Replication
-  Attempts (FLoRA) — without sending identifiable data off your machine.
+  A free Zotero plugin that shows which papers in your library have been
+  replicated or reproduced, using FORRT's Library of Reproduction and
+  Replication Attempts (FLoRA).
 baseurl: /flora-zotero
 
 markdown: kramdown
@@ -27,15 +27,20 @@ exclude:
   - Release.md
   - LOCALIZATION.md
 
-# Top-bar navigation, also used for the footer row and the "Keep reading" links
-# at the foot of every document page. Outbound links (Replication Atlas, Report
-# Issue) and the Download CTA live in the layout, since they are not site pages.
-# URLs carry a trailing slash: each page is built as <name>/index.html.
+# Site pages, used for the footer row and the "Keep reading" links at the foot
+# of every document page. The top bar shows only the entries marked `topbar`:
+# Contributing and the Release Guide are for contributors and maintainers, not
+# for researchers installing the plugin. Outbound links (Replication Atlas,
+# Report Issue) and the Download CTA live in the layout, since they are not
+# site pages. URLs carry a trailing slash: each page is built as
+# <name>/index.html.
 navigation:
   - title: Home
     url: /
+    topbar: true
   - title: Documentation
     url: /documentation/
+    topbar: true
   - title: Contributing
     url: /contributing/
   - title: Release Guide
@@ -55,9 +60,11 @@ forrt:
   atlas: https://forrt.org/flora-replication-atlas/
   explorer: https://forrt.org/flora-explorer/
   contributors: https://forrt.org/contributors/?project=flora-zotero-plugin&&collapse-filter
+  # Form for reporting a missing or wrong FLoRA record (the same one the plugin
+  # links from its notes).
+  data_issues: https://forms.gle/Tn2eqasUU1WE86Dq8
 
-# Plugin info
+# Plugin info. The manifest sets no upper Zotero version (v0.1.14 supports
+# Zotero 7 to 10), so the site states only the minimum.
 plugin:
-  min_zotero: "7.0"
-  max_zotero: "8.*"
-  languages: 6
+  zotero: "7 or later"
