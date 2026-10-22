@@ -85,7 +85,7 @@
   --transition: 0.24s cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Content column, shared by the landing and the document pages. */
-  --measure: 1120px;
+  --measure: min(94vw, 1480px);
   --topbar-h: 52px;
 }
 
@@ -137,6 +137,17 @@ main {
   }
   :where(button):active {
     transform: none;
+  }
+}
+
+/* Nothing scrolls on paper, so the scroll-driven reveals would never run and
+   every section below the first would print blank. */
+@media print {
+  .landing-section,
+  .landing-hero-inner > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 
@@ -411,7 +422,7 @@ html {
   font-size: var(--fs-6);
   line-height: 1.6;
   color: var(--text-secondary);
-  max-width: 56ch;
+  max-width: none;
   margin: 0 0 var(--space-5);
 }
 
@@ -540,18 +551,301 @@ html {
   letter-spacing: -0.01em;
 }
 
-/* ─── Record preview: a worked example beside the list of its parts ─── */
-.landing-record {
+/* ─── Landing components ─── */
+
+@media (min-width: 900px) {
+  .landing-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 25rem);
+    gap: var(--space-7);
+    align-items: center;
+  }
+  .landing-hero-inner {
+    max-width: none;
+  }
+  .hero-figure {
+    margin: 0;
+  }
+}
+.hero-figure {
+  margin: var(--space-6) 0 0;
+}
+.hero-figure .lr-card {
+  box-shadow: var(--shadow-lg);
+}
+
+.cell-grid {
   display: grid;
-  grid-template-columns: minmax(0, 27rem) minmax(0, 1fr);
-  gap: var(--space-7);
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: var(--space-3);
+}
+.cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  background: var(--white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  font-family: var(--font-body);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+a.cell:hover {
+  border-color: var(--primary-soft);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+a.cell:active {
+  transform: translateY(0);
+}
+.cell--lead {
+  background:
+    radial-gradient(
+      120% 90% at 8% 4%,
+      rgba(133, 57, 83, 0.11),
+      transparent 62%
+    ),
+    var(--primary-faint);
+  border-color: var(--primary-soft);
+}
+.cell--alt {
+  background: var(--surface-alt);
+}
+.cell-num {
+  font-family: var(--font-display);
+  font-size: var(--fs-8);
+  line-height: 1;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-2);
+}
+.cell-title {
+  font-size: var(--fs-6);
+  font-weight: 700;
+  color: var(--text);
+}
+.cell-sub {
+  font-size: var(--fs-6);
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin: 0;
+}
+.cell-sub code,
+.cell-tags code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--surface-alt);
+  color: var(--primary-dark);
+  border-radius: var(--radius-sm);
+  padding: 0.1em 0.35em;
+  white-space: nowrap;
+}
+.cell--lead .cell-sub code {
+  background: rgba(255, 255, 255, 0.7);
+}
+.cell-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: var(--space-1);
+}
+
+.landing-about {
+  max-width: none;
+}
+
+.landing-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
   align-items: start;
 }
-.lr-figure {
-  margin: 0;
-  position: sticky;
-  top: calc(var(--topbar-h) + var(--space-5));
+@media (min-width: 900px) {
+  .landing-split {
+    /* The figure holds a DOI and a three-character code; the prose takes the
+       slack instead of padding the card out. */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+    gap: var(--space-7);
+  }
 }
+.landing-split .landing-about {
+  max-width: none;
+}
+.landing-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+}
+.landing-links-label {
+  font-size: var(--fs-1);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-right: var(--space-1);
+}
+.landing-links a {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-full);
+  background: var(--white);
+  font-size: var(--fs-4);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+.landing-links a:hover {
+  border-color: var(--primary-soft);
+  background: var(--primary-faint);
+  color: var(--primary-dark);
+}
+
+.hash-flow {
+  margin: 0;
+  background: var(--white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+.hash-label {
+  display: block;
+  font-size: var(--fs-1);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--space-2);
+}
+.hash-value {
+  font-family: var(--font-mono);
+  font-size: var(--fs-4);
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.6rem;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.hash-value--sent {
+  color: var(--primary-dark);
+  background: var(--primary-faint);
+  border-color: var(--primary-soft);
+  font-weight: 700;
+}
+.hash-arrow {
+  display: block;
+  margin: var(--space-3) 0 var(--space-2);
+  color: var(--text-faint);
+  font-size: var(--fs-3);
+}
+.hash-note {
+  margin: var(--space-4) 0 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-light);
+  font-size: var(--fs-4);
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+.hash-note strong {
+  color: var(--text);
+}
+
+.proof-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-light);
+  font-size: var(--fs-4);
+  color: var(--text-muted);
+}
+.proof-strip img {
+  height: 32px;
+  width: auto;
+  display: block;
+}
+.proof-strip strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.landing-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  background:
+    radial-gradient(
+      120% 160% at 6% 0%,
+      rgba(133, 57, 83, 0.1),
+      transparent 60%
+    ),
+    var(--primary-faint);
+  border: 1px solid var(--primary-soft);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+}
+.landing-cta h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-7);
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin: 0 0 var(--space-2);
+  letter-spacing: -0.01em;
+}
+.landing-cta p {
+  font-size: var(--fs-6);
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 54ch;
+}
+.landing-cta .hero-actions {
+  margin: 0;
+}
+.landing-note {
+  font-size: var(--fs-5);
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: none;
+  margin: var(--space-4) 0 0;
+}
+.landing-about + .landing-about,
+.cell-grid + .landing-about,
+.landing-cta + .landing-about {
+  margin-top: var(--space-6);
+}
+
+@media (max-width: 768px) {
+  .landing-cta {
+    padding: var(--space-5);
+  }
+  .landing-cta .hero-actions {
+    width: 100%;
+  }
+}
+
+/* ─── Record preview: a worked example beside the list of its parts ─── */
 .lr-card {
   background: var(--white);
   border: 1px solid var(--border-light);
@@ -657,14 +951,6 @@ html {
   padding: 0.1rem 0.5rem;
   white-space: nowrap;
 }
-.lr-note {
-  margin: var(--space-2) 0 0;
-  padding-left: var(--space-3);
-  border-left: 2px solid var(--error-border);
-  font-size: var(--fs-3);
-  line-height: 1.5;
-  color: var(--text-secondary);
-}
 .lr-caption {
   margin-top: var(--space-3);
   font-size: var(--fs-4);
@@ -684,7 +970,7 @@ html {
 .landing-about-main code,
 .flora-note code {
   font-family: var(--font-mono);
-  font-size: 0.9em;
+  font-size: 0.875em;
   background: var(--surface-alt);
   border-radius: var(--radius-sm);
   padding: 0.1em 0.35em;
@@ -694,12 +980,8 @@ html {
   white-space: nowrap;
 }
 
-/* ─── Prose sections ─── */
-.landing-about {
-  max-width: 62ch;
-}
 .landing-about-main p {
-  font-size: var(--fs-5);
+  font-size: var(--fs-6);
   line-height: 1.7;
   color: var(--text-secondary);
   margin: 0 0 var(--space-4);
@@ -712,7 +994,7 @@ html {
   padding-left: var(--space-5);
 }
 .landing-about-main li {
-  font-size: var(--fs-5);
+  font-size: var(--fs-6);
   line-height: 1.7;
   color: var(--text-secondary);
   margin-bottom: var(--space-2);
@@ -735,7 +1017,7 @@ html {
 /* ─── Media frame ─── */
 .flora-video {
   margin: 0;
-  max-width: 900px;
+  max-width: none;
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: #000;
@@ -747,9 +1029,15 @@ html {
   width: 100%;
   height: auto;
   background: #000;
+  /* Shown only when the video cannot play, against the black frame. */
+  color: var(--white);
+}
+.flora-video video a {
+  color: var(--white);
+  text-decoration: underline;
 }
 .flora-note {
-  max-width: 900px;
+  max-width: none;
   margin: var(--space-4) 0 0;
   padding: 0.85rem 1.1rem;
   border-left: 3px solid var(--info-border);
@@ -766,19 +1054,6 @@ html {
   color: var(--primary);
   text-decoration: underline;
   text-underline-offset: 2px;
-}
-.funding-logo {
-  display: inline-block;
-  background: var(--white);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius);
-  padding: 0.6rem 0.9rem;
-  margin-top: var(--space-4);
-}
-.funding-logo img {
-  display: block;
-  height: 60px;
-  width: auto;
 }
 
 @media (max-width: 1024px) {
@@ -818,7 +1093,7 @@ html {
 ═══════════════════════════════ */
 .ssg {
   width: 100%;
-  max-width: var(--measure);
+  max-width: 60rem;
   margin-inline: auto;
   padding: var(--space-7) var(--space-5) var(--space-8);
 }
@@ -834,7 +1109,7 @@ html {
   font-size: var(--fs-6);
   line-height: 1.6;
   color: var(--text-secondary);
-  max-width: 56ch;
+  max-width: 72ch;
   margin: 0;
 }
 
@@ -846,8 +1121,7 @@ html {
    scrolling to find out.
 ═══════════════════════════════ */
 .ssg--docs {
-  /* Three columns need more room than the 68ch prose column alone. */
-  max-width: 1440px;
+  max-width: 1400px;
 }
 .docs-nav {
   margin-bottom: var(--space-6);
@@ -900,9 +1174,6 @@ html {
   font-size: var(--fs-7);
   margin: var(--space-6) 0 var(--space-4);
   padding-top: var(--space-5);
-}
-.ssg .docs-index-group:first-of-type {
-  border-top: 1px solid var(--border-light);
 }
 .docs-index-cards {
   display: grid;
@@ -982,39 +1253,6 @@ html {
 .disclosure[open] .disclosure-label::after {
   content: "−";
 }
-.doc-toc {
-  margin-bottom: var(--space-6);
-}
-.doc-toc-links {
-  display: flex;
-  flex-direction: column;
-  border-left: 2px solid var(--border-light);
-}
-.ssg .doc-toc-link {
-  font-size: var(--fs-4);
-  line-height: 1.4;
-  color: var(--text-muted);
-  text-decoration: none;
-  padding: 0.3rem 0 0.3rem var(--space-3);
-  margin-left: -2px;
-  border-left: 2px solid transparent;
-  transition:
-    color var(--transition-fast),
-    border-color var(--transition-fast);
-}
-.ssg .doc-toc-link--h3 {
-  padding-left: var(--space-5);
-  font-size: var(--fs-3);
-}
-.ssg .doc-toc-link:hover {
-  color: var(--primary);
-}
-.ssg .doc-toc-link.active {
-  color: var(--primary);
-  border-left-color: var(--primary);
-  font-weight: 600;
-}
-
 /* ─── Heading permalinks ─── */
 .ssg .heading-anchor {
   margin-left: 0.4em;
@@ -1038,7 +1276,11 @@ html {
 @media (min-width: 1024px) {
   .ssg--docs {
     display: grid;
-    grid-template-columns: 14rem minmax(0, 1fr);
+    grid-template-columns: 15rem minmax(0, 1fr);
+    /* The sidebar spans both rows and is usually the tallest thing here.
+       Without a flexible second row its extra height is split across both,
+       pushing the article down the page. */
+    grid-template-rows: auto 1fr;
     column-gap: var(--space-7);
     row-gap: 0;
     align-items: start;
@@ -1076,40 +1318,7 @@ html {
   }
 }
 
-/* ─── Contents rail beside the prose ─── */
 @media (min-width: 1025px) {
-  .ssg-body.has-toc {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 15rem;
-    gap: var(--space-7);
-    align-items: start;
-  }
-  .ssg-body.has-toc .ssg-article {
-    grid-column: 1;
-    grid-row: 1;
-  }
-  .ssg-body.has-toc .doc-toc {
-    grid-column: 2;
-    grid-row: 1;
-    margin-bottom: 0;
-    position: sticky;
-    top: calc(var(--topbar-h) + var(--space-5));
-    max-height: calc(100dvh - var(--topbar-h) - var(--space-7));
-    overflow-y: auto;
-    overscroll-behavior: contain;
-  }
-  .ssg-body.has-toc .doc-toc .disclosure {
-    background: none;
-    border: 0;
-    padding: 0;
-  }
-  .ssg-body.has-toc .doc-toc .disclosure-label {
-    cursor: default;
-    margin-bottom: var(--space-3);
-  }
-  .ssg-body.has-toc .doc-toc .disclosure-label::after {
-    content: none;
-  }
   .ssg .heading-anchor {
     display: inline;
   }
@@ -1120,15 +1329,26 @@ html {
   }
 }
 
-/* A docs page has already given a column to the sidebar, so its contents rail
-   waits until there is room for a third. */
-@media (max-width: 1279px) {
-  .ssg--docs .ssg-body.has-toc {
-    display: block;
-  }
-  .ssg--docs .ssg-body.has-toc .doc-toc {
-    display: none;
-  }
+/* Kramdown's GFM task lists keep the list marker as well as the checkbox. */
+.ssg li.task-list-item {
+  list-style: none;
+  margin-left: -1.4rem;
+}
+.ssg .task-list-item-checkbox {
+  width: 0.95em;
+  height: 0.95em;
+  margin-right: 0.55em;
+  vertical-align: -0.08em;
+  accent-color: var(--primary);
+}
+
+/* Rouge wraps each fenced block in two divs and puts .highlight on the <pre>
+   as well, so the wrappers must be matched by element to avoid stripping the
+   card styling off the pre itself. */
+.ssg div.highlighter-rouge,
+.ssg div.highlight {
+  margin: 0;
+  background: none;
 }
 
 /* ─── Where-to-next pills, closing a document page ─── */
@@ -1215,10 +1435,10 @@ html {
 .ssg p,
 .ssg li,
 .ssg dd {
-  font-size: var(--fs-5);
   line-height: 1.7;
+  font-size: var(--fs-6);
   color: var(--text-secondary);
-  max-width: 68ch;
+  max-width: 88ch;
 }
 .ssg p {
   margin: 0 0 var(--space-4);
@@ -1331,18 +1551,22 @@ html {
 
 /* Wide content scrolls inside its own box; the page never scrolls sideways. */
 .ssg table {
-  display: block;
-  overflow-x: auto;
+  /* display:block would let the border box fill the column while the rows
+     shrink-wrap, leaving the header background short of the border. */
+  display: table;
+  width: 100%;
   max-width: 100%;
+  table-layout: auto;
   border-collapse: collapse;
   background: var(--white);
   border: 1px solid var(--border-light);
   border-radius: var(--radius);
-  font-size: var(--fs-5);
+  font-size: var(--fs-6);
   margin: 0 0 var(--space-4);
 }
 .ssg th,
 .ssg td {
+  overflow-wrap: anywhere;
   text-align: left;
   padding: 0.55rem 0.8rem;
   border-bottom: 1px solid var(--border-light);

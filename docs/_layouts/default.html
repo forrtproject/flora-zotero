@@ -121,17 +121,6 @@
     </header>
 
     <div class="ssg-body">
-      <!-- Contents rail. These pages run to twenty-odd sections, so they get a
-           map of themselves in the column the 68ch measure leaves empty. It is
-           filled in from the headings below after load: navigation only, so a
-           reader without scripting still has the whole document. -->
-      <aside class="doc-toc" id="doc-toc" hidden>
-        <details class="disclosure doc-toc-box" data-collapse-below="1025">
-          <summary class="disclosure-label">On this page</summary>
-          <nav class="doc-toc-links" aria-label="Sections of this page"></nav>
-        </details>
-      </aside>
-
       <article class="ssg-article">
         {{ content }}
 
@@ -205,57 +194,16 @@
       });
     })();
 
-    // Contents rail + heading anchors for the document pages.
     (function () {
       var article = document.querySelector(".ssg-article");
-      var rail = document.getElementById("doc-toc");
-      if (!article || !rail) return;
-
-      var headings = [].slice.call(article.querySelectorAll("h2[id], h3[id]"));
-      if (headings.length < 3) return;
-
-      var links = rail.querySelector(".doc-toc-links");
-      var byId = {};
-
-      headings.forEach(function (h) {
-        var a = document.createElement("a");
-        a.href = "#" + h.id;
-        a.textContent = h.textContent.trim();
-        a.className = "doc-toc-link doc-toc-link--" + h.tagName.toLowerCase();
-        links.appendChild(a);
-        byId[h.id] = a;
-
-        // A quiet permalink, so any section can be linked to directly.
+      if (!article) return;
+      article.querySelectorAll("h2[id], h3[id]").forEach(function (h) {
         var anchor = document.createElement("a");
         anchor.href = "#" + h.id;
         anchor.className = "heading-anchor";
         anchor.setAttribute("aria-label", "Link to this section");
         anchor.textContent = "#";
         h.appendChild(anchor);
-      });
-
-      rail.hidden = false;
-      // Only now does the body give up a column for the rail, so a page with
-      // too few headings keeps the full width.
-      article.parentNode.classList.add("has-toc");
-
-      // Mark the section the reader is in. Observed against a band just under
-      // the sticky bar so the highlight changes as a heading reaches the top.
-      if (!("IntersectionObserver" in window)) return;
-      var active = null;
-      var observer = new IntersectionObserver(
-        function (entries) {
-          entries.forEach(function (entry) {
-            if (!entry.isIntersecting) return;
-            if (active) active.classList.remove("active");
-            active = byId[entry.target.id];
-            if (active) active.classList.add("active");
-          });
-        },
-        { rootMargin: "-68px 0px -75% 0px", threshold: 0 }
-      );
-      headings.forEach(function (h) {
-        observer.observe(h);
       });
     })();
   </script>

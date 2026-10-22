@@ -50,22 +50,6 @@ jobs:
           python3 -m pip install --quiet pyyaml
           python3 scripts/build_docs.py
 
-      - name: Copy favicon and share images
-        run: |
-          set -euo pipefail
-          mkdir -p docs/assets
-          if [ -f "addon/content/icons/favicon.png" ]; then
-            cp addon/content/icons/favicon.png docs/assets/favicon.png
-          fi
-          if [ -f "docs/logo/replication-checker-logo.png" ]; then
-            cp docs/logo/replication-checker-logo.png docs/assets/replication-checker-logo.png
-          fi
-          # Icon-only square share image: link previews (Slack, LinkedIn, ...) crop the
-          # wide text logo badly, so they get the icon on a solid white background instead
-          if [ -f "docs/logo/replication-checker-social.png" ]; then
-            cp docs/logo/replication-checker-social.png docs/assets/replication-checker-social.png
-          fi
-
       - name: Fetch update.json from the latest release
         run: |
           # The release workflow creates update.json with the correct hash for the release XPI

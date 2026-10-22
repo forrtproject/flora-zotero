@@ -23,6 +23,7 @@ Run from the repo root:  python3 scripts/build_docs.py
 from __future__ import annotations
 
 import re
+import shutil
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -292,6 +293,29 @@ def build(out_dir: Path) -> list[Path]:
     )
     written.append(target)
 
+    written += copy_assets(out_dir)
+    return written
+
+
+def copy_assets(out_dir: Path) -> list[Path]:
+    """Copy the images the layout references but that do not live in docs/.
+
+    The favicon comes from the plugin itself, and the share images are the
+    icon-only square (link previews crop the wide text logo badly).
+    """
+    pairs = [
+        (ROOT / "addon" / "content" / "icons" / "favicon.png", "favicon.png"),
+        (DOCS / "logo" / "replication-checker-logo.png", "replication-checker-logo.png"),
+        (DOCS / "logo" / "replication-checker-social.png", "replication-checker-social.png"),
+    ]
+    written = []
+    for src, name in pairs:
+        if not src.is_file():
+            raise BuildError(f"asset referenced by the layout is missing: {src}")
+        target = out_dir / "assets" / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(src, target)
+        written.append(target)
     return written
 
 

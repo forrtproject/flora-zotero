@@ -358,6 +358,25 @@ def localize_links(html_text: str) -> str:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(ROOT / "docs" / ".preview"))
+    ap.add_argument(
+        "--baseurl",
+        default=None,
+        help=(
+            "Build for a real server at this base path instead of for file://. "
+            'Use "" for a host that serves the site at its root, or '
+            'Netlify), or "/flora-zotero" to match GitHub Pages. Links stay as '
+            "directory URLs, which only a server can resolve."
+        ),
+    )
+    ap.add_argument(
+        "--domain",
+        default=None,
+        help=(
+            "Write a CNAME file naming the host to publish to. The output "
+            "directory is rebuilt from scratch each run, so the domain has to "
+            "come from here rather than being dropped in by hand."
+        ),
+    )
     args = ap.parse_args()
     out = Path(args.out)
     if out.exists():
@@ -381,17 +400,22 @@ def main() -> None:
         url = f"/{name}/" if nested else "/"
         page = dict(fm)
         page["url"] = url
-        # file:// has no server to rewrite /flora-zotero or to serve a
-        # directory's index, so asset paths are made relative to this page's
-        # depth and page URLs are pointed straight at the file.
-        depth = name.count("/") + 1 if nested else 0
-        scope_site = dict(site, baseurl="/".join([".."] * depth) if depth else ".")
+        if args.baseurl is None:
+            # file:// has no server to rewrite /flora-zotero or to serve a
+            # directory's index, so asset paths are made relative to this
+            # page's depth and page URLs are pointed straight at the file.
+            depth = name.count("/") + 1 if nested else 0
+            base = "/".join([".."] * depth) if depth else "."
+        else:
+            base = args.baseurl.rstrip("/")
+        scope_site = dict(site, baseurl=base)
         content = render_liquid(body, {"site": scope_site, "page": page})
         content = markdown(content)
         rendered = render_liquid(
             layout, {"site": scope_site, "page": page, "content": content}
         )
-        rendered = localize_links(rendered)
+        if args.baseurl is None:
+            rendered = localize_links(rendered)
 
         target = out / name / "index.html" if nested else out / "index.html"
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -410,7 +434,14 @@ def main() -> None:
     if favicon.is_file():
         (out / "assets").mkdir(exist_ok=True)
         shutil.copy(favicon, out / "assets" / "favicon.png")
-    print(f"\nOpen {out / 'index.html'}")
+    if args.domain:
+        (out / "CNAME").write_text(args.domain, encoding="utf-8")
+
+    if args.baseurl is None:
+        print(f"\nOpen {out / 'index.html'}")
+    else:
+        where = f" for {args.domain}" if args.domain else ""
+        print(f"\nServer-ready build in {out}{where} (base path: {args.baseurl or '/'})")
 
 
 if __name__ == "__main__":

@@ -104,3 +104,12 @@ docs/documentation/
 docs/contributing/
 docs/release-guide/
 docs/update.json
+
+
+# Jekyll build output and assets copied in by scripts/build_docs.py
+_site/
+_site_jekyll/
+docs/.jekyll-cache/
+docs/assets/favicon.png
+docs/assets/replication-checker-logo.png
+docs/assets/replication-checker-social.png
