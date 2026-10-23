@@ -186,6 +186,13 @@ describe("Cycle Detection", function () {
       1,
       "Only one item with the replication DOI should exist",
     );
+
+    // The user already had B, so it is tagged as a replication but not as
+    // added by the checker (removing that tag's items must not remove it).
+    const updatedB = await Zotero.Items.getAsync(itemB.id);
+    const tags = updatedB!.getTags().map((t: any) => t.tag);
+    assert.include(tags, "Is Replication");
+    assert.notInclude(tags, "Added by Replication Checker");
   });
 
   it("blacklisted replications are not re-added", async function () {

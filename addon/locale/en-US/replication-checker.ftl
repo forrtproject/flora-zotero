@@ -142,6 +142,15 @@ replication-checker-readonly-dialog-message =
 
     Would you like to copy the original articles and their replications to your Personal library's replication folder?
 
+## Shared Group Library Handling
+replication-checker-group-dialog-title = Add to Shared Group Library?
+replication-checker-group-dialog-message =
+    FLoRA found replications or reproductions for { $itemCount } item(s) in the group library "{ $libraryName }".
+
+    Adding them creates items, notes and tags that every member of this group will see. You can instead copy the original articles and their replications and reproductions to your Personal library.
+replication-checker-group-dialog-add-btn = Add to Group Library
+replication-checker-group-dialog-copy-btn = Copy to My Library
+
 ## Results Messages
 replication-checker-results-title-library = Library Scan Complete
 replication-checker-results-title-selected = Selected Items Scan Complete
