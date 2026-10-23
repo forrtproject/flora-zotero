@@ -843,6 +843,7 @@ export class ReproductionHandler {
 
             // Check if original already exists in Personal library
             let copiedOriginalID: number;
+            let originalExisted = false;
             if (originalDOI) {
               const search = new Zotero.Search({ libraryID: personalLibraryID });
               search.addCondition("DOI", "is", originalDOI);
@@ -850,6 +851,7 @@ export class ReproductionHandler {
 
               if (existingIDs.length > 0) {
                 copiedOriginalID = existingIDs[0];
+                originalExisted = true;
                 // Track item so auto-check doesn't trigger dialogs
                 this.pluginAddedItems.add(copiedOriginalID);
               } else {
@@ -868,7 +870,7 @@ export class ReproductionHandler {
 
             // Add tags to copied original
             copiedOriginal.addTag(getTag(TAG_HAS_BEEN_REPRODUCED));
-            copiedOriginal.addTag(getTag(TAG_ADDED_BY_CHECKER));
+            if (!originalExisted) copiedOriginal.addTag(getTag(TAG_ADDED_BY_CHECKER));
             copiedOriginal.addTag(getTag(TAG_READONLY_ORIGIN));
             await copiedOriginal.save();
 
@@ -943,7 +945,7 @@ export class ReproductionHandler {
 
               // Add tags
               reproductionItem.addTag(getTag(TAG_IS_REPRODUCTION));
-              reproductionItem.addTag(getTag(TAG_ADDED_BY_CHECKER));
+              if (existingRepIDs.length === 0) reproductionItem.addTag(getTag(TAG_ADDED_BY_CHECKER));
               reproductionItem.addTag(getTag(TAG_READONLY_ORIGIN));
 
               // Add outcome or multiple-originals tag
