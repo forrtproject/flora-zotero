@@ -63,13 +63,16 @@ async function uninstall(data, reason) {
       "extensions.zotero.replication-checker.onboardingVersion",
       "extensions.zotero.replication-checker.firstRunDone",
       "extensions.zotero.replication-checker.autoCheckFrequency",
+      "extensions.zotero.replication-checker.lastAutoCheck",
       "extensions.zotero.replication-checker.autoCheckNewItems"
     ];
 
+    // These are full pref names, so pass `global` (true): without it Zotero
+    // prepends "extensions.zotero." again and nothing is found or cleared.
     for (const pref of prefs) {
       try {
-        if (Zotero.Prefs.get(pref) !== undefined) {
-          Zotero.Prefs.clear(pref);
+        if (Zotero.Prefs.get(pref, true) !== undefined) {
+          Zotero.Prefs.clear(pref, true);
         }
       } catch (e) {
         // Preference doesn't exist, ignore
