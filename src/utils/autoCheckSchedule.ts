@@ -71,3 +71,28 @@ export function decideAutoCheck(
   if (lastRunMs === null || lastRunMs > nowMs) return "reset";
   return nowMs - lastRunMs >= intervalMs ? "run" : "wait";
 }
+
+export type GroupAddMode = "ask" | "always" | "tags-only";
+
+/** Setting for adding to editable group libraries; unknown values ask first. */
+export function parseGroupAddMode(value: unknown): GroupAddMode {
+  return value === "always" || value === "tags-only" ? value : "ask";
+}
+
+/**
+ * Libraries a scheduled check covers. Read-only groups are never included: a
+ * check could only copy from them after asking, which a background job must not.
+ * Unknown scopes count as "personal", the default.
+ */
+export function getAutoCheckLibraryIDs(
+  scope: unknown,
+  libraries: ReadonlyArray<{ libraryID: number; libraryType: string; editable: boolean }>,
+  userLibraryID: number,
+): number[] {
+  const groups = libraries
+    .filter((library) => library.libraryType === "group" && library.editable)
+    .map((library) => library.libraryID);
+  if (scope === "groups") return groups;
+  if (scope === "all") return [userLibraryID, ...groups];
+  return [userLibraryID];
+}

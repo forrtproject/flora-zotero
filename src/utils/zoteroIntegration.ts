@@ -11,8 +11,9 @@ import { getActiveLibraryID } from "./zoteroCompat";
  * Searches for items with DOI field or DOI in Extra field
  * @returns Array of items with their DOIs
  */
-export async function getAllDOIsFromLibrary(): Promise<ZoteroItemData[]> {
-  const libraryID = getActiveLibraryID();
+export async function getAllDOIsFromLibrary(
+  libraryID: number = getActiveLibraryID(),
+): Promise<ZoteroItemData[]> {
   const items: ZoteroItemData[] = [];
 
   const search = new Zotero.Search({ libraryID });

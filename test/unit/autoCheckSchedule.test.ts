@@ -4,6 +4,8 @@ import {
   AUTO_CHECK_STARTUP_DELAY_MS,
   decideAutoCheck,
   getAutoCheckIntervalMs,
+  getAutoCheckLibraryIDs,
+  parseGroupAddMode,
   parseLastAutoCheck,
 } from "../../src/utils/autoCheckSchedule";
 
@@ -75,6 +77,36 @@ describe("autoCheckSchedule", function () {
     it("does nothing when disabled", function () {
       assert.equal(decideAutoCheck(0, now - 365 * DAY, now), "wait");
       assert.equal(decideAutoCheck(0, null, now), "wait");
+    });
+  });
+
+  describe("getAutoCheckLibraryIDs", function () {
+    const libraries = [
+      { libraryID: 1, libraryType: "user", editable: true },
+      { libraryID: 2, libraryType: "group", editable: true },
+      { libraryID: 3, libraryType: "group", editable: false },
+      { libraryID: 4, libraryType: "feed", editable: true },
+    ];
+
+    it("defaults to the personal library", function () {
+      assert.deepEqual(getAutoCheckLibraryIDs("personal", libraries, 1), [1]);
+      assert.deepEqual(getAutoCheckLibraryIDs(undefined, libraries, 1), [1]);
+      assert.deepEqual(getAutoCheckLibraryIDs("nonsense", libraries, 1), [1]);
+    });
+
+    it("never includes read-only groups or feeds", function () {
+      assert.deepEqual(getAutoCheckLibraryIDs("groups", libraries, 1), [2]);
+      assert.deepEqual(getAutoCheckLibraryIDs("all", libraries, 1), [1, 2]);
+    });
+  });
+
+  describe("parseGroupAddMode", function () {
+    it("reads each mode, and asks for anything else", function () {
+      assert.equal(parseGroupAddMode("always"), "always");
+      assert.equal(parseGroupAddMode("tags-only"), "tags-only");
+      assert.equal(parseGroupAddMode("ask"), "ask");
+      assert.equal(parseGroupAddMode(undefined), "ask");
+      assert.equal(parseGroupAddMode("sometimes"), "ask");
     });
   });
 });

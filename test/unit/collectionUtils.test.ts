@@ -7,6 +7,8 @@ import {
   getOrCreateRootCollection,
   getOrCreateChildCollection,
   migrateCollectionsToRoot,
+  collectionNameError,
+  renameManagedCollection,
 } from "../../src/utils/collectionUtils";
 
 /**
@@ -202,6 +204,32 @@ describe("collectionUtils", function () {
         "My FLoRA Stuff",
         "preference should follow the user's rename",
       );
+    });
+  });
+
+  describe("renameManagedCollection", function () {
+    it("renames the collection now, in every library, and it stays renamed", async function () {
+      const personal = await getOrCreateCollection(LIBRARY_ID, REPLICATION_SPEC);
+      const group = await getOrCreateCollection(GROUP_ID, REPLICATION_SPEC);
+
+      await renameManagedCollection(REPLICATION_SPEC, "My Replications");
+
+      assert.equal(personal.name, "My Replications");
+      assert.equal(group.name, "My Replications");
+      assert.equal(Zotero.Prefs.get(REPLICATION_SPEC.namePrefKey), "My Replications");
+
+      // The next check must find the same collection, not undo the rename.
+      const again = await getOrCreateCollection(LIBRARY_ID, REPLICATION_SPEC);
+      assert.equal(again.id, personal.id);
+      assert.equal(Zotero.Prefs.get(REPLICATION_SPEC.namePrefKey), "My Replications");
+    });
+  });
+
+  describe("collectionNameError", function () {
+    it("rejects empty names and names already in use", function () {
+      assert.equal(collectionNameError("   ", []), "empty");
+      assert.equal(collectionNameError("flora", ["FLoRA"]), "duplicate");
+      assert.isNull(collectionNameError(" New name ", ["FLoRA"]));
     });
   });
 });

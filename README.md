@@ -76,7 +76,8 @@ FLoRA
 ├── FLoRA Reproductions
 ├── FLoRA Originals linked to Replications
 ├── FLoRA Originals linked to Reproductions
-└── {LibraryName} [Read-Only]        (one per read-only group library)
+├── {LibraryName} [Read-Only]        (one per read-only group library)
+└── {LibraryName} [Group-Library]    (one per group library you copied from)
 ```
 
 Libraries organised by earlier versions are migrated automatically the first time
