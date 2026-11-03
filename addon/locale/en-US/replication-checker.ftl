@@ -225,6 +225,9 @@ onboarding-tools-content =
     • Creates notes with details
     • Tags items by outcome
 
+    🏷️ About outcome labels:
+    Outcome labels are a starting point, not a verdict. They depend on how replication authors describe their results. A failed replication does not by itself show that the original finding was false or the original study flawed: a replication can also fail by chance, because of low power or problems in its own conduct, or because conditions, situations, or contexts differed.
+
     💡 Tip: Takes a few minutes depending on library size.
 
 onboarding-context-title = Check Collections and Items
