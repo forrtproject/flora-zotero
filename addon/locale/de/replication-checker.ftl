@@ -232,6 +232,10 @@ onboarding-tools-content =
     • Erstellt Notizen mit Details
     • Markiert Einträge nach Ergebnis
 
+    🏷️ Tags sind ein Ausgangspunkt, kein Urteil:
+    • Sie spiegeln wider, wie Autoren ihre Ergebnisse beschreiben
+    • Eine fehlgeschlagene Replikation kann auf Zufall, geringe Power, eigene Mängel oder veränderte Bedingungen zurückgehen, nicht nur auf ein falsches Original
+
     💡 Tipp: Kann je nach Bibliotheksgröße einige Minuten dauern.
 
 onboarding-context-title = Sammlungen und Einträge prüfen

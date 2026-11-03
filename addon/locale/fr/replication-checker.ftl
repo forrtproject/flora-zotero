@@ -229,6 +229,10 @@ onboarding-tools-content =
     • Crée des notes avec des détails
     • Étiquette les éléments par résultat
 
+    🏷️ Les étiquettes sont un point de départ, pas un verdict :
+    • Elles reflètent la façon dont les auteurs décrivent leurs résultats
+    • Une réplication échouée peut refléter le hasard, une faible puissance, ses propres défauts ou des conditions modifiées, pas seulement un original faux
+
     💡 Conseil : Prend quelques minutes selon la taille de la bibliothèque.
 
 onboarding-context-title = Vérifier les collections et les éléments

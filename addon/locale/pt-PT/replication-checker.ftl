@@ -234,6 +234,10 @@ onboarding-tools-content =
     • Cria notas com detalhes
     • Atribui etiquetas aos itens de acordo com o resultado
 
+    🏷️ As etiquetas são um ponto de partida, não um veredicto:
+    • Refletem a forma como os autores descrevem os seus resultados
+    • Uma replicação que falhou pode refletir acaso, baixa potência, falhas próprias ou condições alteradas, não apenas um original falso
+
     💡 Sugestão: Pode demorar alguns minutos, dependendo do tamanho da biblioteca.
 
 onboarding-context-title = Verifique coleções e itens
