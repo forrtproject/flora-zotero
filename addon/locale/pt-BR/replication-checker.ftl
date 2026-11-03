@@ -232,7 +232,7 @@ onboarding-tools-content =
     • Cria notas com detalhes
     • Marca itens por resultado
 
-    🏷️ As etiquetas são um ponto de partida, não um veredito:
+    🏷️ Considere as etiquetas um ponto de partida, não um veredito sobre o original:
     • Refletem como os autores descrevem seus resultados
     • Uma replicação que falhou pode refletir acaso, baixo poder, falhas próprias ou condições alteradas, não apenas um original falso
 

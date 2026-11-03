@@ -229,7 +229,7 @@ onboarding-tools-content =
     • Crée des notes avec des détails
     • Étiquette les éléments par résultat
 
-    🏷️ Les étiquettes sont un point de départ, pas un verdict :
+    🏷️ Voyez les étiquettes comme un point de départ, pas un verdict sur l'original :
     • Elles reflètent la façon dont les auteurs décrivent leurs résultats
     • Une réplication échouée peut refléter le hasard, une faible puissance, ses propres défauts ou des conditions modifiées, pas seulement un original faux
 
