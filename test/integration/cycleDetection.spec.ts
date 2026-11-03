@@ -315,6 +315,7 @@ describe("Cycle Detection", function () {
       true,
     );
     await checker.checkNewItems([itemB!.id]);
+    Zotero.Prefs.set("replication-checker.autoCheckNewItems", false);
 
     // Step 3: Switch mock so B now has replication C
     restoreHTTP();

@@ -137,6 +137,15 @@ replication-checker-readonly-dialog-message =
 
     是否将原始文献及其重复研究复制到您个人文献库的"重复研究文件夹"？
 
+## Shared Group Library Handling
+replication-checker-group-dialog-title = 添加到共享群组文献库？
+replication-checker-group-dialog-message =
+    FLoRA 在群组文献库“{ $libraryName }”中为 { $itemCount } 个条目找到了重复或复现研究。
+
+    添加后会创建此群组所有成员都能看到的条目、笔记和标签。您也可以改为将原始文章及其重复和复现研究复制到个人文献库。
+replication-checker-group-dialog-add-btn = 添加到群组文献库
+replication-checker-group-dialog-copy-btn = 复制到我的文献库
+
 ## Results Messages
 replication-checker-results-title-library = 文献库扫描完成
 replication-checker-results-title-selected = 所选条目扫描完成
@@ -199,90 +208,75 @@ replication-checker-prompt-first-run =
     • 单击"确定"开始扫描（这可能需要几分钟）
     • 单击"取消"跳过 - 您随时可以从"工具"菜单进行扫描
 
+reproduction-checker-readonly-dialog-title = 检测到只读文献库
+reproduction-checker-readonly-dialog-message =
+    此文献库为只读。我们发现 { $itemCount } 个条目，共有 { $reproductionCount } 项复现研究。
+
+    是否将原始文章及其复现研究复制到个人文献库的复现文件夹？
+
 ## Onboarding
-onboarding-welcome-title = 欢迎使用 Replication Checker！
-onboarding-welcome-content =
-    感谢安装 Zotero Replication Checker！
-
-    此插件通过自动对照 FORRT 文献数据库（FLoRA）检查您的文献库条目，帮助您发现重复研究与再现研究。
-
-    ✨ 主要功能：
-    • 检查整个文献库、分组或单个条目
-    • 同时检测重复研究和计算再现研究
-    • 处理有多篇原始研究的文章
-    • 添加带有结果标签和 DOI 链接的笔记
-    • 自动为条目添加标签（如"有重复研究"、"是重复研究"）
-    • 检测到重复研究时提供添加原始研究的选项
-    • 支持只读群组文献库——将条目复制到个人文献库
-    • 所有集合均置于单个“FLoRA”集合内，名称可配置
-    • 屏蔽不需要的重复研究，使其不再出现
-
-    让我们快速浏览以便您快速上手！
-
-onboarding-tools-title = 检查整个文献库
-onboarding-tools-content =
-    📍 位置：工具 → 检查当前文献库的重复研究
-
-    🔍 功能说明：
-    • 扫描所有含有 DOI 的条目
-    • 查询 FLoRA 数据库
-    • 创建包含详细信息的笔记
-    • 按结果为条目添加标签
-
-    💡 提示：根据文献库大小，可能需要几分钟。
-
-onboarding-context-title = 检查分组和条目
-onboarding-context-content =
-    📚 对于分组：
-    右键单击分组 → 检查重复研究
-
-    📄 对于单个条目：
-    右键单击条目 → 检查重复研究
-
-    🚫 屏蔽重复研究：
-    右键单击重复研究条目 → 屏蔽重复研究
-    • 防止不需要的重复研究被重新添加
-
-    🗂️ 内容存放位置：
-    插件创建的所有内容都位于单个“FLoRA”集合内
-    • FLoRA Replications、FLoRA Reproductions
-    • FLoRA Originals linked to Replications / Reproductions
-
-    ⚙️ 首选项：
-    编辑 → 设置 → Replication Checker
-    • 自动检查频率
-    • 自动检查新条目
-    • 集合名称，包括“FLoRA”容器
-    • 各文献库的 FLoRA 统计，并附 Replication Atlas 链接
-
-onboarding-stats-title = 您的 FLoRA 统计
-onboarding-stats-content =
-    📍 位置：编辑 → 设置 → Replication Checker
-
-    📊 FLoRA 对您文献库的实时统计：
-    • 拥有重复研究／再现研究的文章
-    • 本身即为重复研究或再现研究的文章
-    • 按唯一 DOI 计数，同一篇论文保存两次仅计一次
-
-    📚 群组文献库：
-    如果您加入了群组文献库，表格上方会出现文献库选择器——统计数据对应所选的文献库，而不仅是个人文献库。
-
-    🌍 在 FLoRA Atlas 中打开：
-    打开 Replication Atlas 并预先载入所选文献库中已跟踪的 DOI，以了解您的阅读在整个重复研究文献中的位置。
-
-    💡 没有可用 DOI 的条目无法识别，因此不计入其中——按钮下方的提示会说明数量。
-
+onboarding-check-library-title = 文献库、分类或条目
+onboarding-check-library-body = 使用“工具”菜单检查整个文献库，或右键单击分类或条目。
+onboarding-check-auto-title = 自动检查
+onboarding-check-auto-body = 新条目在添加时检查，个人文献库按计划检查。
+onboarding-check-original-title = 添加原始研究
+onboarding-check-original-body = 保存了重复研究但没有原始研究？右键单击即可添加原始研究。
+onboarding-check-ban-title = 屏蔽重复研究
+onboarding-check-ban-body = 右键单击不需要的重复或复现研究将其屏蔽，它就不会再被添加。
+onboarding-results-lead = 插件创建的内容都放在一个 FLoRA 分类中，每篇论文的情况一目了然。
+onboarding-results-collection-title = 一个 FLoRA 分类
+onboarding-results-collection-body = 重复研究、复现研究和关联的原始研究各有一个子分类。
+onboarding-results-notes-title = 笔记
+onboarding-results-notes-body = 重复研究和复现研究笔记列出每项研究及其结果和链接。
+onboarding-results-tags-title = 标签
+onboarding-results-tags-body = 按论文类型及其重复或复现结果筛选。
+onboarding-results-links-title = 双向关联
+onboarding-results-links-body = 原始研究与其重复或复现研究互为相关条目。
+onboarding-features-title = 为研究工作而设计
+onboarding-features-lead = 开始之前，还有几点值得了解。
+onboarding-features-privacy-title = 隐私优先
+onboarding-features-privacy-body = 不会发送您的 DOI。只有加扰代码的前 3 个字符会离开您的电脑，匹配在本地完成。
+onboarding-features-groups-title = 共享的群组文献库
+onboarding-features-new = 新功能
+onboarding-features-groups-body = 在设置中决定：先询问、始终添加，或仅添加标签和笔记。
+onboarding-features-autocheck-title = 定期检查
+onboarding-features-autocheck-body = 每天、每周或每月，检查个人文献库、群组文献库或两者。
+onboarding-features-readonly-title = 只读文献库
+onboarding-features-readonly-body = 插件先询问，然后将原始研究和相关研究复制到个人文献库。
+onboarding-features-banned-title = 屏蔽列表
+onboarding-features-banned-body = 在设置中查看所有已屏蔽内容，并随时恢复。
+onboarding-features-verdict-title = 是起点，而非定论
+onboarding-features-verdict-body = 标签反映作者如何描述其结果。重复研究失败可能反映偶然、统计检验力低、自身缺陷或条件变化，而不只是原始发现有误。
+onboarding-features-languages-title = 6 种语言
+onboarding-features-languages-body = 跟随 Zotero 的语言。
+onboarding-welcome-title = 您文献库中的研究被重复过吗？
+onboarding-welcome-lead = Replication Checker 将您的文献库与 FLoRA（FORRT Literature Database）比对，显示哪些论文已被重复或复现。
+onboarding-welcome-tags-title = 标签
+onboarding-welcome-tags-body = 查看哪些论文有重复研究及其结果。
+onboarding-welcome-notes-title = 笔记
+onboarding-welcome-notes-body = 每篇匹配的论文都会获得一条笔记，包含相关研究、结果和 DOI 链接。
+onboarding-welcome-studies-title = 研究
+onboarding-welcome-studies-body = 重复研究和复现研究都会添加到同一个 FLoRA 分类中。
+onboarding-check-title = 检查范围由您决定
+onboarding-check-lead = 可以检查整个文献库、一个分类或几个选中的条目。
+onboarding-results-title = 所有内容集中在一处
+onboarding-atlas-title = 查看全局
+onboarding-atlas-lead = 在“编辑 → 设置 → Replication Checker”中可查看每个文献库的实时 FLoRA 统计。
+onboarding-atlas-stats-title = 按唯一 DOI 计数
+onboarding-atlas-stats-body = 同一论文保存两次只计一次。没有可用 DOI 的条目不计入。
+onboarding-atlas-open-title = 在 FLoRA Atlas 中打开
+onboarding-atlas-open-body = 在 Atlas 中探索您跟踪的论文。列表已加密，链接 30 天后失效。
 onboarding-scan-title = 准备好扫描您的文献库了吗？
-onboarding-scan-content =
-    是否现在扫描您的文献库以查找重复研究？
-
-    • 单击"是"开始扫描
-      （这可能需要几分钟）
-
-    • 单击"否"跳过 - 您随时可以从"工具"菜单进行扫描
-
-    💡 随时访问此指南：
-    帮助 → Replication Checker 用户指南
+onboarding-scan-lead = 首次扫描可能需要几分钟，具体取决于文献库的大小。
+onboarding-scan-note = 您也可以稍后从“工具”菜单扫描，并从“帮助”菜单重新打开本指南。
+onboarding-btn-next = 下一步
+onboarding-btn-back = 上一步
+onboarding-btn-skip = 跳过导览
+onboarding-btn-done = 开始使用
+onboarding-btn-scan = 扫描我的文献库
+onboarding-btn-later = 暂不
+onboarding-btn-close = 关闭
+onboarding-step = 第 { $current } 步，共 { $total } 步
 
 ## Reproduction Feature - Menu Items
 reproduction-checker-context-menu-ban = 屏蔽重复实验
@@ -381,17 +375,30 @@ pref-autocheck-new-items = 自动检查新添加到文献库的条目（推荐�
 pref-autocheck-new-items-hint = 如果您希望手动运行所有重复研究检查，请禁用此选项。
 pref-autocheck-note = 当 Zotero 打开时，自动检查在后台运行。您仍然可以通过"工具"菜单手动检查。
 pref-folder-title = 重复研究文件夹名称
-pref-folder-description = 存储重复研究条目的 Zotero 分组名称
-pref-folder-hint = 更改此项将自动重命名现有分组。所有条目将保留在同一分组中。
 pref-repro-folder-title = 再现研究文件夹名称
-pref-repro-folder-description = 存储再现研究条目的 Zotero 分组名称
-pref-repro-folder-hint = 更改此项将自动重命名现有分组。所有条目将保留在同一分组中。
 pref-originals-replication-folder-title = 原始文献文件夹（关联至重复研究）
-pref-originals-replication-folder-description = 存储原始文献（其重复研究已被添加）的 Zotero 分组名称
-pref-originals-replication-folder-hint = 更改此项将自动重命名现有分组。所有条目将保留在同一分组中。
 pref-originals-reproduction-folder-title = 原始文献文件夹（关联至再现研究）
-pref-originals-reproduction-folder-description = 存储原始文献（其再现研究已被添加）的 Zotero 分组名称
-pref-originals-reproduction-folder-hint = 更改此项将自动重命名现有分组。所有条目将保留在同一分组中。
+
+## Collection Names
+pref-root-folder-title = FLoRA 主分类
+pref-collections-title = FLoRA 分类名称
+pref-collections-description = 点击铅笔重命名分类，再点击对勾保存。分类会立即重命名，所有条目保持原位。
+pref-collections-edit = 重命名
+pref-collections-save = 保存
+pref-collections-cancel = 取消
+pref-collections-error-empty = 请输入名称。
+pref-collections-error-duplicate = 另一个 FLoRA 分类已使用此名称。
+pref-collections-error-save = 无法重命名分类，请重试。
+pref-autocheck-libraries-title = 定期检查包含的文献库
+pref-autocheck-libraries-personal = 仅个人文献库（推荐）
+pref-autocheck-libraries-groups = 仅群组文献库
+pref-autocheck-libraries-all = 所有文献库
+pref-autocheck-libraries-hint = 只读的群组文献库会被跳过，因为无法向其中添加内容。
+pref-group-add-title = 向群组文献库添加条目
+pref-group-add-ask = 每次询问（推荐）
+pref-group-add-always = 始终添加条目
+pref-group-add-tags = 仅添加标签和笔记，不添加新条目
+pref-group-add-hint = 适用于您可以编辑的群组文献库。对于只读文献库，插件在复制到个人文献库前始终会询问。
 
 ## Stats Pane
 pref-stats-title = 您的 FLoRA 统计数据

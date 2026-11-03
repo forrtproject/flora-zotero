@@ -137,6 +137,15 @@ replication-checker-readonly-dialog-message =
 
     ¿Desea copiar los artículos originales y sus replicaciones a la "carpeta de replicaciones" de su biblioteca personal?
 
+## Shared Group Library Handling
+replication-checker-group-dialog-title = ¿Añadir a la biblioteca de grupo compartida?
+replication-checker-group-dialog-message =
+    FLoRA ha encontrado replicaciones o reproducciones para { $itemCount } elemento(s) en la biblioteca de grupo «{ $libraryName }».
+
+    Al añadirlas se crean elementos, notas y etiquetas que verán todos los miembros de este grupo. En su lugar, puedes copiar los artículos originales y sus replicaciones y reproducciones a tu biblioteca personal.
+replication-checker-group-dialog-add-btn = Añadir a la biblioteca de grupo
+replication-checker-group-dialog-copy-btn = Copiar a mi biblioteca
+
 ## Results Messages
 replication-checker-results-title-library = Análisis de biblioteca completo
 replication-checker-results-title-selected = Análisis de elementos seleccionados completo
@@ -199,93 +208,75 @@ replication-checker-prompt-first-run =
     • Haga clic en "Aceptar" para comenzar el análisis (esto puede tardar unos minutos)
     • Haga clic en "Cancelar" para omitir - siempre puede analizar más tarde desde el menú Herramientas
 
+reproduction-checker-readonly-dialog-title = Biblioteca de solo lectura detectada
+reproduction-checker-readonly-dialog-message =
+    Esta biblioteca es de solo lectura. Hemos encontrado { $itemCount } elemento(s) con { $reproductionCount } reproducción(es).
+
+    ¿Quieres copiar los artículos originales y sus reproducciones a la carpeta de reproducciones de tu biblioteca personal?
+
 ## Onboarding
-onboarding-welcome-title = ¡Bienvenido a Replication Checker!
-onboarding-welcome-content =
-    ¡Gracias por instalar Zotero Replication Checker!
-
-    Este complemento le ayuda a descubrir estudios de replicación y reproducción verificando automáticamente los elementos de su biblioteca en la Base de datos de literatura FORRT (FLoRA).
-
-    ✨ Características principales:
-    • Verifica toda la biblioteca, colecciones o elementos individuales
-    • Detecta tanto replicaciones como reproducciones computacionales
-    • Gestiona artículos con múltiples estudios originales
-    • Añade notas con etiquetas de resultado y enlaces DOI
-    • Etiqueta elementos automáticamente (p. ej. «Tiene replicación», «Es replicación»)
-    • Ofrece añadir el estudio original cuando se detecta una replicación
-    • Soporte para bibliotecas de grupo de solo lectura — copia elementos a la biblioteca personal
-    • Todas las colecciones dentro de una única colección «FLoRA», con nombres configurables
-    • Bloquea replicaciones no deseadas de futuras verificaciones
-    • Verificación automática: analiza nuevos elementos automáticamente o según un horario
-    • Privacidad garantizada: sus DOIs nunca se envían al servidor
-    • Disponible en varios idiomas
-
-    ¡Hagamos un recorrido rápido para comenzar!
-
-onboarding-tools-title = Verificar toda su biblioteca
-onboarding-tools-content =
-    📍 Ubicación: Herramientas → Verificar replicaciones en la biblioteca actual
-
-    🔍 Qué hace:
-    • Analiza todos los elementos con DOI
-    • Consulta la base de datos FLoRA
-    • Crea notas con detalles
-    • Etiqueta elementos por resultado
-
-    💡 Consejo: Tarda unos minutos dependiendo del tamaño de la biblioteca.
-
-onboarding-context-title = Verificar colecciones y elementos
-onboarding-context-content =
-    📚 Para colecciones:
-    Clic derecho en la colección → Verificar replicaciones
-
-    📄 Para elementos individuales:
-    Clic derecho en elementos → Verificar replicaciones
-
-    🚫 Bloquear replicaciones:
-    Clic derecho en elementos de replicación → Bloquear replicación
-    • Evita que replicaciones no deseadas sean añadidas de nuevo
-
-    🗂️ Dónde queda todo:
-    Todo lo que crea el complemento vive dentro de una única colección «FLoRA»
-    • FLoRA Replications, FLoRA Reproductions
-    • FLoRA Originals linked to Replications / Reproductions
-
-    ⚙️ Preferencias:
-    Editar → Configuración → Replication Checker
-    • Frecuencia de verificación automática
-    • Verificación automática de nuevos elementos
-    • Nombres de las colecciones, incluido el contenedor «FLoRA»
-    • Estadísticas de FLoRA por biblioteca, con enlace al Replication Atlas
-
-onboarding-stats-title = Sus estadísticas de FLoRA
-onboarding-stats-content =
-    📍 Ubicación: Editar → Configuración → Replication Checker
-
-    📊 Recuentos en vivo de lo que FLoRA sabe sobre su biblioteca:
-    • Artículos con replicaciones / reproducciones
-    • Artículos que son en sí mismos replicaciones o reproducciones
-    • Contados por DOI único: el mismo artículo guardado dos veces cuenta una vez
-
-    📚 Bibliotecas de grupo:
-    Si pertenece a alguna, aparece un selector de biblioteca sobre la tabla — las estadísticas corresponden a la biblioteca que elija, no solo a la personal.
-
-    🌍 Abrir en FLoRA Atlas:
-    Abre el Replication Atlas precargado con los DOI registrados de la biblioteca seleccionada, para ver cómo encajan sus lecturas en la literatura de replicación.
-
-    💡 Los elementos sin un DOI utilizable no se pueden identificar, por lo que quedan excluidos — una nota bajo el botón indica cuántos.
-
-onboarding-scan-title = ¿Listo para analizar su biblioteca?
-onboarding-scan-content =
-    ¿Desea analizar su biblioteca en busca de replicaciones ahora?
-
-    • Haga clic en "Sí" para comenzar el análisis
-      (esto puede tardar unos minutos)
-
-    • Haga clic en "No" para omitir - siempre puede analizar más tarde desde el menú Herramientas
-
-    💡 Acceda a esta guía en cualquier momento:
-    Ayuda → Guía de usuario de Replication Checker
+onboarding-check-library-title = Biblioteca, colección o elementos
+onboarding-check-library-body = Usa el menú Herramientas para toda una biblioteca, o haz clic derecho en una colección o elementos.
+onboarding-check-auto-title = Comprobaciones automáticas
+onboarding-check-auto-body = Los elementos nuevos se comprueban al añadirlos y tu biblioteca personal según un calendario.
+onboarding-check-original-title = Añadir original
+onboarding-check-original-body = ¿Guardaste una replicación sin su original? Haz clic derecho para añadir el estudio original.
+onboarding-check-ban-title = Bloquear replicación
+onboarding-check-ban-body = Haz clic derecho en una replicación o reproducción no deseada para bloquearla; no volverá a añadirse.
+onboarding-results-lead = Lo que crea el plugin va dentro de una colección FLoRA, y cada artículo se explica por sí mismo.
+onboarding-results-collection-title = Una colección FLoRA
+onboarding-results-collection-body = Las replicaciones, reproducciones y originales vinculados tienen cada uno una subcolección.
+onboarding-results-notes-title = Notas
+onboarding-results-notes-body = Las notas de replicaciones y reproducciones encontradas enumeran cada estudio, su resultado y enlaces.
+onboarding-results-tags-title = Etiquetas
+onboarding-results-tags-body = Filtra por el tipo de artículo y por el resultado de sus replicaciones o reproducciones.
+onboarding-results-links-title = Vinculados en ambos sentidos
+onboarding-results-links-body = Los originales y sus replicaciones o reproducciones aparecen como elementos relacionados entre sí.
+onboarding-features-title = Pensado para la forma de trabajar en investigación
+onboarding-features-lead = Algunas cosas más que conviene saber antes de empezar.
+onboarding-features-privacy-title = Privado por diseño
+onboarding-features-privacy-body = Tus DOI no se envían. Solo los 3 primeros caracteres de un código codificado salen de tu ordenador, y la coincidencia es local.
+onboarding-features-groups-title = Bibliotecas de grupo compartidas
+onboarding-features-new = Nuevo
+onboarding-features-groups-body = Tú decides en Ajustes: preguntar, añadir siempre o solo etiquetas y notas.
+onboarding-features-autocheck-title = Comprobaciones programadas
+onboarding-features-autocheck-body = Diarias, semanales o mensuales, en tu biblioteca personal, las de grupo o ambas.
+onboarding-features-readonly-title = Bibliotecas de solo lectura
+onboarding-features-readonly-body = El plugin pregunta y luego copia originales y estudios a tu biblioteca personal.
+onboarding-features-banned-title = Lista de bloqueos
+onboarding-features-banned-body = Consulta en Ajustes todo lo bloqueado y restáuralo cuando quieras.
+onboarding-features-verdict-title = Un punto de partida, no un veredicto
+onboarding-features-verdict-body = Las etiquetas reflejan cómo los autores describen sus resultados. Una replicación fallida puede reflejar azar, baja potencia, sus propios defectos o cambios en las condiciones, no solo un original falso.
+onboarding-features-languages-title = 6 idiomas
+onboarding-features-languages-body = Sigue el idioma de Zotero.
+onboarding-welcome-title = ¿Se ha replicado algo de tu biblioteca?
+onboarding-welcome-lead = Replication Checker compara tu biblioteca con FLoRA, la FORRT Literature Database, y muestra qué artículos se han replicado o reproducido.
+onboarding-welcome-tags-title = Etiquetas
+onboarding-welcome-tags-body = Comprueba qué artículos tienen replicaciones y cuál fue su resultado.
+onboarding-welcome-notes-title = Notas
+onboarding-welcome-notes-body = Cada artículo encontrado recibe una nota con sus estudios, resultados y enlaces DOI.
+onboarding-welcome-studies-title = Estudios
+onboarding-welcome-studies-body = Las replicaciones y reproducciones se añaden a una sola colección FLoRA.
+onboarding-check-title = Comprueba tanto o tan poco como quieras
+onboarding-check-lead = Ejecuta una comprobación en toda una biblioteca, una colección o unos pocos elementos.
+onboarding-results-title = Todo queda en un solo lugar
+onboarding-atlas-title = Ve el panorama general
+onboarding-atlas-lead = Editar → Ajustes → Replication Checker muestra recuentos actualizados de FLoRA para cada una de tus bibliotecas.
+onboarding-atlas-stats-title = Contados por DOI único
+onboarding-atlas-stats-body = Un artículo guardado dos veces cuenta una vez. Los elementos sin DOI utilizable se excluyen.
+onboarding-atlas-open-title = Abrir en FLoRA Atlas
+onboarding-atlas-open-body = Explora tus artículos en el Atlas. La lista está cifrada y el enlace caduca a los 30 días.
+onboarding-scan-title = ¿Listo para analizar tu biblioteca?
+onboarding-scan-lead = El primer análisis puede tardar unos minutos, según el tamaño de tu biblioteca.
+onboarding-scan-note = También puedes analizarla más tarde desde el menú Herramientas y volver a abrir esta guía desde el menú Ayuda.
+onboarding-btn-next = Siguiente
+onboarding-btn-back = Atrás
+onboarding-btn-skip = Omitir recorrido
+onboarding-btn-done = Empezar
+onboarding-btn-scan = Analizar mi biblioteca
+onboarding-btn-later = Ahora no
+onboarding-btn-close = Cerrar
+onboarding-step = Paso { $current } de { $total }
 
 ## Reproduction Feature - Menu Items
 reproduction-checker-context-menu-ban = Bloquear reproducción
@@ -384,17 +375,30 @@ pref-autocheck-new-items = Verificar automáticamente los nuevos elementos añad
 pref-autocheck-new-items-hint = Desactive esta opción si prefiere ejecutar todas las verificaciones de replicación manualmente.
 pref-autocheck-note = La verificación automática se ejecuta en segundo plano cuando Zotero está abierto. Aún puede verificar manualmente usando el menú Herramientas.
 pref-folder-title = Nombre de la carpeta de replicaciones
-pref-folder-description = Nombre de la colección de Zotero donde se almacenan los elementos de replicación
-pref-folder-hint = Al cambiar esto se renombrará automáticamente la colección existente. Todos los elementos permanecerán en la misma colección.
 pref-repro-folder-title = Nombre de la carpeta de reproducciones
-pref-repro-folder-description = Nombre de la colección de Zotero donde se almacenan los elementos de reproducción
-pref-repro-folder-hint = Al cambiar esto se renombrará automáticamente la colección existente. Todos los elementos permanecerán en la misma colección.
 pref-originals-replication-folder-title = Carpeta de originales (vinculada a replicaciones)
-pref-originals-replication-folder-description = Nombre de la colección de Zotero donde se almacenan los artículos originales (cuyas replicaciones han sido añadidas)
-pref-originals-replication-folder-hint = Al cambiar esto se renombrará automáticamente la colección existente. Todos los elementos permanecerán en la misma colección.
 pref-originals-reproduction-folder-title = Carpeta de originales (vinculada a reproducciones)
-pref-originals-reproduction-folder-description = Nombre de la colección de Zotero donde se almacenan los artículos originales (cuyas reproducciones han sido añadidas)
-pref-originals-reproduction-folder-hint = Al cambiar esto se renombrará automáticamente la colección existente. Todos los elementos permanecerán en la misma colección.
+
+## Collection Names
+pref-root-folder-title = Colección principal FLoRA
+pref-collections-title = Nombres de colecciones FLoRA
+pref-collections-description = Haz clic en el lápiz para renombrar una colección y en la marca para guardar. Las colecciones se renombran al momento y todos los elementos siguen en su sitio.
+pref-collections-edit = Renombrar
+pref-collections-save = Guardar
+pref-collections-cancel = Cancelar
+pref-collections-error-empty = Escribe un nombre.
+pref-collections-error-duplicate = Otra colección FLoRA ya usa este nombre.
+pref-collections-error-save = No se pudo renombrar la colección. Inténtalo de nuevo.
+pref-autocheck-libraries-title = Bibliotecas incluidas en las comprobaciones programadas
+pref-autocheck-libraries-personal = Solo la biblioteca personal (recomendado)
+pref-autocheck-libraries-groups = Solo bibliotecas de grupo
+pref-autocheck-libraries-all = Todas las bibliotecas
+pref-autocheck-libraries-hint = Las bibliotecas de grupo de solo lectura se omiten, porque no se puede añadir nada a ellas.
+pref-group-add-title = Añadir elementos a bibliotecas de grupo
+pref-group-add-ask = Preguntar cada vez (recomendado)
+pref-group-add-always = Añadir siempre los elementos
+pref-group-add-tags = Añadir solo etiquetas y notas, sin elementos nuevos
+pref-group-add-hint = Se aplica a las bibliotecas de grupo que puedes editar. En las de solo lectura, el plugin siempre pregunta antes de copiar a tu biblioteca personal.
 
 ## Stats Pane
 pref-stats-title = Sus estadísticas de FLoRA

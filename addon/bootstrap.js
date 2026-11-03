@@ -64,7 +64,10 @@ async function uninstall(data, reason) {
       "extensions.zotero.replication-checker.firstRunDone",
       "extensions.zotero.replication-checker.autoCheckFrequency",
       "extensions.zotero.replication-checker.lastAutoCheck",
-      "extensions.zotero.replication-checker.autoCheckNewItems"
+      "extensions.zotero.replication-checker.autoCheckNewItems",
+      "extensions.zotero.replication-checker.autoCheckLibraries",
+      "extensions.zotero.replication-checker.groupAddMode",
+      "extensions.zotero.replication-checker.statsLibraryID"
     ];
 
     // These are full pref names, so pass `global` (true): without it Zotero

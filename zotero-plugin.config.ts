@@ -48,6 +48,9 @@ export default defineConfig({
       // the onboarding dialog opens modally and blocks the integration run.
       "extensions.zotero.replication-checker.onboardingVersion": 2,
       "extensions.zotero.replication-checker.firstRunDone": true,
+      // Items created by tests would otherwise be checked in the background, and
+      // a match opens a modal dialog that hangs the run or fails a random hook.
+      "extensions.zotero.replication-checker.autoCheckNewItems": false,
     },
   },
 

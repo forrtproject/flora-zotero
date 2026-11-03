@@ -13,33 +13,18 @@
     type="bool"
   />
   <preference
+    id="pref-autoCheckLibraries"
+    name="extensions.zotero.replication-checker.autoCheckLibraries"
+    type="string"
+  />
+  <preference
+    id="pref-groupAddMode"
+    name="extensions.zotero.replication-checker.groupAddMode"
+    type="string"
+  />
+  <preference
     id="pref-blacklist"
     name="extensions.zotero.replication-checker.blacklist"
-    type="string"
-  />
-  <preference
-    id="pref-rootFolderName"
-    name="extensions.zotero.replication-checker.rootFolderName"
-    type="string"
-  />
-  <preference
-    id="pref-folderName"
-    name="extensions.zotero.replication-checker.folderName"
-    type="string"
-  />
-  <preference
-    id="pref-reproductionFolderName"
-    name="extensions.zotero.replication-checker.reproductionFolderName"
-    type="string"
-  />
-  <preference
-    id="pref-originalsReplicationFolderName"
-    name="extensions.zotero.replication-checker.originalsReplicationFolderName"
-    type="string"
-  />
-  <preference
-    id="pref-originalsReproductionFolderName"
-    name="extensions.zotero.replication-checker.originalsReproductionFolderName"
     type="string"
   />
 </preferences>
@@ -74,134 +59,29 @@
   <html:p id="pref-autocheck-note-label" style="margin-top: 15px; font-size: 0.85em; color: #999;">
     <html:strong id="pref-autocheck-note-strong">Note:</html:strong> Auto-check runs in the background when Zotero is open. You can still manually check using the Tools menu.
   </html:p>
-</groupbox>
 
-<!-- ── 2. BANNED REPLICATIONS ────────────────────────────────────────────── -->
-<groupbox>
-  <label>
-    <html:h2 id="pref-blacklist-title-label">Banned Replications</html:h2>
-  </label>
-
-  <html:p id="pref-blacklist-description-label" style="margin: 0 0 12px 0; font-size: 0.9em; color: #666;">
-    Manage replications you've banned from appearing in your library
+  <html:h3 id="pref-autocheck-libraries-title-label" style="margin: 16px 0 6px 0;">Libraries to include in scheduled checks</html:h3>
+  <radiogroup preference="pref-autoCheckLibraries">
+    <radio id="autocheck-libraries-personal" label="Personal library only (recommended)" value="personal" />
+    <radio id="autocheck-libraries-groups"   label="Group libraries only"                value="groups"   />
+    <radio id="autocheck-libraries-all"      label="All libraries"                       value="all"      />
+  </radiogroup>
+  <html:p id="pref-autocheck-libraries-hint-label" style="margin-top: 8px; font-size: 0.85em; color: #999;">
+    Group libraries you can only read are skipped, because nothing can be added to them.
   </html:p>
 
-  <html:div id="blacklist-container" style="max-height: 300px; overflow-y: auto; border: 1px solid #999; margin-bottom: 8px; background-color: #ffffff;">
-    <html:table id="blacklist-table" style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
-      <html:thead style="position: sticky; top: 0; background-color: #d3d3d3; border-bottom: 2px solid #666;">
-        <html:tr>
-          <html:th id="pref-blacklist-col-replication-label" style="padding: 8px; text-align: left; font-weight: bold; color: #000000; border-right: 1px solid #999;">Replication Article</html:th>
-          <html:th id="pref-blacklist-col-original-label"    style="padding: 8px; text-align: left; font-weight: bold; color: #000000; border-right: 1px solid #999;">Original Article</html:th>
-          <html:th id="pref-blacklist-col-type-label"        style="padding: 8px; text-align: center; font-weight: bold; color: #000000; width: 100px; border-right: 1px solid #999;">Type</html:th>
-          <html:th id="pref-blacklist-col-banned-label"      style="padding: 8px; text-align: center; font-weight: bold; color: #000000; width: 100px;">Banned On</html:th>
-        </html:tr>
-      </html:thead>
-      <html:tbody id="blacklist-list">
-        <html:tr id="blacklist-empty-row">
-          <html:td id="pref-blacklist-empty-label" colspan="4" style="padding: 20px; text-align: center; color: #999; font-style: italic;">
-            No banned replications
-          </html:td>
-        </html:tr>
-      </html:tbody>
-    </html:table>
-  </html:div>
-
-  <html:div style="display: flex; gap: 8px;">
-    <html:button id="blacklist-remove-btn" disabled="true">Remove Selected</html:button>
-    <html:button id="blacklist-clear-btn">Clear All Banned Replications</html:button>
-  </html:div>
-
-  <html:p id="pref-blacklist-hint-label" style="margin-top: 8px; font-size: 0.85em; color: #999;">
-    Banned replications will not be re-added during future checks. You can ban replications using the context menu.
+  <html:h3 id="pref-group-add-title-label" style="margin: 16px 0 6px 0;">Adding items to group libraries</html:h3>
+  <radiogroup preference="pref-groupAddMode">
+    <radio id="group-add-ask"    label="Ask each time (recommended)"            value="ask"       />
+    <radio id="group-add-always" label="Always add items"                       value="always"    />
+    <radio id="group-add-tags"   label="Add tags and notes only, no new items"  value="tags-only" />
+  </radiogroup>
+  <html:p id="pref-group-add-hint-label" style="margin-top: 8px; font-size: 0.85em; color: #999;">
+    Applies to group libraries you can edit. For read-only libraries, the plugin always asks before copying to your personal library.
   </html:p>
 </groupbox>
 
-<!-- ── 3. FOLDER NAMES ───────────────────────────────────────────────────── -->
-<groupbox>
-  <label>
-    <html:h2 id="pref-root-folder-title-label">FLoRA Container Collection</html:h2>
-  </label>
-  <html:p id="pref-root-folder-description-label" style="margin: 0 0 12px 0; font-size: 0.9em; color: #666;">
-    Name of the top-level Zotero collection that holds all FLoRA collections below
-  </html:p>
-  <html:div style="display: flex; align-items: center; gap: 8px;">
-    <html:input id="pref-root-folder-name-input" type="text" preference="pref-rootFolderName"
-      style="flex: 1; padding: 4px 8px; font-size: 0.9em;" placeholder="FLoRA" />
-  </html:div>
-  <html:p id="pref-root-folder-hint-label" style="margin-top: 8px; font-size: 0.85em; color: #999;">
-    Every collection below is created inside this one. Changing this will rename the existing collection automatically. All items will remain in the same collections.
-  </html:p>
-</groupbox>
-
-<groupbox>
-  <label>
-    <html:h2 id="pref-folder-title-label">Replication Folder Name</html:h2>
-  </label>
-  <html:p id="pref-folder-description-label" style="margin: 0 0 12px 0; font-size: 0.9em; color: #666;">
-    Name of the Zotero collection where replication items are stored
-  </html:p>
-  <html:div style="display: flex; align-items: center; gap: 8px;">
-    <html:input id="pref-folder-name-input" type="text" preference="pref-folderName"
-      style="flex: 1; padding: 4px 8px; font-size: 0.9em;" placeholder="FLoRA Replications" />
-  </html:div>
-  <html:p id="pref-folder-hint-label" style="margin-top: 8px; font-size: 0.85em; color: #999;">
-    Changing this will rename the existing collection automatically on the next replication check. All items will remain in the same collection.
-  </html:p>
-</groupbox>
-
-<groupbox>
-  <label>
-    <html:h2 id="pref-repro-folder-title-label">Reproduction Folder Name</html:h2>
-  </label>
-  <html:p id="pref-repro-folder-description-label" style="margin: 0 0 12px 0; font-size: 0.9em; color: #666;">
-    Name of the Zotero collection where reproduction items are stored
-  </html:p>
-  <html:div style="display: flex; align-items: center; gap: 8px;">
-    <html:input id="pref-repro-folder-name-input" type="text" preference="pref-reproductionFolderName"
-      style="flex: 1; padding: 4px 8px; font-size: 0.9em;" placeholder="FLoRA Reproductions" />
-  </html:div>
-  <html:p id="pref-repro-folder-hint-label" style="margin-top: 8px; font-size: 0.85em; color: #999;">
-    Changing this will rename the existing collection automatically on the next replication check. All items will remain in the same collection.
-  </html:p>
-</groupbox>
-
-<groupbox>
-  <label>
-    <html:h2 id="pref-originals-replication-folder-title-label">Originals Folder (linked to Replications)</html:h2>
-  </label>
-  <html:p id="pref-originals-replication-folder-description-label" style="margin: 0 0 12px 0; font-size: 0.9em; color: #666;">
-    Name of the Zotero collection where original articles (whose replications were added) are stored
-  </html:p>
-  <html:div style="display: flex; align-items: center; gap: 8px;">
-    <html:input id="pref-originals-replication-folder-name-input" type="text"
-      preference="pref-originalsReplicationFolderName"
-      style="flex: 1; padding: 4px 8px; font-size: 0.9em;"
-      placeholder="FLoRA Originals linked to Replications" />
-  </html:div>
-  <html:p id="pref-originals-replication-folder-hint-label" style="margin-top: 8px; font-size: 0.85em; color: #999;">
-    Changing this will rename the existing collection automatically. All items will remain in the same collection.
-  </html:p>
-</groupbox>
-
-<groupbox>
-  <label>
-    <html:h2 id="pref-originals-reproduction-folder-title-label">Originals Folder (linked to Reproductions)</html:h2>
-  </label>
-  <html:p id="pref-originals-reproduction-folder-description-label" style="margin: 0 0 12px 0; font-size: 0.9em; color: #666;">
-    Name of the Zotero collection where original articles (whose reproductions were added) are stored
-  </html:p>
-  <html:div style="display: flex; align-items: center; gap: 8px;">
-    <html:input id="pref-originals-reproduction-folder-name-input" type="text"
-      preference="pref-originalsReproductionFolderName"
-      style="flex: 1; padding: 4px 8px; font-size: 0.9em;"
-      placeholder="FLoRA Originals linked to Reproductions" />
-  </html:div>
-  <html:p id="pref-originals-reproduction-folder-hint-label" style="margin-top: 8px; font-size: 0.85em; color: #999;">
-    Changing this will rename the existing collection automatically. All items will remain in the same collection.
-  </html:p>
-</groupbox>
-
-<!-- ── 4. FLORA STATS ────────────────────────────────────────────────────── -->
+<!-- ── 2. FLORA STATS ────────────────────────────────────────────────────── -->
 <!-- Populated by initStatsUI() in hooks.ts (requires full Zotero context).   -->
 <!-- Stats auto-update via Zotero Notifier whenever items change.             -->
 <groupbox>
@@ -291,8 +171,70 @@
   <html:p id="stats-atlas-warning" style="font-size: 0.85em; color: #8a6d3b; margin: 10px 0 0 0; display: none;"></html:p>
 
   <html:p id="pref-stats-atlas-hint-label" style="margin-top: 10px; font-size: 0.8em; color: #aaa; line-height: 1.5;">
-    <html:strong>Open in FLoRA Atlas</html:strong> — opens the FLoRA Replication Atlas pre-loaded with the DOIs of every tracked item in the selected library: originals, replications and reproductions. The Atlas sorts them into its own Original / Replication tabs, so its counts reflect how FLoRA classifies each DOI rather than how your library tags it. If the list is too long for a single web address the DOIs are copied to the clipboard instead — paste them into the Atlas search field.
+    <html:strong>Open in FLoRA Atlas</html:strong> — opens the FLoRA Replication Atlas pre-loaded with the DOIs of every tracked item in the selected library: originals, replications and reproductions. The Atlas sorts them into its own Original / Replication tabs, so its counts reflect how FLoRA classifies each DOI rather than how your library tags it. The list is encrypted before it leaves Zotero, and the link stops working after 30 days. Anyone with the full link can see the list, so share it with care.
   </html:p>
+</groupbox>
+
+<!-- ── 3. BANNED REPLICATIONS ────────────────────────────────────────────── -->
+<groupbox>
+  <label>
+    <html:h2 id="pref-blacklist-title-label">Banned Replications</html:h2>
+  </label>
+
+  <html:p id="pref-blacklist-description-label" style="margin: 0 0 12px 0; font-size: 0.9em; color: #666;">
+    Manage replications you've banned from appearing in your library
+  </html:p>
+
+  <html:div id="blacklist-container" style="max-height: 300px; overflow-y: auto; border: 1px solid #999; margin-bottom: 8px; background-color: #ffffff;">
+    <html:table id="blacklist-table" style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+      <html:thead style="position: sticky; top: 0; background-color: #d3d3d3; border-bottom: 2px solid #666;">
+        <html:tr>
+          <html:th id="pref-blacklist-col-replication-label" style="padding: 8px; text-align: left; font-weight: bold; color: #000000; border-right: 1px solid #999;">Replication Article</html:th>
+          <html:th id="pref-blacklist-col-original-label"    style="padding: 8px; text-align: left; font-weight: bold; color: #000000; border-right: 1px solid #999;">Original Article</html:th>
+          <html:th id="pref-blacklist-col-type-label"        style="padding: 8px; text-align: center; font-weight: bold; color: #000000; width: 100px; border-right: 1px solid #999;">Type</html:th>
+          <html:th id="pref-blacklist-col-banned-label"      style="padding: 8px; text-align: center; font-weight: bold; color: #000000; width: 100px;">Banned On</html:th>
+        </html:tr>
+      </html:thead>
+      <html:tbody id="blacklist-list">
+        <html:tr id="blacklist-empty-row">
+          <html:td id="pref-blacklist-empty-label" colspan="4" style="padding: 20px; text-align: center; color: #999; font-style: italic;">
+            No banned replications
+          </html:td>
+        </html:tr>
+      </html:tbody>
+    </html:table>
+  </html:div>
+
+  <html:div style="display: flex; gap: 8px;">
+    <html:button id="blacklist-remove-btn" disabled="true">Remove Selected</html:button>
+    <html:button id="blacklist-clear-btn">Clear All Banned Replications</html:button>
+  </html:div>
+
+  <html:p id="pref-blacklist-hint-label" style="margin-top: 8px; font-size: 0.85em; color: #999;">
+    Banned replications will not be re-added during future checks. You can ban replications using the context menu.
+  </html:p>
+</groupbox>
+
+<!-- ── 4. COLLECTION NAMES ───────────────────────────────────────────────── -->
+<!-- Rows are filled in by initCollectionNamesUI() in hooks.ts. data-spec is an -->
+<!-- index into NAMED_SPECS in utils/collectionUtils.ts.                        -->
+<groupbox>
+  <label>
+    <html:h2 id="pref-collections-title-label">FLoRA Collection Names</html:h2>
+  </label>
+  <html:p id="pref-collections-description-label" style="margin: 0 0 12px 0; font-size: 0.9em; color: #666;">
+    Click the pencil to rename a collection, then the tick to save. Collections are renamed right away, and all items stay where they are.
+  </html:p>
+  <html:table id="collection-names-table" style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+    <html:tbody>
+      <html:tr data-spec="0"><html:td id="pref-root-folder-title-label" style="padding: 6px 12px 6px 0; width: 45%;">FLoRA Container Collection</html:td><html:td></html:td></html:tr>
+      <html:tr data-spec="1"><html:td id="pref-folder-title-label" style="padding: 6px 12px 6px 0;">Replication Folder Name</html:td><html:td></html:td></html:tr>
+      <html:tr data-spec="2"><html:td id="pref-repro-folder-title-label" style="padding: 6px 12px 6px 0;">Reproduction Folder Name</html:td><html:td></html:td></html:tr>
+      <html:tr data-spec="3"><html:td id="pref-originals-replication-folder-title-label" style="padding: 6px 12px 6px 0;">Originals Folder (linked to Replications)</html:td><html:td></html:td></html:tr>
+      <html:tr data-spec="4"><html:td id="pref-originals-reproduction-folder-title-label" style="padding: 6px 12px 6px 0;">Originals Folder (linked to Reproductions)</html:td><html:td></html:td></html:tr>
+    </html:tbody>
+  </html:table>
+  <html:p id="collection-names-error" role="alert" style="font-size: 0.85em; color: #c0392b; margin: 10px 0 0 0; display: none;"></html:p>
 </groupbox>
 
 <html:script><![CDATA[
@@ -321,6 +263,17 @@ function localizePrefs() {
   setLabel("autocheck-new-items",                "pref-autocheck-new-items");
   setText("pref-autocheck-new-items-hint-label", "pref-autocheck-new-items-hint");
 
+  setText("pref-autocheck-libraries-title-label", "pref-autocheck-libraries-title");
+  setLabel("autocheck-libraries-personal",        "pref-autocheck-libraries-personal");
+  setLabel("autocheck-libraries-groups",          "pref-autocheck-libraries-groups");
+  setLabel("autocheck-libraries-all",             "pref-autocheck-libraries-all");
+  setText("pref-autocheck-libraries-hint-label",  "pref-autocheck-libraries-hint");
+  setText("pref-group-add-title-label",           "pref-group-add-title");
+  setLabel("group-add-ask",                       "pref-group-add-ask");
+  setLabel("group-add-always",                    "pref-group-add-always");
+  setLabel("group-add-tags",                      "pref-group-add-tags");
+  setText("pref-group-add-hint-label",            "pref-group-add-hint");
+
   var noteEl = document.getElementById("pref-autocheck-note-label");
   if (noteEl && s["pref-autocheck-note"]) {
     noteEl.textContent = "";
@@ -345,56 +298,37 @@ function localizePrefs() {
   var clearBtn = document.getElementById("blacklist-clear-btn");
   if (clearBtn && s["pref-blacklist-clear"]) clearBtn.textContent = s["pref-blacklist-clear"];
 
-  // Folder names
-  setText("pref-root-folder-title-label",                         "pref-root-folder-title");
-  setText("pref-root-folder-description-label",                   "pref-root-folder-description");
-  setText("pref-root-folder-hint-label",                          "pref-root-folder-hint");
-  setText("pref-folder-title-label",                              "pref-folder-title");
-  setText("pref-folder-description-label",                        "pref-folder-description");
-  setText("pref-folder-hint-label",                               "pref-folder-hint");
-  setText("pref-repro-folder-title-label",                        "pref-repro-folder-title");
-  setText("pref-repro-folder-description-label",                  "pref-repro-folder-description");
-  setText("pref-repro-folder-hint-label",                         "pref-repro-folder-hint");
-  setText("pref-originals-replication-folder-title-label",        "pref-originals-replication-folder-title");
-  setText("pref-originals-replication-folder-description-label",  "pref-originals-replication-folder-description");
-  setText("pref-originals-replication-folder-hint-label",         "pref-originals-replication-folder-hint");
-  setText("pref-originals-reproduction-folder-title-label",       "pref-originals-reproduction-folder-title");
-  setText("pref-originals-reproduction-folder-description-label", "pref-originals-reproduction-folder-description");
-  setText("pref-originals-reproduction-folder-hint-label",        "pref-originals-reproduction-folder-hint");
+  // Collection names
+  setText("pref-collections-title-label",                   "pref-collections-title");
+  setText("pref-collections-description-label",             "pref-collections-description");
+  setText("pref-root-folder-title-label",                   "pref-root-folder-title");
+  setText("pref-folder-title-label",                        "pref-folder-title");
+  setText("pref-repro-folder-title-label",                  "pref-repro-folder-title");
+  setText("pref-originals-replication-folder-title-label",  "pref-originals-replication-folder-title");
+  setText("pref-originals-reproduction-folder-title-label", "pref-originals-reproduction-folder-title");
 }
 
 // ── Init ─────────────────────────────────────────────────────────────────────
-// NOTE: Stats (initStatsUI) and blacklist (initBlacklistUI) are fully managed
+// NOTE: Stats (initStatsUI), blacklist (initBlacklistUI) and collection names
+// (initCollectionNamesUI) are fully managed
 // by hooks.ts which has access to the complete Zotero API context. This script
 // only handles localisation of static strings.
-localizePrefs();
-
 Zotero.debug("[ReplicationChecker Prefs] Preference pane script executing");
 
-// initBlacklistUI and initStatsUI are called from setupPreferencePaneObserver
-// in hooks.ts once this pane's DOM is detected. The inline calls below serve
-// as a fallback for cases where the observer fires before the hooks run.
-if (Zotero.ReplicationChecker?.initBlacklistUI) {
-  Zotero.debug("[ReplicationChecker Prefs] Found initBlacklistUI, calling it");
-  Zotero.ReplicationChecker.initBlacklistUI(document);
-} else {
-  setTimeout(function() {
-    if (Zotero.ReplicationChecker?.initBlacklistUI) {
-      Zotero.ReplicationChecker.initBlacklistUI(document);
-    }
-  }, 500);
-}
-
-if (Zotero.ReplicationChecker?.initStatsUI) {
-  Zotero.debug("[ReplicationChecker Prefs] Found initStatsUI, calling it");
-  Zotero.ReplicationChecker.initStatsUI(document);
-} else {
-  setTimeout(function() {
-    if (Zotero.ReplicationChecker?.initStatsUI) {
-      Zotero.ReplicationChecker.initStatsUI(document);
-    }
-  }, 500);
-}
+// setupPreferencePaneObserver in hooks.ts also calls these, and each init
+// function ignores a second call. Settings can open before the plugin has
+// finished starting, so keep checking for up to 30 seconds.
+(function initPane(attempt) {
+  var rc = Zotero.ReplicationChecker;
+  if (rc && rc.initBlacklistUI && rc.initCollectionNamesUI && rc.initStatsUI) {
+    localizePrefs();
+    rc.initBlacklistUI(document);
+    rc.initCollectionNamesUI(document);
+    rc.initStatsUI(document);
+  } else if (attempt < 60) {
+    setTimeout(function () { initPane(attempt + 1); }, 500);
+  }
+})(0);
 ]]></html:script>
 
 </vbox>
