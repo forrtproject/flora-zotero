@@ -225,7 +225,7 @@ onboarding-tools-content =
     • Creates notes with details
     • Tags items by outcome
 
-    🏷️ Labels are a starting point, not a verdict:
+    🏷️ Treat labels as a starting point, not a verdict on the original:
     • They reflect how authors describe their results
     • A failed replication can reflect chance, low power, its own flaws, or changed conditions, not just a false original
 
