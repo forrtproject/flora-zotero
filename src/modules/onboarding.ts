@@ -27,8 +27,10 @@ import { getString } from "../utils/strings";
  *   v2 — Collections nested under one "FLoRA" container (existing libraries are
  *        migrated on first start); new "Your FLoRA Stats" screen covering the
  *        per-library stats pane, the library picker and the Replication Atlas.
+ *   v3 — Redesigned guide: shared group library settings, scheduled-check
+ *        libraries, encrypted Atlas links and the outcome-label caveat.
  */
-const ONBOARDING_VERSION = 2;
+const ONBOARDING_VERSION = 3;
 const ONBOARDING_PREF = "replication-checker.onboardingVersion";
 
 export class OnboardingManager {
