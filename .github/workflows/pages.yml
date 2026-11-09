@@ -99,7 +99,7 @@ jobs:
         run: |
           cat > docs/_config.yml << 'EOF'
           title: Zotero Replication Checker
-          description: Privacy-first plugin to discover replications from the FORRT Library of Replication Attempts (FLoRA)
+          description: Privacy-first plugin to discover replications from the FORRT Library of Reproduction and Replication Attempts (FLoRA)
           baseurl: /flora-zotero
 
           # Navigation
