@@ -5,9 +5,10 @@
 - **Collection names** are now a compact table in the preferences: edit a name, click the tick, and the collection is renamed straight away
 - Originals copied from a group library go into a `<Group> [Group-Library]` collection in your personal library, separate from the `[Read-Only]` ones
 - **Read-only libraries**: reproductions now ask before copying to your personal library, as replications already did
+- **Copy to My Library**: copied originals now get their outcome tags, and copying again updates the note instead of adding a second one
 - Items you already had are no longer tagged **Added by Replication Checker** when a check files them in a FLoRA collection
 - **Open in FLoRA Atlas** now sends your list as an encrypted set instead of putting DOIs in the web address. Only the link can unlock it, and it stops working after 30 days
-- New **onboarding guide**, available in every supported language
+- New **onboarding guide** for new installs, in every supported language. Existing users can open it any time from **Help → Replication Checker User Guide**
 - **Your FLoRA stats** reopen on the library you picked last, so group-library users no longer have to switch every time
 - The onboarding guide now reminds you that outcome labels are a starting point, not a verdict on the original study, in every supported language
 - Fixed the settings pane sometimes showing an empty banned list and collection names when opened while Zotero was still starting
