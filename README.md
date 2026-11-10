@@ -163,6 +163,8 @@ When a replication is in your library but its original is not, right-click the r
 
 The outcome comes from FLoRA's outcome field, which records how the replication's authors interpreted their results. The plugin turns the three outcomes, successful, failure and mixed, into tags so you can filter your library by them. The note shows the outcome for every replication.
 
+Treat an outcome as one piece of evidence, not a verdict. A failed replication can reflect low statistical power, chance, or differences from the original in population, setting, materials or procedure, so a single failure does not refute the original claim. A successful replication shows that the finding appeared again under similar conditions. If it copies the original design, it may also copy that design's weaknesses, such as an invalid measure or a narrow sample, so it does not show that the claim is valid or generalises. Several replications, and how closely each one matched the original, tell you more than any single outcome.
+
 ### Reproduction outcomes
 
 The outcome comes from FLoRA's outcome field. It combines two judgements: whether the original analysis produced the reported results (*computationally successful* or *computational issues*), and whether the results held up in robustness checks (*robust*, *robustness challenges* or *robustness not checked*). Each of the six combinations has a tag, for example `Reproduction: Computational Issues, Robustness Not Checked`. The note shows the outcome for every reproduction.
@@ -192,7 +194,7 @@ The plugin follows your Zotero language setting. It is available in:
 - Chinese, Simplified (zh-CN)
 - Korean (ko)
 
-Menus, dialogs, progress messages, tags, notes and the settings pane are translated, although a few newer messages and the "Original Articles" note are still in English. For example, `Is Replication` becomes `Ist Replikation` in German.
+Menus, dialogs, progress messages, tags, notes and the settings pane are translated, although a few newer messages and the "Original Articles" note are still in English.
 
 To add a language, see [LOCALIZATION.md](docs/LOCALIZATION.md): copy the English `.ftl` file and translate the strings, keeping the placeholders.
 
