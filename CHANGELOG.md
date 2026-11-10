@@ -6,6 +6,22 @@ Versions are listed newest-first.
 
 ---
 
+## [v0.1.15] - 2026-11-10
+- Fixed **scheduled library checks**: the daily, weekly and monthly checks used a single timer that restarted with Zotero, so a monthly check only ran after 30 days of uninterrupted uptime, and the 30-day delay exceeded the timer limit. The plugin now records when the last scheduled check ran and looks hourly whether the next one is due, so the schedule carries across restarts. After an update, the period is counted from the first start, so no full-library check starts unannounced
+- **Shared group libraries**: a check no longer adds replications and reproductions to a group library without asking. By default you can add them to the group, copy them to your personal library instead, or cancel. A new setting lets you always add, or add only tags and notes
+- **Scheduled checks** cover your personal library by default, whichever library is selected. A new setting can include group libraries you can edit
+- **Collection names** are now a compact table in the preferences: edit a name, click the tick, and the collection is renamed straight away
+- Originals copied from a group library go into a `<Group> [Group-Library]` collection in your personal library, separate from the `[Read-Only]` ones
+- **Read-only libraries**: reproductions now ask before copying to your personal library, as replications already did
+- **Copy to My Library**: copied originals now get their outcome tags, and copying again updates the note instead of adding a second one
+- Items you already had are no longer tagged **Added by Replication Checker** when a check files them in a FLoRA collection
+- **Open in FLoRA Atlas** now sends your list as an encrypted set instead of putting DOIs in the web address. Only the link can unlock it, and it stops working after 30 days
+- New **onboarding guide** for new installs, in every supported language. Existing users can open it any time from **Help → Replication Checker User Guide**
+- **Your FLoRA stats** reopen on the library you picked last, so group-library users no longer have to switch every time
+- The onboarding guide now reminds you that outcome labels are a starting point, not a verdict on the original study, in every supported language
+- Fixed the settings pane sometimes showing an empty banned list and collection names when opened while Zotero was still starting
+
+
 ## [v0.1.14] - 2026-08-28
 - Added **Zotero 10 support**: the plugin now loads in Zotero 10 (`strict_max_version` raised to a high sentinel so future majors are covered), with full backward compatibility for Zotero 7, 8 and 9
 - Fixed **Zotero 10 selection APIs**: Zotero 10 made `getSelectedCollection()` and `getSelectedLibraryID()` *throw* in favour of plural replacements, which broke the collection check, the library check and DOI extraction. A new compatibility layer prefers the plural API and falls back to the singular one, so a single build works across Zotero 7–10+
