@@ -7,7 +7,7 @@
 - **Read-only libraries**: reproductions now ask before copying to your personal library, as replications already did
 - Items you already had are no longer tagged **Added by Replication Checker** when a check files them in a FLoRA collection
 - **Open in FLoRA Atlas** now sends your list as an encrypted set instead of putting DOIs in the web address. Only the link can unlock it, and it stops working after 30 days
-- New **onboarding guide**, available in every supported language
+- New **onboarding tour** that points at the real Tools menu, right-click menu, a matched paper and each Settings section, in every supported language. If your library has no match yet, it shows a temporary example paper and removes it afterwards
 - **Your FLoRA stats** reopen on the library you picked last, so group-library users no longer have to switch every time
 - The onboarding guide now reminds you that outcome labels are a starting point, not a verdict on the original study, in every supported language
 - Fixed the settings pane sometimes showing an empty banned list and collection names when opened while Zotero was still starting
