@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://replicationChecker/content/onboarding.css" type="text/css"?>
 
+<!-- One screen of the tour. The rest of the tour runs as spotlights on the
+     main and Settings windows; see src/modules/onboarding.ts. -->
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         id="replication-checker-onboarding"
@@ -11,76 +13,17 @@
   <script>
     <![CDATA[
       let args;
-      let screens = [];
-      let current = 0;
       let finished = false;
-      let leaveTimer = null;
 
-      function finish(result) {
+      // action: "next" | "prev" | "skip" | "later" | "scan"
+      function finish(action) {
         finished = true;
-        args.onComplete(result);
+        args.onComplete(action);
         window.close();
       }
 
-      function render(direction, previous) {
-        const isLast = current === screens.length - 1;
-        const offerScan = isLast && args.showScanPrompt;
-
-        // The old screen stays up while it animates out, then is hidden.
-        clearTimeout(leaveTimer);
-        screens.forEach((screen, index) => {
-          screen.classList.remove("enter-next", "enter-prev", "leave-next", "leave-prev");
-          screen.hidden = index !== current && index !== previous;
-        });
-        const active = screens[current];
-        active.scrollTop = 0;
-        if (direction) {
-          active.classList.add(`enter-${direction}`);
-          if (previous !== undefined && previous !== current) {
-            screens[previous].classList.add(`leave-${direction}`);
-          }
-        }
-        leaveTimer = setTimeout(() => {
-          screens.forEach((screen, index) => {
-            screen.classList.remove("leave-next", "leave-prev");
-            if (index !== current) screen.hidden = true;
-          });
-        }, 240);
-
-        document.getElementById("progress-fill").style.width =
-          `${((current + 1) / screens.length) * 100}%`;
-        document.getElementById("step").textContent = args.getString("onboarding-step", {
-          current: current + 1,
-          total: screens.length,
-        });
-        for (const [index, dot] of [...document.querySelectorAll(".dot")].entries()) {
-          dot.classList.toggle("active", index === current);
-        }
-
-        document.getElementById("btn-back").disabled = current === 0;
-        document.getElementById("btn-later").hidden = !offerScan;
-        document.getElementById("btn-skip").hidden = isLast;
-        const nextBtn = document.getElementById("btn-next");
-        nextBtn.textContent = args.getString(
-          offerScan ? "onboarding-btn-scan" : isLast ? "onboarding-btn-done" : "onboarding-btn-next",
-        );
-        nextBtn.focus();
-      }
-
-      function next() {
-        if (current < screens.length - 1) {
-          current++;
-          render("next", current - 1);
-        } else {
-          finish({ completed: true, shouldScan: args.showScanPrompt });
-        }
-      }
-
-      function back() {
-        if (current > 0) {
-          current--;
-          render("prev", current + 1);
-        }
+      function show(id, visible) {
+        document.getElementById(id).hidden = !visible;
       }
 
       function init() {
@@ -92,40 +35,39 @@
         }
         document.getElementById("btn-close").setAttribute("aria-label", args.getString("onboarding-btn-close"));
 
-        // The closing "Ready to scan?" screen only makes sense when the scan is
-        // actually being offered, so User Guide mode and returning users drop it.
-        screens = [...document.querySelectorAll(".screen")];
-        if (!args.showScanPrompt) screens.pop();
+        // Only the requested screen is shown; "finish" has a scan and a done variant.
+        const screen = args.screen === "finish" ? (args.offerScan ? "scan" : "done") : args.screen;
+        for (const el of document.querySelectorAll(".screen")) el.hidden = el.id !== `screen-${screen}`;
 
-        const dots = document.getElementById("dots");
-        for (let i = 0; i < screens.length; i++) {
-          const dot = document.createElementNS("http://www.w3.org/1999/xhtml", "span");
-          dot.className = "dot";
-          dots.append(dot);
-        }
+        document.getElementById("progress-fill").style.width = `${(args.step / args.total) * 100}%`;
+        document.getElementById("step").textContent = `${args.step}/${args.total}`;
 
-        document.getElementById("btn-next").addEventListener("click", next);
-        document.getElementById("btn-back").addEventListener("click", back);
-        document.getElementById("btn-later").addEventListener("click",
-          () => finish({ completed: true, shouldScan: false }));
+        const nextBtn = document.getElementById("btn-next");
+        const nextKey = { welcome: "onboarding-btn-tour", know: "onboarding-btn-open-settings", scan: "onboarding-btn-scan", done: "onboarding-btn-done" }[screen];
+        nextBtn.textContent = args.getString(nextKey);
+        show("btn-back", screen === "know");
+        show("btn-later", screen === "welcome" || screen === "scan");
+        document.getElementById("btn-later").textContent =
+          args.getString(screen === "welcome" ? "onboarding-btn-remind" : "onboarding-btn-later");
+        show("btn-skip", screen === "welcome" || screen === "know");
+
+        nextBtn.addEventListener("click", () => finish(screen === "scan" ? "scan" : "next"));
+        document.getElementById("btn-back").addEventListener("click", () => finish("prev"));
+        // On the last screen "Not now" just ends the tour; on the first it asks again next start.
+        document.getElementById("btn-later").addEventListener("click", () => finish(screen === "welcome" ? "later" : "next"));
         for (const id of ["btn-skip", "btn-close"]) {
-          document.getElementById(id).addEventListener("click",
-            () => finish({ completed: false, shouldScan: false }));
+          document.getElementById(id).addEventListener("click", () => finish("skip"));
         }
-
         window.addEventListener("keydown", (event) => {
-          if (event.key === "Escape") finish({ completed: false, shouldScan: false });
-          // Left/right follow reading direction, so they swap in Arabic.
-          if (event.key === "ArrowRight") args.rtl ? back() : current < screens.length - 1 && next();
-          if (event.key === "ArrowLeft") args.rtl ? current < screens.length - 1 && next() : back();
+          if (event.key === "Escape") finish("skip");
         });
 
-        render("next");
+        nextBtn.focus();
       }
 
       // There is no title bar, but the window can still be closed by the OS.
       window.addEventListener("unload", () => {
-        if (!finished) args?.onComplete({ completed: false, shouldScan: false });
+        if (!finished) args?.onComplete("skip");
       });
       window.addEventListener("load", init);
     ]]>
@@ -142,7 +84,7 @@
 
     <html:main id="stage" aria-live="polite">
 
-      <html:section class="screen">
+      <html:section class="screen" id="screen-welcome">
         <html:div class="copy">
           <html:h1 data-str="onboarding-welcome-title"></html:h1>
           <html:p class="lead" data-str="onboarding-welcome-lead"></html:p>
@@ -170,78 +112,12 @@
         </html:div>
       </html:section>
 
-      <html:section class="screen" hidden="hidden">
-        <html:div class="copy">
-          <html:h1 data-str="onboarding-check-title"></html:h1>
-          <html:p class="lead" data-str="onboarding-check-lead"></html:p>
-          <html:div class="points">
-            <html:div class="point"><html:strong data-str="onboarding-check-library-title"></html:strong><html:span data-str="onboarding-check-library-body"></html:span></html:div>
-            <html:div class="point"><html:strong data-str="onboarding-check-auto-title"></html:strong><html:span data-str="onboarding-check-auto-body"></html:span></html:div>
-            <html:div class="point"><html:strong data-str="onboarding-check-original-title"></html:strong><html:span data-str="onboarding-check-original-body"></html:span></html:div>
-            <html:div class="point"><html:strong data-str="onboarding-check-ban-title"></html:strong><html:span data-str="onboarding-check-ban-body"></html:span></html:div>
-          </html:div>
-        </html:div>
-        <html:div class="visual">
-          <html:div class="mock menu">
-            <html:div class="menu-item active" data-str="replication-checker-tools-menu"></html:div>
-          </html:div>
-          <html:div class="mock menu">
-            <html:div class="menu-item active" data-str="replication-checker-context-menu"></html:div>
-            <html:div class="menu-item" data-str="replication-checker-context-menu-add-original"></html:div>
-            <html:div class="menu-item" data-str="replication-checker-context-menu-ban"></html:div>
-            <html:div class="menu-item" data-str="reproduction-checker-context-menu-ban"></html:div>
-          </html:div>
-        </html:div>
-      </html:section>
-
-      <html:section class="screen" hidden="hidden">
-        <html:div class="copy">
-          <html:h1 data-str="onboarding-results-title"></html:h1>
-          <html:p class="lead" data-str="onboarding-results-lead"></html:p>
-          <html:div class="points">
-            <html:div class="point"><html:strong data-str="onboarding-results-collection-title"></html:strong><html:span data-str="onboarding-results-collection-body"></html:span></html:div>
-            <html:div class="point"><html:strong data-str="onboarding-results-notes-title"></html:strong><html:span data-str="onboarding-results-notes-body"></html:span></html:div>
-            <html:div class="point"><html:strong data-str="onboarding-results-tags-title"></html:strong><html:span data-str="onboarding-results-tags-body"></html:span></html:div>
-            <html:div class="point"><html:strong data-str="onboarding-results-links-title"></html:strong><html:span data-str="onboarding-results-links-body"></html:span></html:div>
-          </html:div>
-        </html:div>
-        <html:div class="visual">
-          <html:div class="mock">
-            <html:div class="tree-row parent">FLoRA</html:div>
-            <html:div class="tree-row child">FLoRA Replications</html:div>
-            <html:div class="tree-row child">FLoRA Reproductions</html:div>
-            <html:div class="tree-row child">FLoRA Originals linked to Replications</html:div>
-            <html:div class="tree-row child">FLoRA Originals linked to Reproductions</html:div>
-          </html:div>
-          <html:div class="mock">
-            <html:div class="note-row" data-str="replication-checker-note-title"></html:div>
-            <html:div class="note-row" data-str="reproduction-checker-note-title"></html:div>
-          </html:div>
-          <html:div class="mock">
-            <html:div class="tags flush">
-              <html:span class="tag" data-str="replication-checker-tag-has-been-replicated"></html:span>
-              <html:span class="tag" data-str="replication-checker-tag-is-replication"></html:span>
-              <html:span class="tag success" data-str="replication-checker-tag-success"></html:span>
-              <html:span class="tag failure" data-str="replication-checker-tag-failure"></html:span>
-              <html:span class="tag mixed" data-str="replication-checker-tag-mixed"></html:span>
-              <html:span class="tag" data-str="replication-checker-tag-has-been-reproduced"></html:span>
-              <html:span class="tag" data-str="reproduction-checker-tag-is-reproduction"></html:span>
-              <html:span class="tag" data-str="replication-checker-tag-in-flora"></html:span>
-              <html:span class="tag" data-str="replication-checker-tag-added-by-checker"></html:span>
-            </html:div>
-          </html:div>
-        </html:div>
-      </html:section>
-
-      <html:section class="screen stacked" hidden="hidden">
+      <html:section class="screen stacked" id="screen-know" hidden="hidden">
         <html:h1 data-str="onboarding-features-title"></html:h1>
-        <html:p class="lead" data-str="onboarding-features-lead"></html:p>
         <html:div class="tiles">
-          <html:div class="tile"><html:strong data-str="onboarding-features-privacy-title"></html:strong><html:span data-str="onboarding-features-privacy-body"></html:span></html:div>
           <html:div class="tile new"><html:div class="tile-head"><html:strong data-str="onboarding-features-groups-title"></html:strong><html:em class="badge" data-str="onboarding-features-new"></html:em></html:div><html:span data-str="onboarding-features-groups-body"></html:span></html:div>
-          <html:div class="tile"><html:strong data-str="onboarding-features-autocheck-title"></html:strong><html:span data-str="onboarding-features-autocheck-body"></html:span></html:div>
           <html:div class="tile"><html:strong data-str="onboarding-features-readonly-title"></html:strong><html:span data-str="onboarding-features-readonly-body"></html:span></html:div>
-          <html:div class="tile"><html:strong data-str="onboarding-features-banned-title"></html:strong><html:span data-str="onboarding-features-banned-body"></html:span></html:div>
+          <html:div class="tile"><html:strong data-str="onboarding-features-privacy-title"></html:strong><html:span data-str="onboarding-features-privacy-body"></html:span></html:div>
           <html:div class="tile"><html:strong data-str="onboarding-features-verdict-title"></html:strong><html:span data-str="onboarding-features-verdict-body"></html:span></html:div>
           <html:div class="tile languages">
             <html:div><html:strong data-str="onboarding-features-languages-title"></html:strong><html:span data-str="onboarding-features-languages-body"></html:span></html:div>
@@ -257,43 +133,26 @@
         </html:div>
       </html:section>
 
-      <html:section class="screen" hidden="hidden">
-        <html:div class="copy">
-          <html:h1 data-str="onboarding-atlas-title"></html:h1>
-          <html:p class="lead" data-str="onboarding-atlas-lead"></html:p>
-          <html:div class="points">
-            <html:div class="point"><html:strong data-str="onboarding-atlas-stats-title"></html:strong><html:span data-str="onboarding-atlas-stats-body"></html:span></html:div>
-            <html:div class="point"><html:strong data-str="onboarding-atlas-open-title"></html:strong><html:span data-str="onboarding-atlas-open-body"></html:span></html:div>
-          </html:div>
-        </html:div>
-        <html:div class="visual">
-          <html:div class="mock">
-            <html:div class="mock-kicker" data-str="pref-stats-title"></html:div>
-            <html:div class="stat"><html:span data-str="pref-stats-has-replication"></html:span><html:b>42</html:b></html:div>
-            <html:div class="stat"><html:span data-str="pref-stats-has-reproduction"></html:span><html:b>7</html:b></html:div>
-            <html:div class="stat"><html:span data-str="pref-stats-is-replication"></html:span><html:b>18</html:b></html:div>
-            <html:div class="fake-btn" data-str="pref-stats-open-atlas"></html:div>
-          </html:div>
-        </html:div>
-      </html:section>
-
-      <html:section class="screen single" hidden="hidden">
-        <html:img id="scan-icon" src="chrome://replicationChecker/content/icons/favicon.png" alt=""/>
+      <html:section class="screen single" id="screen-scan" hidden="hidden">
+        <html:img class="scan-icon" src="chrome://replicationChecker/content/icons/favicon.png" alt=""/>
         <html:h1 data-str="onboarding-scan-title"></html:h1>
         <html:p class="lead" data-str="onboarding-scan-lead"></html:p>
         <html:p class="note" data-str="onboarding-scan-note"></html:p>
+      </html:section>
+
+      <html:section class="screen single" id="screen-done" hidden="hidden">
+        <html:img class="scan-icon" src="chrome://replicationChecker/content/icons/favicon.png" alt=""/>
+        <html:h1 data-str="onboarding-done-title"></html:h1>
+        <html:p class="lead" data-str="onboarding-done-lead"></html:p>
       </html:section>
 
     </html:main>
 
     <html:footer id="footer">
       <html:div id="footer-start"><html:button id="btn-back" class="btn" data-str="onboarding-btn-back"></html:button></html:div>
-      <html:div id="step-area">
-        <html:div id="dots" aria-hidden="true"></html:div>
-        <html:div id="step"></html:div>
-      </html:div>
+      <html:div id="step-area"><html:div id="step"></html:div></html:div>
       <html:div id="footer-end">
-        <html:button id="btn-later" class="btn" data-str="onboarding-btn-later" hidden="hidden"></html:button>
+        <html:button id="btn-later" class="btn"></html:button>
         <html:button id="btn-next" class="btn primary"></html:button>
       </html:div>
     </html:footer>

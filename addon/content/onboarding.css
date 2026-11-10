@@ -21,7 +21,6 @@
   --on-primary: #fff;
   --success: #15803d;
   --success-bg: #f0fdf4;
-  --shift: 48px;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --font-display: "Domine", Georgia, "Times New Roman", serif;
   --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
@@ -173,7 +172,19 @@
 }
 
 .screen.stacked {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Worth knowing: four tiles in two even rows, so no gap is left beside the last one. */
+#screen-know .tiles {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+#screen-know .tile {
+  padding: 14px 18px;
 }
 
 h1 {
@@ -446,7 +457,7 @@ h1 {
   text-align: center;
 }
 
-#scan-icon {
+.scan-icon {
   width: 72px;
   height: 72px;
   margin-bottom: 16px;
@@ -478,24 +489,6 @@ h1 {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-}
-
-#dots {
-  display: flex;
-  gap: 7px;
-}
-
-.dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 999px;
-  background: var(--border);
-  transition: width 0.24s var(--ease), background-color 0.24s var(--ease);
-}
-
-.dot.active {
-  width: 24px;
-  background: var(--primary);
 }
 
 #step {
@@ -543,40 +536,7 @@ button:focus-visible {
   outline-color: var(--bar-text);
 }
 
-/* Moving between steps: the old screen fades away while the new one slides in,
-   then its parts settle one after another. */
-#app[dir="rtl"] {
-  --shift: -48px;
-}
-
-@keyframes enter-next {
-  from {
-    opacity: 0;
-    transform: translateX(var(--shift));
-  }
-}
-
-@keyframes enter-prev {
-  from {
-    opacity: 0;
-    transform: translateX(calc(var(--shift) * -1));
-  }
-}
-
-@keyframes leave-next {
-  to {
-    opacity: 0;
-    transform: translateX(calc(var(--shift) * -0.5));
-  }
-}
-
-@keyframes leave-prev {
-  to {
-    opacity: 0;
-    transform: translateX(calc(var(--shift) * 0.5));
-  }
-}
-
+/* Each screen's parts settle in one after another when it opens. */
 @keyframes settle {
   from {
     opacity: 0;
@@ -584,37 +544,19 @@ button:focus-visible {
   }
 }
 
-.screen.enter-next {
-  animation: enter-next 0.36s var(--ease);
-}
-
-.screen.enter-prev {
-  animation: enter-prev 0.36s var(--ease);
-}
-
-.screen.leave-next {
-  animation: leave-next 0.22s ease-in forwards;
-  pointer-events: none;
-}
-
-.screen.leave-prev {
-  animation: leave-prev 0.22s ease-in forwards;
-  pointer-events: none;
-}
-
-:is(.enter-next, .enter-prev) :is(.point, .tile, .mock) {
+.screen :is(.point, .tile, .mock) {
   animation: settle 0.42s var(--ease) both;
 }
 
-:is(.enter-next, .enter-prev) :is(.point, .tile, .mock):nth-child(2) {
+.screen :is(.point, .tile, .mock):nth-child(2) {
   animation-delay: 0.06s;
 }
 
-:is(.enter-next, .enter-prev) :is(.point, .tile, .mock):nth-child(3) {
+.screen :is(.point, .tile, .mock):nth-child(3) {
   animation-delay: 0.12s;
 }
 
-:is(.enter-next, .enter-prev) :is(.point, .tile, .mock):nth-child(n + 4) {
+.screen :is(.point, .tile, .mock):nth-child(n + 4) {
   animation-delay: 0.18s;
 }
 

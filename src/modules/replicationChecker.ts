@@ -2244,7 +2244,7 @@ export class ReplicationCheckerPlugin {
   /**
    * Format replication data as HTML note
    */
-  private createReplicationNote(replications: any[]): string {
+  createReplicationNote(replications: any[]): string {
     const warning = escapeHtml(getString("replication-checker-note-warning"));
     const intro = escapeHtml(getString("replication-checker-note-intro"));
     const feedbackHtml = getString("replication-checker-note-feedback", { url: FEEDBACK_URL });

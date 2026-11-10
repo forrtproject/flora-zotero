@@ -250,6 +250,9 @@ export async function onStartup() {
     // Move collections created by older versions into the "FLoRA" container
     await migrateCollectionsToRoot();
 
+    // A tour cut short by quitting Zotero leaves its example item behind.
+    await onboardingManager.removeExamples();
+
     // Initialize the replication checker plugin
     await replicationChecker.init(rootURI);
 
@@ -266,6 +269,7 @@ export async function onStartup() {
     (Zotero as any).ReplicationChecker.blacklistManager = blacklistManager;
     (Zotero as any).ReplicationChecker.reproductionHandler =
       reproductionHandler;
+    (Zotero as any).ReplicationChecker.onboardingManager = onboardingManager;
 
     // Expose preference pane UI initializers globally
     (Zotero as any).ReplicationChecker.initBlacklistUI = initBlacklistUI;
