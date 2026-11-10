@@ -185,7 +185,7 @@ replication-checker-note-warning = 此笔记为自动生成。如果您对其进
 replication-checker-note-intro = 本研究已被重复验证：
 replication-checker-note-feedback = 您觉得此结果有用吗？请在<a href="{ $url }" target="_blank">此处</a>提供反馈！
 replication-checker-note-data-issues = 您发现数据中有任何问题吗？请在<a href="{ $url }" target="_blank">此处</a>反馈！
-replication-checker-note-footer = 由 Zotero Replication Checker 使用 FORRT 文献数据库（FLoRA）生成
+replication-checker-note-footer = 由 Zotero Replication Checker 使用 FLoRA（FORRT Library of Reproduction and Replication Attempts）生成
 
 ## Replication Item Details
 replication-checker-li-no-title = 无可用标题
@@ -201,7 +201,7 @@ replication-checker-prompt-title = 欢迎使用 Zotero Replication Checker！
 replication-checker-prompt-first-run =
     感谢安装 Zotero Replication Checker！
 
-    此插件通过对照 FORRT 文献数据库（FLoRA）检查您的文献库条目，帮助您发现相关的重复研究。
+    此插件通过对照 FLoRA（FORRT Library of Reproduction and Replication Attempts）检查您的文献库条目，帮助您发现相关的重复研究。
 
     是否现在扫描您的文献库以查找重复研究？
 
@@ -250,7 +250,7 @@ onboarding-features-verdict-body = 标签反映作者如何描述其结果。重
 onboarding-features-languages-title = 6 种语言
 onboarding-features-languages-body = 跟随 Zotero 的语言。
 onboarding-welcome-title = 您文献库中的研究被重复过吗？
-onboarding-welcome-lead = Replication Checker 将您的文献库与 FLoRA（FORRT Literature Database）比对，显示哪些论文已被重复或复现。
+onboarding-welcome-lead = Replication Checker 将您的文献库与 FLoRA（FORRT Library of Reproduction and Replication Attempts）比对，显示哪些论文已被重复或复现。
 onboarding-welcome-tags-title = 标签
 onboarding-welcome-tags-body = 查看哪些论文有重复研究及其结果。
 onboarding-welcome-notes-title = 笔记
@@ -302,7 +302,7 @@ reproduction-checker-note-warning = 此笔记为自动生成。如果您对其�
 reproduction-checker-note-intro = 本研究已被重复验证（复现）：
 reproduction-checker-note-feedback = 您觉得此结果有用吗？请在<a href="{ $url }" target="_blank">此处</a>提供反馈！
 reproduction-checker-note-data-issues = 您发现数据中有任何问题吗？请在<a href="{ $url }" target="_blank">此处</a>反馈！
-reproduction-checker-note-footer = 由 Zotero Replication Checker 使用 FORRT 文献数据库（FLoRA）生成
+reproduction-checker-note-footer = 由 Zotero Replication Checker 使用 FLoRA（FORRT Library of Reproduction and Replication Attempts）生成
 
 ## Reproduction Feature - Item Details
 reproduction-checker-li-no-title = 无可用标题

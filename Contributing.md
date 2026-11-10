@@ -1,4 +1,4 @@
-# Contributing to the Zotero Replication Checker
+# Contributing to Replication Checker for Zotero
 
 We welcome bug reports, suggestions, translations, documentation, tests, and code contributions. Follow the [FORRT Code of Conduct](https://forrt.org/coc/). For broader involvement, [get in touch with FORRT](https://forrt.org/about/get-involved/).
 

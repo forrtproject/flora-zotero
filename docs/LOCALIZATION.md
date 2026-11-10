@@ -18,6 +18,7 @@ Currently supported languages:
 - **French (fr)**: `addon/locale/fr/replication-checker.ftl` ✅
 - **Spanish (es)**: `addon/locale/es/replication-checker.ftl` ✅
 - **Portuguese - Brazil (pt-BR)**: `addon/locale/pt-BR/replication-checker.ftl` ✅
+- **Portuguese - Portugal (pt-PT)**: `addon/locale/pt-PT/replication-checker.ftl` ✅
 - **Arabic (ar)**: `addon/locale/ar/replication-checker.ftl` ✅
 - **Chinese Simplified (zh-CN)**: `addon/locale/zh-CN/replication-checker.ftl` ✅
 - **Korean (ko)**: `addon/locale/ko/replication-checker.ftl` ✅
@@ -110,7 +111,7 @@ replication-checker-readonly-dialog-message =
 Tags and notes are also localized! When a user has Zotero set to German, they will see:
 
 **Tags:**
-- "Has Replication" → "Hat Replikation"
+- "Has Been Replicated" → "Wurde repliziert"
 - "Is Replication" → "Ist Replikation"
 - "Original present in Read-Only Library" → "Original in schreibgeschützter Bibliothek vorhanden"
 

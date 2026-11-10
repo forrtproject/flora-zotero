@@ -185,7 +185,7 @@ replication-checker-note-warning = Esta nota es generada automáticamente. Si la
 replication-checker-note-intro = Este estudio ha sido replicado:
 replication-checker-note-feedback = ¿Encontró útil este resultado? Proporcione comentarios <a href="{ $url }" target="_blank">aquí</a>!
 replication-checker-note-data-issues = ¿Encontró algún problema en los datos? Por favor repórtelo <a href="{ $url }" target="_blank">aquí</a>!
-replication-checker-note-footer = Generado por Zotero Replication Checker usando la Base de datos de literatura FORRT (FLoRA)
+replication-checker-note-footer = Generado por Zotero Replication Checker usando FLoRA (FORRT Library of Reproduction and Replication Attempts)
 
 ## Replication Item Details
 replication-checker-li-no-title = Sin título disponible
@@ -201,7 +201,7 @@ replication-checker-prompt-title = ¡Bienvenido a Zotero Replication Checker!
 replication-checker-prompt-first-run =
     ¡Gracias por instalar Zotero Replication Checker!
 
-    Este complemento le ayuda a descubrir estudios de replicación para su investigación verificando los elementos de su biblioteca en la Base de datos de literatura FORRT (FLoRA).
+    Este complemento le ayuda a descubrir estudios de replicación para su investigación verificando los elementos de su biblioteca en FLoRA (FORRT Library of Reproduction and Replication Attempts).
 
     ¿Desea analizar su biblioteca en busca de replicaciones ahora?
 
@@ -250,7 +250,7 @@ onboarding-features-verdict-body = Las etiquetas reflejan cómo los autores desc
 onboarding-features-languages-title = 6 idiomas
 onboarding-features-languages-body = Sigue el idioma de Zotero.
 onboarding-welcome-title = ¿Se ha replicado algo de tu biblioteca?
-onboarding-welcome-lead = Replication Checker compara tu biblioteca con FLoRA, la FORRT Literature Database, y muestra qué artículos se han replicado o reproducido.
+onboarding-welcome-lead = Replication Checker compara tu biblioteca con FLoRA, la FORRT Library of Reproduction and Replication Attempts, y muestra qué artículos se han replicado o reproducido.
 onboarding-welcome-tags-title = Etiquetas
 onboarding-welcome-tags-body = Comprueba qué artículos tienen replicaciones y cuál fue su resultado.
 onboarding-welcome-notes-title = Notas
@@ -302,7 +302,7 @@ reproduction-checker-note-warning = Esta nota es generada automáticamente. Si l
 reproduction-checker-note-intro = Este estudio ha sido reproducido:
 reproduction-checker-note-feedback = ¿Encontró útil este resultado? Proporcione comentarios <a href="{ $url }" target="_blank">aquí</a>!
 reproduction-checker-note-data-issues = ¿Encontró algún problema en los datos? Por favor repórtelo <a href="{ $url }" target="_blank">aquí</a>!
-reproduction-checker-note-footer = Generado por Zotero Replication Checker usando la Base de datos de literatura FORRT (FLoRA)
+reproduction-checker-note-footer = Generado por Zotero Replication Checker usando FLoRA (FORRT Library of Reproduction and Replication Attempts)
 
 ## Reproduction Feature - Item Details
 reproduction-checker-li-no-title = Sin título disponible

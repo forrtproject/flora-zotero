@@ -24,6 +24,8 @@
   "scripts": {
     "start": "zotero-plugin serve",
     "build": "zotero-plugin build && tsc --noEmit",
+    "site:preview": "python scripts/preview-pages.py",
+    "site:build": "bash scripts/build-site.sh _site",
     "lint:check": "prettier --check . && eslint .",
     "lint:fix": "prettier --write . && eslint . --fix",
     "release": "zotero-plugin release",

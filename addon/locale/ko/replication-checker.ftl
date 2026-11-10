@@ -185,7 +185,7 @@ replication-checker-note-warning = 이 메모는 자동으로 생성됩니다. �
 replication-checker-note-intro = 이 연구는 복제되었습니다:
 replication-checker-note-feedback = 이 결과가 유용하셨나요? <a href="{ $url }" target="_blank">여기</a>에서 피드백을 남겨주세요!
 replication-checker-note-data-issues = 데이터에서 문제를 발견하셨나요? <a href="{ $url }" target="_blank">여기</a>에 신고해 주세요!
-replication-checker-note-footer = FORRT 문헌 데이터베이스(FLoRA)를 사용하는 Zotero Replication Checker에 의해 생성됨
+replication-checker-note-footer = FLoRA(FORRT Library of Reproduction and Replication Attempts)를 사용하는 Zotero Replication Checker에 의해 생성됨
 
 ## Replication Item Details
 replication-checker-li-no-title = 제목 없음
@@ -201,7 +201,7 @@ replication-checker-prompt-title = Zotero Replication Checker에 오신 것을 �
 replication-checker-prompt-first-run =
     Zotero Replication Checker를 설치해 주셔서 감사합니다!
 
-    이 플러그인은 FORRT 문헌 데이터베이스(FLoRA)에 대해 라이브러리 항목을 확인하여 연구에 대한 복제 연구를 발견하는 데 도움을 줍니다.
+    이 플러그인은 FLoRA(FORRT Library of Reproduction and Replication Attempts)에 대해 라이브러리 항목을 확인하여 연구에 대한 복제 연구를 발견하는 데 도움을 줍니다.
 
     지금 라이브러리에서 복제 연구를 스캔하시겠습니까?
 
@@ -250,7 +250,7 @@ onboarding-features-verdict-body = 태그는 저자가 결과를 기술하는 �
 onboarding-features-languages-title = 6개 언어
 onboarding-features-languages-body = Zotero 언어를 따릅니다.
 onboarding-welcome-title = 내 라이브러리의 연구가 재현된 적이 있을까요?
-onboarding-welcome-lead = Replication Checker는 라이브러리를 FLoRA(FORRT Literature Database)와 비교하여 어떤 논문이 반복 검증되거나 재현되었는지 보여 줍니다.
+onboarding-welcome-lead = Replication Checker는 라이브러리를 FLoRA(FORRT Library of Reproduction and Replication Attempts)와 비교하여 어떤 논문이 반복 검증되거나 재현되었는지 보여 줍니다.
 onboarding-welcome-tags-title = 태그
 onboarding-welcome-tags-body = 어떤 논문에 반복 연구가 있고 결과가 어땠는지 확인하세요.
 onboarding-welcome-notes-title = 노트
@@ -302,7 +302,7 @@ reproduction-checker-note-warning = 이 메모는 자동으로 생성됩니다. 
 reproduction-checker-note-intro = 이 연구는 재현되었습니다:
 reproduction-checker-note-feedback = 이 결과가 유용하셨나요? <a href="{ $url }" target="_blank">여기</a>에서 피드백을 남겨주세요!
 reproduction-checker-note-data-issues = 데이터에서 문제를 발견하셨나요? <a href="{ $url }" target="_blank">여기</a>에 신고해 주세요!
-reproduction-checker-note-footer = FORRT 문헌 데이터베이스(FLoRA)를 사용하는 Zotero Replication Checker에 의해 생성됨
+reproduction-checker-note-footer = FLoRA(FORRT Library of Reproduction and Replication Attempts)를 사용하는 Zotero Replication Checker에 의해 생성됨
 
 ## Reproduction Feature - Item Details
 reproduction-checker-li-no-title = 제목 없음

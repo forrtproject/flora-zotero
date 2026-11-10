@@ -2,7 +2,7 @@
 
 This guide explains how to create builds and releases for the Zotero Replication Checker plugin.
 
-## 🔄 Automatic Builds (For Testing)
+## Automatic Builds (For Testing)
 
 **When:** On every push to any branch
 
@@ -22,7 +22,7 @@ This guide explains how to create builds and releases for the Zotero Replication
 
 ---
 
-## 🚀 Creating Releases
+## Creating Releases
 
 ### Method 1: Git Tag (Recommended)
 
@@ -72,7 +72,7 @@ This guide explains how to create builds and releases for the Zotero Replication
 
 ---
 
-## 📦 Release Artifacts
+## Release Artifacts
 
 Each release includes:
 
@@ -81,7 +81,7 @@ Each release includes:
 
 ---
 
-## 🏷️ Version Naming
+## Version Naming
 
 **Format:** `v[MAJOR].[MINOR].[PATCH]`
 
@@ -99,7 +99,7 @@ Each release includes:
 
 ---
 
-## 📝 Release Checklist
+## Release Checklist
 
 Before creating a release:
 
@@ -117,7 +117,7 @@ Before creating a release:
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Build fails in GitHub Actions
 
@@ -142,7 +142,7 @@ Before creating a release:
 
 ---
 
-## 🎯 Quick Reference
+## Quick Reference
 
 ```bash
 # Local build
@@ -166,7 +166,7 @@ git push origin v0.4.0
 
 ---
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
 - [Semantic Versioning](https://semver.org/)

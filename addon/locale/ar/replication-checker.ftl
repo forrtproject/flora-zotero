@@ -185,7 +185,7 @@ replication-checker-note-warning = يتم إنشاء هذه الملاحظة ت�
 replication-checker-note-intro = تمت دراسة هذا البحث بصورة مكررة:
 replication-checker-note-feedback = هل وجدت هذه النتيجة مفيدة؟ قدّم ملاحظاتك <a href="{ $url }" target="_blank">هنا</a>!
 replication-checker-note-data-issues = هل وجدت أي مشاكل في البيانات؟ يرجى الإبلاغ عنها <a href="{ $url }" target="_blank">هنا</a>!
-replication-checker-note-footer = تم إنشاؤه بواسطة Zotero Replication Checker باستخدام قاعدة بيانات الأدبيات FORRT (FLoRA)
+replication-checker-note-footer = تم إنشاؤه بواسطة Zotero Replication Checker باستخدام FLoRA (FORRT Library of Reproduction and Replication Attempts)
 
 ## Replication Item Details
 replication-checker-li-no-title = لا يوجد عنوان متاح
@@ -201,7 +201,7 @@ replication-checker-prompt-title = مرحباً بك في Zotero Replication Che
 replication-checker-prompt-first-run =
     شكراً لتثبيت Zotero Replication Checker!
 
-    يساعدك هذا الملحق في اكتشاف دراسات التكرار لأبحاثك من خلال فحص عناصر مكتبتك مقابل قاعدة بيانات الأدبيات FORRT (FLoRA).
+    يساعدك هذا الملحق في اكتشاف دراسات التكرار لأبحاثك من خلال فحص عناصر مكتبتك مقابل FLoRA (FORRT Library of Reproduction and Replication Attempts).
 
     هل تريد مسح مكتبتك بحثاً عن التكرارات الآن؟
 
@@ -250,7 +250,7 @@ onboarding-features-verdict-body = تعكس العلامات كيف يصف ال�
 onboarding-features-languages-title = 6 لغات
 onboarding-features-languages-body = تتبع لغة Zotero.
 onboarding-welcome-title = هل تم تكرار أي دراسة في مكتبتك؟
-onboarding-welcome-lead = يقارن Replication Checker مكتبتك بقاعدة FLoRA (FORRT Literature Database) ويُظهر الأبحاث التي جرى تكرارها أو إعادة إنتاجها.
+onboarding-welcome-lead = يقارن Replication Checker مكتبتك بقاعدة FLoRA (FORRT Library of Reproduction and Replication Attempts) ويُظهر الأبحاث التي جرى تكرارها أو إعادة إنتاجها.
 onboarding-welcome-tags-title = الوسوم
 onboarding-welcome-tags-body = اعرف الأبحاث التي لها دراسات تكرار وما كانت نتائجها.
 onboarding-welcome-notes-title = الملاحظات
@@ -302,7 +302,7 @@ reproduction-checker-note-warning = يتم إنشاء هذه الملاحظة ت
 reproduction-checker-note-intro = تمت دراسة هذا البحث باستنساخه:
 reproduction-checker-note-feedback = هل وجدت هذه النتيجة مفيدة؟ قدّم ملاحظاتك <a href="{ $url }" target="_blank">هنا</a>!
 reproduction-checker-note-data-issues = هل وجدت أي مشاكل في البيانات؟ يرجى الإبلاغ عنها <a href="{ $url }" target="_blank">هنا</a>!
-reproduction-checker-note-footer = تم إنشاؤه بواسطة Zotero Replication Checker باستخدام قاعدة بيانات الأدبيات FORRT (FLoRA)
+reproduction-checker-note-footer = تم إنشاؤه بواسطة Zotero Replication Checker باستخدام FLoRA (FORRT Library of Reproduction and Replication Attempts)
 
 ## Reproduction Feature - Item Details
 reproduction-checker-li-no-title = لا يوجد عنوان متاح
