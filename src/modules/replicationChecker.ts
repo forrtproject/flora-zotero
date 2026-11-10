@@ -2921,14 +2921,13 @@ export class ReplicationCheckerPlugin {
         }
       });
 
-      // Create notes OUTSIDE the transaction (addNote uses saveTx which can't be nested)
+      // Outside the transaction (it uses saveTx). The same step as a normal check:
+      // outcome tags on the copied original, and an existing note updated, not duplicated.
       for (const { itemID, replications } of itemsNeedingNotes) {
         try {
-          const noteHTML = this.createReplicationNote(replications);
-          await ZoteroIntegration.addNote(itemID, noteHTML);
-          Zotero.debug(`[ReplicationChecker] Created replication note for copied original ${itemID}`);
+          await this.notifyUser(itemID, replications);
         } catch (noteError) {
-          Zotero.debug(`[ReplicationChecker] Failed to create note for item ${itemID}: ${noteError}`);
+          Zotero.debug(`[ReplicationChecker] Failed to tag or note copied original ${itemID}: ${noteError}`);
         }
       }
 

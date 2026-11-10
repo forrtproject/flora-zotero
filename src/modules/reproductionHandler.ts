@@ -1017,14 +1017,13 @@ export class ReproductionHandler {
         }
       });
 
-      // Create notes OUTSIDE the transaction (addNote uses saveTx which can't be nested)
+      // Outside the transaction (it uses saveTx). The same step as a normal check:
+      // outcome tags on the copied original, and an existing note updated, not duplicated.
       for (const { itemID, reproductions } of itemsNeedingNotes) {
         try {
-          const noteHTML = this.createReproductionNote(reproductions);
-          await ZoteroIntegration.addNote(itemID, noteHTML);
-          Zotero.debug(`[ReproductionHandler] Created reproduction note for copied original ${itemID}`);
+          await this.notifyUserAboutReproductions(itemID, reproductions);
         } catch (noteError) {
-          Zotero.debug(`[ReproductionHandler] Failed to create note for item ${itemID}: ${noteError}`);
+          Zotero.debug(`[ReproductionHandler] Failed to tag or note copied original ${itemID}: ${noteError}`);
         }
       }
 

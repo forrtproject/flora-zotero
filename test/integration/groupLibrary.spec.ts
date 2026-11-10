@@ -111,7 +111,10 @@ describe("Group libraries and settings", function () {
     await apply(group.libraryID, original.id);
 
     assert.lengthOf(await findReplication(group.libraryID), 1);
-    assert.isAbove(Zotero.Collections.getByLibrary(group.libraryID, true).length, 0);
+    assert.isAbove(
+      Zotero.Collections.getByLibrary(group.libraryID, true).length,
+      0,
+    );
   });
 
   it("tags-only adds tags and a note but no items or collections", async function () {
@@ -123,7 +126,10 @@ describe("Group libraries and settings", function () {
     await apply(group.libraryID, original.id);
 
     const updated = (await Zotero.Items.getAsync(original.id))!;
-    assert.include(updated.getTags().map((t: any) => t.tag), "Has Been Replicated");
+    assert.include(
+      updated.getTags().map((t: any) => t.tag),
+      "Has Been Replicated",
+    );
     assert.lengthOf(updated.getNotes(), 1);
     assert.lengthOf(await findReplication(group.libraryID), 0);
     assert.lengthOf(Zotero.Collections.getByLibrary(group.libraryID, true), 0);
@@ -154,10 +160,14 @@ describe("Group libraries and settings", function () {
     assert.exists(collection);
     const copies = collection!.getChildItems() as Zotero.Item[];
     assert.lengthOf(copies, 1);
-    assert.notInclude(
-      copies[0].getTags().map((t: any) => t.tag),
-      "Original present in Read-Only Library",
-    );
+    const tags = copies[0].getTags().map((t: any) => t.tag);
+    assert.notInclude(tags, "Original present in Read-Only Library");
+    // The copy gets the outcome tag, as an original checked in place does.
+    assert.include(tags, "Replication: Successful");
+
+    // Copying again updates the note instead of adding a second one.
+    await apply(group.libraryID, original.id);
+    assert.lengthOf(copies[0].getNotes(), 1);
     testItems.push(...copies);
     for (const id of await findReplication(userID)) {
       testItems.push((await Zotero.Items.getAsync(id))!);
@@ -198,10 +208,16 @@ describe("Group libraries and settings", function () {
     const before = getCollectionFolderName(REPLICATION_SPEC);
     try {
       await renameManagedCollection(REPLICATION_SPEC, "Renamed Replications");
-      assert.equal(Zotero.Collections.get(collection.id).name, "Renamed Replications");
+      assert.equal(
+        Zotero.Collections.get(collection.id).name,
+        "Renamed Replications",
+      );
       const again = await getOrCreateCollection(userID, REPLICATION_SPEC);
       assert.equal(again.id, collection.id);
-      assert.equal(getCollectionFolderName(REPLICATION_SPEC), "Renamed Replications");
+      assert.equal(
+        getCollectionFolderName(REPLICATION_SPEC),
+        "Renamed Replications",
+      );
     } finally {
       await renameManagedCollection(REPLICATION_SPEC, before);
     }
