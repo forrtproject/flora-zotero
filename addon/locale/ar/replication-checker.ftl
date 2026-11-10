@@ -137,6 +137,15 @@ replication-checker-readonly-dialog-message =
 
     هل تريد نسخ المقالات الأصلية وتكراراتها إلى "مجلد التكرارات" في مكتبتك الشخصية؟
 
+## Shared Group Library Handling
+replication-checker-group-dialog-title = هل تريد الإضافة إلى مكتبة المجموعة المشتركة؟
+replication-checker-group-dialog-message =
+    عثر FLoRA على دراسات تكرار أو إعادة إنتاج لـ { $itemCount } عنصر/عناصر في مكتبة المجموعة "{ $libraryName }".
+
+    تؤدي إضافتها إلى إنشاء عناصر وملاحظات ووسوم يراها جميع أعضاء هذه المجموعة. يمكنك بدلاً من ذلك نسخ المقالات الأصلية ودراسات التكرار وإعادة الإنتاج الخاصة بها إلى مكتبتك الشخصية.
+replication-checker-group-dialog-add-btn = إضافة إلى مكتبة المجموعة
+replication-checker-group-dialog-copy-btn = نسخ إلى مكتبتي
+
 ## Results Messages
 replication-checker-results-title-library = اكتمل مسح المكتبة
 replication-checker-results-title-selected = اكتمل مسح العناصر المحددة
@@ -199,90 +208,75 @@ replication-checker-prompt-first-run =
     • انقر على "موافق" لبدء المسح (قد يستغرق ذلك بضع دقائق)
     • انقر على "إلغاء" للتخطي - يمكنك دائماً إجراء المسح لاحقاً من قائمة الأدوات
 
+reproduction-checker-readonly-dialog-title = تم اكتشاف مكتبة للقراءة فقط
+reproduction-checker-readonly-dialog-message =
+    هذه المكتبة للقراءة فقط. وجدنا { $itemCount } عنصر/عناصر مع { $reproductionCount } دراسة إعادة إنتاج.
+
+    هل تريد نسخ المقالات الأصلية ودراسات إعادة الإنتاج الخاصة بها إلى مجلد إعادة الإنتاج في مكتبتك الشخصية؟
+
 ## Onboarding
-onboarding-welcome-title = مرحباً بك في Replication Checker!
-onboarding-welcome-content =
-    شكراً لتثبيت Zotero Replication Checker!
-
-    يساعدك هذا الملحق في اكتشاف دراسات التكرار والإعادة الحسابية من خلال الفحص التلقائي لعناصر مكتبتك مقابل FLoRA (FORRT Library of Reproduction and Replication Attempts).
-
-    ✨ الميزات الرئيسية:
-    • يفحص المكتبة بأكملها أو المجموعات أو العناصر الفردية
-    • يكتشف التكرارات والإعادات الحسابية معاً
-    • يتعامل مع المقالات التي لها أكثر من دراسة أصلية
-    • يضيف ملاحظات موسومة بالنتائج تحتوي على روابط DOI
-    • يضع علامات تلقائية على العناصر (مثل «له تكرار»، «هو تكرار»)
-    • يقترح إضافة الدراسة الأصلية عند اكتشاف تكرار
-    • يدعم المكتبات الجماعية للقراءة فقط — ينسخ العناصر إلى المكتبة الشخصية
-    • جميع المجموعات داخل مجموعة واحدة «FLoRA»، بأسماء قابلة للتخصيص
-    • يحظر التكرارات غير المرغوب فيها من عمليات الفحص المستقبلية
-
-    لنقم بجولة سريعة للبدء!
-
-onboarding-tools-title = فحص مكتبتك بأكملها
-onboarding-tools-content =
-    📍 الموقع: الأدوات ← فحص المكتبة الحالية بحثاً عن التكرارات
-
-    🔍 ما يقوم به:
-    • يمسح جميع العناصر التي تحتوي على معرّفات DOI
-    • يستعلم عن قاعدة بيانات FLoRA
-    • ينشئ ملاحظات تحتوي على التفاصيل
-    • يضع علامات على العناصر وفق النتيجة
-
-    💡 نصيحة: يستغرق بضع دقائق حسب حجم المكتبة.
-
-onboarding-context-title = فحص المجموعات والعناصر
-onboarding-context-content =
-    📚 للمجموعات:
-    انقر بزر الفأرة الأيمن على المجموعة ← فحص التكرارات
-
-    📄 للعناصر الفردية:
-    انقر بزر الفأرة الأيمن على العناصر ← فحص التكرارات
-
-    🚫 حظر التكرارات:
-    انقر بزر الفأرة الأيمن على عناصر التكرار ← حظر التكرار
-    • يمنع إعادة إضافة التكرارات غير المرغوب فيها
-
-    🗂️ أين تُحفظ العناصر:
-    كل ما ينشئه الملحق يوجد داخل مجموعة واحدة باسم «FLoRA»
-    • FLoRA Replications، FLoRA Reproductions
-    • FLoRA Originals linked to Replications / Reproductions
-
-    ⚙️ التفضيلات:
-    تحرير ← الإعدادات ← Replication Checker
-    • تكرار الفحص التلقائي
-    • الفحص التلقائي للعناصر الجديدة
-    • أسماء المجموعات، بما في ذلك حاوية «FLoRA»
-    • إحصاءات FLoRA لكل مكتبة، مع رابط إلى Replication Atlas
-
-onboarding-stats-title = إحصاءات FLoRA الخاصة بك
-onboarding-stats-content =
-    📍 الموقع: تحرير ← الإعدادات ← Replication Checker
-
-    📊 أعداد محدَّثة لما تعرفه FLoRA عن مكتبتك:
-    • المقالات التي لها تكرارات / إعادات حسابية
-    • المقالات التي هي نفسها تكرارات أو إعادات حسابية
-    • تُحسب حسب معرّف DOI الفريد، فالمقالة نفسها المحفوظة مرتين تُحسب مرة واحدة
-
-    📚 مكتبات المجموعات:
-    إذا كنت عضوًا في أي منها، يظهر مُحدِّد مكتبة أعلى الجدول — وتخص الإحصاءات المكتبة التي تختارها، لا مكتبتك الشخصية وحدها.
-
-    🌍 الفتح في FLoRA Atlas:
-    يفتح Replication Atlas محمَّلًا مسبقًا بمعرّفات DOI المتتبَّعة من المكتبة المحددة، لترى موضع قراءاتك ضمن أدبيات التكرار الأوسع.
-
-    💡 العناصر التي لا تحتوي على معرّف DOI صالح لا يمكن تحديدها، لذا تُستبعد — ويذكر تنبيه أسفل الزر عددها.
-
-onboarding-scan-title = هل أنت مستعد لمسح مكتبتك؟
-onboarding-scan-content =
-    هل تريد مسح مكتبتك بحثاً عن التكرارات الآن؟
-
-    • انقر على "نعم" لبدء المسح
-      (قد يستغرق ذلك بضع دقائق)
-
-    • انقر على "لا" للتخطي - يمكنك دائماً إجراء المسح لاحقاً من قائمة الأدوات
-
-    💡 يمكنك الوصول إلى هذا الدليل في أي وقت:
-    مساعدة ← دليل المستخدم لـ Replication Checker
+onboarding-check-library-title = مكتبة أو مجموعة أو عناصر
+onboarding-check-library-body = استخدم قائمة الأدوات لمكتبة كاملة، أو انقر بزر الماوس الأيمن على مجموعة أو عناصر.
+onboarding-check-auto-title = الفحوصات التلقائية
+onboarding-check-auto-body = تُفحص العناصر الجديدة عند إضافتها، وتُفحص مكتبتك الشخصية وفق جدول زمني.
+onboarding-check-original-title = إضافة البحث الأصلي
+onboarding-check-original-body = هل حفظت دراسة تكرار دون أصلها؟ انقر بزر الماوس الأيمن لإضافة الدراسة الأصلية.
+onboarding-check-ban-title = حظر دراسة تكرار
+onboarding-check-ban-body = انقر بزر الماوس الأيمن على دراسة تكرار أو إعادة إنتاج غير مرغوبة لحظرها، فلن تُضاف مرة أخرى.
+onboarding-results-lead = كل ما تنشئه الإضافة يوضع داخل مجموعة FLoRA واحدة، وكل بحث يوضّح نفسه.
+onboarding-results-collection-title = مجموعة FLoRA واحدة
+onboarding-results-collection-body = لدراسات التكرار وإعادة الإنتاج والأبحاث الأصلية المرتبطة مجموعات فرعية.
+onboarding-results-notes-title = الملاحظات
+onboarding-results-notes-body = تسرد ملاحظات الدراسات التي عُثر عليها كل دراسة ونتيجتها وروابطها.
+onboarding-results-tags-title = الوسوم
+onboarding-results-tags-body = صفِّ الأبحاث حسب نوعها ونتائج تكرارها أو إعادة إنتاجها.
+onboarding-results-links-title = ارتباط في الاتجاهين
+onboarding-results-links-body = تظهر الأبحاث الأصلية ودراسات تكرارها أو إعادة إنتاجها كعناصر مرتبطة ببعضها.
+onboarding-features-title = مصمم لطريقة عمل الباحثين
+onboarding-features-lead = بضعة أمور أخرى من المفيد معرفتها قبل البدء.
+onboarding-features-privacy-title = الخصوصية في صميم التصميم
+onboarding-features-privacy-body = لا تُرسل معرّفات DOI الخاصة بك. لا يغادر جهازك سوى أول 3 أحرف من رمز مشفّر، وتتم المطابقة محلياً.
+onboarding-features-groups-title = مكتبات المجموعات المشتركة
+onboarding-features-new = جديد
+onboarding-features-groups-body = أنت تقرر من الإعدادات: السؤال أولاً أو الإضافة دائماً أو الوسوم والملاحظات فقط.
+onboarding-features-autocheck-title = الفحوصات المجدولة
+onboarding-features-autocheck-body = يومياً أو أسبوعياً أو شهرياً، على مكتبتك الشخصية أو مكتبات المجموعات أو كليهما.
+onboarding-features-readonly-title = المكتبات للقراءة فقط
+onboarding-features-readonly-body = تسألك الإضافة ثم تنسخ الأبحاث الأصلية والدراسات إلى مكتبتك الشخصية.
+onboarding-features-banned-title = قائمة المحظورات
+onboarding-features-banned-body = اطّلع في الإعدادات على كل ما حظرته واستعده في أي وقت.
+onboarding-features-verdict-title = نقطة بداية، لا حكم نهائي
+onboarding-features-verdict-body = تعكس العلامات كيف يصف المؤلفون نتائجهم. قد يعكس التكرار الفاشل الصدفة أو ضعف القوة الإحصائية أو عيوبه الخاصة أو تغيّر الظروف، وليس فقط أصلاً خاطئاً.
+onboarding-features-languages-title = 6 لغات
+onboarding-features-languages-body = تتبع لغة Zotero.
+onboarding-welcome-title = هل تم تكرار أي دراسة في مكتبتك؟
+onboarding-welcome-lead = يقارن Replication Checker مكتبتك بقاعدة FLoRA (FORRT Library of Reproduction and Replication Attempts) ويُظهر الأبحاث التي جرى تكرارها أو إعادة إنتاجها.
+onboarding-welcome-tags-title = الوسوم
+onboarding-welcome-tags-body = اعرف الأبحاث التي لها دراسات تكرار وما كانت نتائجها.
+onboarding-welcome-notes-title = الملاحظات
+onboarding-welcome-notes-body = يحصل كل بحث مطابق على ملاحظة تتضمن الدراسات والنتائج وروابط DOI.
+onboarding-welcome-studies-title = الدراسات
+onboarding-welcome-studies-body = تُضاف دراسات التكرار وإعادة الإنتاج إلى مجموعة FLoRA واحدة.
+onboarding-check-title = افحص القدر الذي تريده
+onboarding-check-lead = شغّل الفحص على مكتبة كاملة أو مجموعة واحدة أو بضعة عناصر محددة.
+onboarding-results-title = كل شيء في مكان واحد
+onboarding-atlas-title = اطّلع على الصورة الكاملة
+onboarding-atlas-lead = تعرض تحرير ← الإعدادات ← Replication Checker أرقام FLoRA المحدّثة لكل مكتبة من مكتباتك.
+onboarding-atlas-stats-title = العدّ حسب DOI الفريد
+onboarding-atlas-stats-body = البحث المحفوظ مرتين يُحسب مرة واحدة. تُستبعد العناصر التي ليس لها DOI صالح.
+onboarding-atlas-open-title = فتح في FLoRA Atlas
+onboarding-atlas-open-body = استكشف أبحاثك في الأطلس. القائمة مشفّرة وتنتهي صلاحية الرابط بعد 30 يوماً.
+onboarding-scan-title = هل أنت جاهز لفحص مكتبتك؟
+onboarding-scan-lead = قد يستغرق الفحص الأول بضع دقائق حسب حجم مكتبتك.
+onboarding-scan-note = يمكنك أيضاً الفحص لاحقاً من قائمة الأدوات، وإعادة فتح هذا الدليل من قائمة المساعدة.
+onboarding-btn-next = التالي
+onboarding-btn-back = السابق
+onboarding-btn-skip = تخطي الجولة
+onboarding-btn-done = ابدأ
+onboarding-btn-scan = فحص مكتبتي
+onboarding-btn-later = ليس الآن
+onboarding-btn-close = إغلاق
+onboarding-step = الخطوة { $current } من { $total }
 
 ## Reproduction Feature - Menu Items
 reproduction-checker-context-menu-ban = حظر الاستنساخ
@@ -381,17 +375,30 @@ pref-autocheck-new-items = فحص العناصر الجديدة المضافة �
 pref-autocheck-new-items-hint = عطّل هذا الخيار إذا كنت تفضل إجراء جميع عمليات فحص التكرار يدوياً.
 pref-autocheck-note = يعمل الفحص التلقائي في الخلفية عند فتح زوتيرو. لا يزال بإمكانك إجراء الفحص يدوياً من قائمة الأدوات.
 pref-folder-title = اسم مجلد التكرارات
-pref-folder-description = اسم مجموعة Zotero التي تُخزَّن فيها عناصر التكرار
-pref-folder-hint = سيؤدي تغيير هذا إلى إعادة تسمية المجموعة الموجودة تلقائياً. ستبقى جميع العناصر في نفس المجموعة.
 pref-repro-folder-title = اسم مجلد الاستنساخات
-pref-repro-folder-description = اسم مجموعة Zotero التي تُخزَّن فيها عناصر الاستنساخ
-pref-repro-folder-hint = سيؤدي تغيير هذا إلى إعادة تسمية المجموعة الموجودة تلقائياً. ستبقى جميع العناصر في نفس المجموعة.
 pref-originals-replication-folder-title = مجلد الأصول (مرتبط بالتكرارات)
-pref-originals-replication-folder-description = اسم مجموعة Zotero التي تُخزَّن فيها المقالات الأصلية (التي أُضيفت تكراراتها)
-pref-originals-replication-folder-hint = سيؤدي تغيير هذا إلى إعادة تسمية المجموعة الموجودة تلقائياً. ستبقى جميع العناصر في نفس المجموعة.
 pref-originals-reproduction-folder-title = مجلد الأصول (مرتبط بالاستنساخات)
-pref-originals-reproduction-folder-description = اسم مجموعة Zotero التي تُخزَّن فيها المقالات الأصلية (التي أُضيفت استنساخاتها)
-pref-originals-reproduction-folder-hint = سيؤدي تغيير هذا إلى إعادة تسمية المجموعة الموجودة تلقائياً. ستبقى جميع العناصر في نفس المجموعة.
+
+## Collection Names
+pref-root-folder-title = مجموعة FLoRA الرئيسية
+pref-collections-title = أسماء مجموعات FLoRA
+pref-collections-description = انقر على القلم لإعادة تسمية مجموعة، ثم على علامة الصح للحفظ. تُعاد تسمية المجموعات فوراً وتبقى كل العناصر في مكانها.
+pref-collections-edit = إعادة تسمية
+pref-collections-save = حفظ
+pref-collections-cancel = إلغاء
+pref-collections-error-empty = أدخل اسماً.
+pref-collections-error-duplicate = هناك مجموعة FLoRA أخرى تستخدم هذا الاسم.
+pref-collections-error-save = تعذّرت إعادة تسمية المجموعة. يُرجى المحاولة مرة أخرى.
+pref-autocheck-libraries-title = المكتبات المشمولة في الفحوصات المجدولة
+pref-autocheck-libraries-personal = المكتبة الشخصية فقط (موصى به)
+pref-autocheck-libraries-groups = مكتبات المجموعات فقط
+pref-autocheck-libraries-all = كل المكتبات
+pref-autocheck-libraries-hint = تُتخطى مكتبات المجموعات التي يمكنك قراءتها فقط، إذ لا يمكن إضافة شيء إليها.
+pref-group-add-title = إضافة عناصر إلى مكتبات المجموعات
+pref-group-add-ask = السؤال في كل مرة (موصى به)
+pref-group-add-always = إضافة العناصر دائماً
+pref-group-add-tags = إضافة الوسوم والملاحظات فقط، دون عناصر جديدة
+pref-group-add-hint = ينطبق على مكتبات المجموعات التي يمكنك تعديلها. أما المكتبات للقراءة فقط، فتسألك الإضافة دائماً قبل النسخ إلى مكتبتك الشخصية.
 
 ## Stats Pane
 pref-stats-title = إحصاءات FLoRA الخاصة بك

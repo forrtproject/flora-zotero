@@ -137,6 +137,15 @@ replication-checker-readonly-dialog-message =
 
     원본 논문과 복제 연구를 개인 라이브러리의 "복제 연구 폴더"에 복사하시겠습니까?
 
+## Shared Group Library Handling
+replication-checker-group-dialog-title = 공유 그룹 라이브러리에 추가할까요?
+replication-checker-group-dialog-message =
+    FLoRA가 그룹 라이브러리 "{ $libraryName }"의 { $itemCount }개 항목에 대한 반복 연구 또는 재현 연구를 찾았습니다.
+
+    추가하면 이 그룹의 모든 구성원이 볼 수 있는 항목, 노트, 태그가 생성됩니다. 대신 원본 논문과 반복 및 재현 연구를 개인 라이브러리로 복사할 수 있습니다.
+replication-checker-group-dialog-add-btn = 그룹 라이브러리에 추가
+replication-checker-group-dialog-copy-btn = 내 라이브러리로 복사
+
 ## Results Messages
 replication-checker-results-title-library = 라이브러리 스캔 완료
 replication-checker-results-title-selected = 선택한 항목 스캔 완료
@@ -199,90 +208,75 @@ replication-checker-prompt-first-run =
     • "확인"을 클릭하여 스캔 시작 (몇 분 소요될 수 있음)
     • "취소"를 클릭하여 건너뛰기 - 나중에 도구 메뉴에서 언제든지 스캔할 수 있습니다
 
+reproduction-checker-readonly-dialog-title = 읽기 전용 라이브러리 감지됨
+reproduction-checker-readonly-dialog-message =
+    이 라이브러리는 읽기 전용입니다. { $itemCount }개 항목에서 재현 연구 { $reproductionCount }건을 찾았습니다.
+
+    원본 논문과 재현 연구를 개인 라이브러리의 재현 폴더로 복사하시겠습니까?
+
 ## Onboarding
-onboarding-welcome-title = Replication Checker에 오신 것을 환영합니다!
-onboarding-welcome-content =
-    Zotero Replication Checker를 설치해 주셔서 감사합니다!
-
-    이 플러그인은 FLoRA(FORRT Library of Reproduction and Replication Attempts)에 대해 라이브러리 항목을 자동으로 확인하여 복제 및 재현 연구를 발견하는 데 도움을 줍니다.
-
-    ✨ 주요 기능:
-    • 전체 라이브러리, 컬렉션 또는 개별 항목 확인
-    • 복제 연구 및 컴퓨터 기반 재현 연구 모두 감지
-    • 여러 원본 연구가 있는 논문 처리
-    • 결과 태그가 달린 DOI 링크 메모 추가
-    • 항목 자동 태그 지정 (예: '복제 연구 있음', '복제 연구임')
-    • 복제 연구가 감지될 때 원본 연구 추가 제안
-    • 읽기 전용 그룹 라이브러리 지원 — 개인 라이브러리에 항목 복사
-    • 모든 컬렉션을 하나의 'FLoRA' 컬렉션 안에 보관하며 이름 설정 가능
-    • 향후 확인에서 원하지 않는 복제 연구 차단
-
-    시작하기 위해 빠른 투어를 해봅시다!
-
-onboarding-tools-title = 전체 라이브러리 확인
-onboarding-tools-content =
-    📍 위치: 도구 → 현재 라이브러리에서 복제 연구 확인
-
-    🔍 기능:
-    • DOI가 있는 모든 항목 스캔
-    • FLoRA 데이터베이스 조회
-    • 세부 정보가 포함된 메모 생성
-    • 결과에 따라 항목 태그 지정
-
-    💡 팁: 라이브러리 크기에 따라 몇 분 소요될 수 있습니다.
-
-onboarding-context-title = 컬렉션 및 항목 확인
-onboarding-context-content =
-    📚 컬렉션의 경우:
-    컬렉션 우클릭 → 복제 연구 확인
-
-    📄 개별 항목의 경우:
-    항목 우클릭 → 복제 연구 확인
-
-    🚫 복제 연구 차단:
-    복제 연구 항목 우클릭 → 복제 연구 차단
-    • 원하지 않는 복제 연구가 다시 추가되는 것을 방지
-
-    🗂️ 저장 위치:
-    플러그인이 만드는 모든 항목은 하나의 'FLoRA' 컬렉션 안에 들어갑니다
-    • FLoRA Replications, FLoRA Reproductions
-    • FLoRA Originals linked to Replications / Reproductions
-
-    ⚙️ 환경설정:
-    편집 → 설정 → Replication Checker
-    • 자동 확인 빈도
-    • 새 항목 자동 확인
-    • 'FLoRA' 컨테이너를 포함한 컬렉션 이름
-    • 라이브러리별 FLoRA 통계 및 Replication Atlas 링크
-
-onboarding-stats-title = 나의 FLoRA 통계
-onboarding-stats-content =
-    📍 위치: 편집 → 설정 → Replication Checker
-
-    📊 FLoRA가 내 라이브러리에 대해 알고 있는 실시간 수치:
-    • 복제 연구 / 재현 연구가 있는 논문
-    • 그 자체가 복제 연구 또는 재현 연구인 논문
-    • 고유 DOI 기준으로 집계되므로 같은 논문을 두 번 저장해도 한 번만 계산됩니다
-
-    📚 그룹 라이브러리:
-    그룹 라이브러리가 있으면 표 위에 라이브러리 선택기가 나타나며, 개인 라이브러리뿐 아니라 선택한 라이브러리의 통계가 표시됩니다.
-
-    🌍 FLoRA Atlas에서 열기:
-    선택한 라이브러리에서 추적 중인 DOI가 미리 입력된 Replication Atlas를 열어, 내 문헌이 복제 연구 문헌 전체에서 어디에 위치하는지 확인합니다.
-
-    💡 사용 가능한 DOI가 없는 항목은 식별할 수 없어 제외되며, 버튼 아래 안내에 그 개수가 표시됩니다.
-
-onboarding-scan-title = 라이브러리를 스캔할 준비가 되셨나요?
-onboarding-scan-content =
-    지금 라이브러리에서 복제 연구를 스캔하시겠습니까?
-
-    • "예"를 클릭하여 스캔 시작
-      (몇 분 소요될 수 있음)
-
-    • "아니오"를 클릭하여 건너뛰기 - 나중에 도구 메뉴에서 언제든지 스캔할 수 있습니다
-
-    💡 언제든지 이 가이드에 접근:
-    도움말 → Replication Checker 사용자 가이드
+onboarding-check-library-title = 라이브러리, 컬렉션 또는 항목
+onboarding-check-library-body = 라이브러리 전체는 도구 메뉴를, 컬렉션이나 항목은 마우스 오른쪽 버튼을 사용하세요.
+onboarding-check-auto-title = 자동 확인
+onboarding-check-auto-body = 새 항목은 추가될 때, 개인 라이브러리는 일정에 따라 확인합니다.
+onboarding-check-original-title = 원본 추가
+onboarding-check-original-body = 원본 없이 반복 연구를 저장했나요? 마우스 오른쪽 버튼으로 원본 연구를 추가하세요.
+onboarding-check-ban-title = 반복 연구 차단
+onboarding-check-ban-body = 원하지 않는 반복 또는 재현 연구를 마우스 오른쪽 버튼으로 차단하면 다시 추가되지 않습니다.
+onboarding-results-lead = 플러그인이 만든 항목은 하나의 FLoRA 컬렉션에 들어가고, 각 논문의 상태를 바로 알 수 있습니다.
+onboarding-results-collection-title = 하나의 FLoRA 컬렉션
+onboarding-results-collection-body = 반복 연구, 재현 연구, 연결된 원본은 각각 하위 컬렉션을 가집니다.
+onboarding-results-notes-title = 노트
+onboarding-results-notes-body = 반복 연구와 재현 연구 노트에 각 연구와 결과, 링크가 정리됩니다.
+onboarding-results-tags-title = 태그
+onboarding-results-tags-body = 논문의 유형과 반복 또는 재현 결과로 필터링하세요.
+onboarding-results-links-title = 양방향 연결
+onboarding-results-links-body = 원본과 반복 또는 재현 연구가 서로 관련 항목으로 표시됩니다.
+onboarding-features-title = 연구자의 작업 방식에 맞게
+onboarding-features-lead = 시작하기 전에 알아 두면 좋은 내용입니다.
+onboarding-features-privacy-title = 개인정보 보호 중심
+onboarding-features-privacy-body = DOI는 전송되지 않습니다. 변환된 코드의 앞 3자만 컴퓨터 밖으로 나가며 일치 확인은 로컬에서 이루어집니다.
+onboarding-features-groups-title = 공유 그룹 라이브러리
+onboarding-features-new = 새 기능
+onboarding-features-groups-body = 설정에서 먼저 묻기, 항상 추가, 태그와 노트만 추가 중에서 선택하세요.
+onboarding-features-autocheck-title = 예약 확인
+onboarding-features-autocheck-body = 매일, 매주 또는 매월 개인 라이브러리, 그룹 라이브러리 또는 둘 다를 확인합니다.
+onboarding-features-readonly-title = 읽기 전용 라이브러리
+onboarding-features-readonly-body = 플러그인이 먼저 묻고 원본과 연구를 개인 라이브러리로 복사합니다.
+onboarding-features-banned-title = 차단 목록
+onboarding-features-banned-body = 설정에서 차단한 항목을 모두 확인하고 언제든 복원할 수 있습니다.
+onboarding-features-verdict-title = 판결이 아닌 출발점
+onboarding-features-verdict-body = 태그는 저자가 결과를 기술하는 방식을 반영합니다. 복제 연구 실패는 원본이 거짓이라는 것뿐 아니라 우연, 낮은 검정력, 자체 결함 또는 달라진 조건을 반영할 수 있습니다.
+onboarding-features-languages-title = 6개 언어
+onboarding-features-languages-body = Zotero 언어를 따릅니다.
+onboarding-welcome-title = 내 라이브러리의 연구가 재현된 적이 있을까요?
+onboarding-welcome-lead = Replication Checker는 라이브러리를 FLoRA(FORRT Library of Reproduction and Replication Attempts)와 비교하여 어떤 논문이 반복 검증되거나 재현되었는지 보여 줍니다.
+onboarding-welcome-tags-title = 태그
+onboarding-welcome-tags-body = 어떤 논문에 반복 연구가 있고 결과가 어땠는지 확인하세요.
+onboarding-welcome-notes-title = 노트
+onboarding-welcome-notes-body = 일치하는 논문마다 연구, 결과, DOI 링크가 담긴 노트가 추가됩니다.
+onboarding-welcome-studies-title = 연구
+onboarding-welcome-studies-body = 반복 연구와 재현 연구는 하나의 FLoRA 컬렉션에 추가됩니다.
+onboarding-check-title = 원하는 만큼만 확인하세요
+onboarding-check-lead = 라이브러리 전체, 컬렉션 하나 또는 선택한 항목만 확인할 수 있습니다.
+onboarding-results-title = 모든 것을 한곳에
+onboarding-atlas-title = 전체 그림 보기
+onboarding-atlas-lead = 편집 → 설정 → Replication Checker에서 라이브러리별 최신 FLoRA 수치를 볼 수 있습니다.
+onboarding-atlas-stats-title = 고유 DOI 기준 집계
+onboarding-atlas-stats-body = 같은 논문을 두 번 저장해도 한 번만 집계됩니다. 사용 가능한 DOI가 없는 항목은 제외됩니다.
+onboarding-atlas-open-title = FLoRA Atlas에서 열기
+onboarding-atlas-open-body = Atlas에서 추적 중인 논문을 살펴보세요. 목록은 암호화되며 링크는 30일 후 만료됩니다.
+onboarding-scan-title = 라이브러리를 검사할 준비가 되셨나요?
+onboarding-scan-lead = 첫 검사는 라이브러리 크기에 따라 몇 분 정도 걸릴 수 있습니다.
+onboarding-scan-note = 나중에 도구 메뉴에서 검사할 수 있으며, 이 안내는 도움말 메뉴에서 다시 열 수 있습니다.
+onboarding-btn-next = 다음
+onboarding-btn-back = 이전
+onboarding-btn-skip = 둘러보기 건너뛰기
+onboarding-btn-done = 시작하기
+onboarding-btn-scan = 내 라이브러리 검사
+onboarding-btn-later = 나중에
+onboarding-btn-close = 닫기
+onboarding-step = { $total }단계 중 { $current }단계
 
 ## Reproduction Feature - Menu Items
 reproduction-checker-context-menu-ban = 재현 연구 차단
@@ -381,17 +375,30 @@ pref-autocheck-new-items = 새로 추가된 라이브러리 항목 자동 확인
 pref-autocheck-new-items-hint = 모든 복제 연구 확인을 수동으로 실행하려면 이 옵션을 비활성화하세요.
 pref-autocheck-note = 자동 확인은 Zotero가 열려 있을 때 백그라운드에서 실행됩니다. 도구 메뉴를 사용하여 수동으로 확인할 수도 있습니다.
 pref-folder-title = 복제 연구 폴더 이름
-pref-folder-description = 복제 연구 항목이 저장되는 Zotero 컬렉션 이름
-pref-folder-hint = 변경하면 기존 컬렉션 이름이 자동으로 변경됩니다. 모든 항목은 동일한 컬렉션에 남습니다.
 pref-repro-folder-title = 재현 연구 폴더 이름
-pref-repro-folder-description = 재현 연구 항목이 저장되는 Zotero 컬렉션 이름
-pref-repro-folder-hint = 변경하면 기존 컬렉션 이름이 자동으로 변경됩니다. 모든 항목은 동일한 컬렉션에 남습니다.
 pref-originals-replication-folder-title = 원본 폴더 (복제 연구와 연결됨)
-pref-originals-replication-folder-description = 원본 논문(복제 연구가 추가된)이 저장되는 Zotero 컬렉션 이름
-pref-originals-replication-folder-hint = 변경하면 기존 컬렉션 이름이 자동으로 변경됩니다. 모든 항목은 동일한 컬렉션에 남습니다.
 pref-originals-reproduction-folder-title = 원본 폴더 (재현 연구와 연결됨)
-pref-originals-reproduction-folder-description = 원본 논문(재현 연구가 추가된)이 저장되는 Zotero 컬렉션 이름
-pref-originals-reproduction-folder-hint = 변경하면 기존 컬렉션 이름이 자동으로 변경됩니다. 모든 항목은 동일한 컬렉션에 남습니다.
+
+## Collection Names
+pref-root-folder-title = FLoRA 상위 컬렉션
+pref-collections-title = FLoRA 컬렉션 이름
+pref-collections-description = 연필을 클릭해 컬렉션 이름을 바꾸고 체크 표시를 클릭해 저장하세요. 이름은 바로 바뀌며 모든 항목은 그대로 유지됩니다.
+pref-collections-edit = 이름 바꾸기
+pref-collections-save = 저장
+pref-collections-cancel = 취소
+pref-collections-error-empty = 이름을 입력하세요.
+pref-collections-error-duplicate = 다른 FLoRA 컬렉션이 이미 이 이름을 사용하고 있습니다.
+pref-collections-error-save = 컬렉션 이름을 바꾸지 못했습니다. 다시 시도해 주세요.
+pref-autocheck-libraries-title = 예약 확인에 포함할 라이브러리
+pref-autocheck-libraries-personal = 개인 라이브러리만 (권장)
+pref-autocheck-libraries-groups = 그룹 라이브러리만
+pref-autocheck-libraries-all = 모든 라이브러리
+pref-autocheck-libraries-hint = 읽기만 가능한 그룹 라이브러리는 항목을 추가할 수 없으므로 건너뜁니다.
+pref-group-add-title = 그룹 라이브러리에 항목 추가
+pref-group-add-ask = 매번 묻기 (권장)
+pref-group-add-always = 항상 항목 추가
+pref-group-add-tags = 태그와 노트만 추가, 새 항목 없음
+pref-group-add-hint = 편집할 수 있는 그룹 라이브러리에 적용됩니다. 읽기 전용 라이브러리는 개인 라이브러리로 복사하기 전에 항상 묻습니다.
 
 ## Stats Pane
 pref-stats-title = FLoRA 통계

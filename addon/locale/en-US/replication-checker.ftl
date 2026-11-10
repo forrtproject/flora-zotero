@@ -142,6 +142,15 @@ replication-checker-readonly-dialog-message =
 
     Would you like to copy the original articles and their replications to your Personal library's replication folder?
 
+## Shared Group Library Handling
+replication-checker-group-dialog-title = Add to Shared Group Library?
+replication-checker-group-dialog-message =
+    FLoRA found replications or reproductions for { $itemCount } item(s) in the group library "{ $libraryName }".
+
+    Adding them creates items, notes and tags that every member of this group will see. You can instead copy the original articles and their replications and reproductions to your Personal library.
+replication-checker-group-dialog-add-btn = Add to Group Library
+replication-checker-group-dialog-copy-btn = Copy to My Library
+
 ## Results Messages
 replication-checker-results-title-library = Library Scan Complete
 replication-checker-results-title-selected = Selected Items Scan Complete
@@ -192,93 +201,75 @@ replication-checker-li-doi-label = DOI:
 replication-checker-li-outcome = Author Reported Outcome:
 replication-checker-li-link = This study has a linked report:
 
+reproduction-checker-readonly-dialog-title = Read-Only Library Detected
+reproduction-checker-readonly-dialog-message =
+    This library is read-only. We found { $itemCount } item(s) with { $reproductionCount } reproduction(s).
+
+    Would you like to copy the original articles and their reproductions to your Personal library's reproduction folder?
+
 ## Onboarding
-onboarding-welcome-title = Welcome to Replication Checker!
-onboarding-welcome-content =
-    Thank you for installing the Zotero Replication Checker!
-
-    This plugin helps you discover replication and reproduction studies by automatically checking your library items against FLoRA, FORRT's Library of Reproduction and Replication Attempts.
-
-    ✨ Key Features:
-    • Checks entire library, collections, or individual items
-    • Detects both replications and computational reproductions
-    • Handles articles with multiple original studies
-    • Adds outcome-tagged notes with DOI links
-    • Automatically tags items (e.g. "Has Been Replicated", "Is Replication")
-    • Offers to add the original study when a replication is detected
-    • Read-only group library support — copies items to Personal library
-    • All collections kept inside one "FLoRA" collection, with configurable names
-    • Ban unwanted replications from future checks
-    • Auto-check: scans new items automatically or on a schedule
-    • Privacy-preserving: your DOIs are never sent to the server
-    • Available in multiple languages
-
-    Let's take a quick tour to get you started!
-
-onboarding-tools-title = Check Your Entire Library
-onboarding-tools-content =
-    📍 Location: Tools → Check Current Library for Replications
-
-    🔍 What it does:
-    • Scans all items with DOIs
-    • Queries FLoRA database
-    • Creates notes with details
-    • Tags items by outcome
-
-    💡 Tip: Takes a few minutes depending on library size.
-
-onboarding-context-title = Check Collections and Items
-onboarding-context-content =
-    📚 For Collections:
-    Right-click collection → Check for Replications
-
-    📄 For Individual Items:
-    Right-click items → Check for Replications
-
-    🚫 Ban Replications:
-    Right-click replication items → Ban Replication
-    • Prevents unwanted replications from being re-added
-
-    🗂️ Where things go:
-    Everything the plugin creates lives inside one "FLoRA" collection
-    • FLoRA Replications, FLoRA Reproductions
-    • FLoRA Originals linked to Replications / Reproductions
-
-    ⚙️ Preferences:
-    Edit → Settings → Replication Checker
-    • Auto-check frequency
-    • Auto-check new items
-    • Collection names, including the "FLoRA" container
-    • FLoRA stats per library, with a link to the Replication Atlas
-
-onboarding-stats-title = Your FLoRA Stats
-onboarding-stats-content =
-    📍 Location: Edit → Settings → Replication Checker
-
-    📊 Live counts of what FLoRA knows about your library:
-    • Articles with replications / reproductions
-    • Articles that are themselves replications or reproductions
-    • Counted by unique DOI, so the same paper saved twice counts once
-
-    📚 Group libraries:
-    If you belong to any, a Library picker appears above the table — stats are shown for whichever library you select, not just your personal one.
-
-    🌍 Open in FLoRA Atlas:
-    Opens the Replication Atlas pre-loaded with the tracked DOIs from the selected library, to see how your reading sits in the wider replication literature.
-
-    💡 Items without a usable DOI can't be identified, so they're excluded — a note below the button says how many.
-
-onboarding-scan-title = Ready to Scan Your Library?
-onboarding-scan-content =
-    Would you like to scan your library for replications now?
-
-    • Click "Yes" to start scanning
-      (this may take a few minutes)
-
-    • Click "No" to skip - you can always scan later from Tools menu
-
-    💡 Access this guide anytime:
-    Help → Replication Checker User Guide
+onboarding-check-library-title = Library, collection or items
+onboarding-check-library-body = Use the Tools menu for a whole library, or right-click a collection or selected items.
+onboarding-check-auto-title = Automatic checks
+onboarding-check-auto-body = New items are checked as you add them, and your personal library on a schedule.
+onboarding-check-original-title = Add Original
+onboarding-check-original-body = Saved a replication without its original? Right-click it to add the original study.
+onboarding-check-ban-title = Ban Replication
+onboarding-check-ban-body = Right-click an unwanted replication or reproduction to ban it, so it is not added again.
+onboarding-results-lead = What the plugin creates goes inside one FLoRA collection, and every paper explains itself.
+onboarding-results-collection-title = One FLoRA collection
+onboarding-results-collection-body = Replications, reproductions and linked originals each have a sub-collection.
+onboarding-results-notes-title = Notes
+onboarding-results-notes-body = Replications Found and Reproductions Found notes list each study, its outcome and links.
+onboarding-results-tags-title = Tags
+onboarding-results-tags-body = Filter by what a paper is and how its replications or reproductions turned out.
+onboarding-results-links-title = Linked both ways
+onboarding-results-links-body = Originals and their replications or reproductions appear as related items of each other.
+onboarding-features-title = Built for the way researchers work
+onboarding-features-lead = A few more things worth knowing before you start.
+onboarding-features-privacy-title = Private by design
+onboarding-features-privacy-body = Your DOIs are not sent. Only the first 3 characters of a scrambled code leave your computer, and matching happens locally.
+onboarding-features-groups-title = Shared group libraries
+onboarding-features-new = New
+onboarding-features-groups-body = You decide in Settings: ask first, always add, or add only tags and notes.
+onboarding-features-autocheck-title = Scheduled checks
+onboarding-features-autocheck-body = Daily, weekly or monthly, on your personal library, group libraries or both.
+onboarding-features-readonly-title = Read-only libraries
+onboarding-features-readonly-body = The plugin asks, then copies originals and studies to your personal library.
+onboarding-features-banned-title = Banned list
+onboarding-features-banned-body = See everything you banned in Settings, and restore it at any time.
+onboarding-features-verdict-title = A starting point, not a verdict
+onboarding-features-verdict-body = Labels reflect how authors describe their results. A failed replication can reflect chance, low power, its own flaws, or changed conditions, not just a false original.
+onboarding-features-languages-title = 6 languages
+onboarding-features-languages-body = Follows your Zotero language.
+onboarding-welcome-title = Has anything in your library been replicated?
+onboarding-welcome-lead = Replication Checker compares your library with FLoRA, the FORRT Library of Reproduction and Replication Attempts, and shows which papers have been replicated or reproduced.
+onboarding-welcome-tags-title = Tags
+onboarding-welcome-tags-body = See which papers have replications and how they turned out.
+onboarding-welcome-notes-title = Notes
+onboarding-welcome-notes-body = Each matched paper gets a note with its studies, outcomes and DOI links.
+onboarding-welcome-studies-title = Studies
+onboarding-welcome-studies-body = Replications and reproductions are added to one FLoRA collection.
+onboarding-check-title = Check as much or as little as you like
+onboarding-check-lead = Run a check on a whole library, one collection or a few selected items.
+onboarding-results-title = Everything stays in one place
+onboarding-atlas-title = See the bigger picture
+onboarding-atlas-lead = Edit → Settings → Replication Checker shows live FLoRA counts for each of your libraries.
+onboarding-atlas-stats-title = Counted by unique DOI
+onboarding-atlas-stats-body = The same paper saved twice counts once. Items without a usable DOI are left out.
+onboarding-atlas-open-title = Open in FLoRA Atlas
+onboarding-atlas-open-body = Explore your tracked papers in the Atlas. The list is encrypted and the link expires after 30 days.
+onboarding-scan-title = Ready to scan your library?
+onboarding-scan-lead = The first scan can take a few minutes, depending on the size of your library.
+onboarding-scan-note = You can also scan later from the Tools menu, and reopen this guide from the Help menu.
+onboarding-btn-next = Next
+onboarding-btn-back = Back
+onboarding-btn-skip = Skip tour
+onboarding-btn-done = Get started
+onboarding-btn-scan = Scan my library
+onboarding-btn-later = Not now
+onboarding-btn-close = Close
+onboarding-step = Step { $current } of { $total }
 
 ## First Run Prompt
 replication-checker-prompt-title = Welcome to Zotero Replication Checker!
@@ -383,21 +374,31 @@ pref-autocheck-monthly = Monthly (check every 30 days)
 pref-autocheck-new-items = Automatically check newly added library items (recommended)
 pref-autocheck-new-items-hint = Disable this option if you prefer to run all replication checks manually.
 pref-autocheck-note = Auto-check runs in the background when Zotero is open. You can still manually check using the Tools menu.
-pref-root-folder-title = FLoRA Container Collection
-pref-root-folder-description = Name of the top-level Zotero collection that holds all FLoRA collections below
-pref-root-folder-hint = Every collection below is created inside this one. Changing this will rename the existing collection automatically. All items will remain in the same collections.
 pref-folder-title = Replication Folder Name
-pref-folder-description = Name of the Zotero collection where replication items are stored
-pref-folder-hint = Changing this will rename the existing collection automatically. All items will remain in the same collection.
 pref-repro-folder-title = Reproduction Folder Name
-pref-repro-folder-description = Name of the Zotero collection where reproduction items are stored
-pref-repro-folder-hint = Changing this will rename the existing collection automatically. All items will remain in the same collection.
 pref-originals-replication-folder-title = Originals Folder (linked to Replications)
-pref-originals-replication-folder-description = Name of the Zotero collection where original articles (whose replications were added) are stored
-pref-originals-replication-folder-hint = Changing this will rename the existing collection automatically. All items will remain in the same collection.
 pref-originals-reproduction-folder-title = Originals Folder (linked to Reproductions)
-pref-originals-reproduction-folder-description = Name of the Zotero collection where original articles (whose reproductions were added) are stored
-pref-originals-reproduction-folder-hint = Changing this will rename the existing collection automatically. All items will remain in the same collection.
+
+## Collection Names
+pref-root-folder-title = FLoRA Container Collection
+pref-collections-title = FLoRA Collection Names
+pref-collections-description = Click the pencil to rename a collection, then the tick to save. Collections are renamed right away, and all items stay where they are.
+pref-collections-edit = Rename
+pref-collections-save = Save
+pref-collections-cancel = Cancel
+pref-collections-error-empty = Enter a name.
+pref-collections-error-duplicate = Another FLoRA collection already uses this name.
+pref-collections-error-save = The collection could not be renamed. Please try again.
+pref-autocheck-libraries-title = Libraries to include in scheduled checks
+pref-autocheck-libraries-personal = Personal library only (recommended)
+pref-autocheck-libraries-groups = Group libraries only
+pref-autocheck-libraries-all = All libraries
+pref-autocheck-libraries-hint = Group libraries you can only read are skipped, because nothing can be added to them.
+pref-group-add-title = Adding items to group libraries
+pref-group-add-ask = Ask each time (recommended)
+pref-group-add-always = Always add items
+pref-group-add-tags = Add tags and notes only, no new items
+pref-group-add-hint = Applies to group libraries you can edit. For read-only libraries, the plugin always asks before copying to your personal library.
 
 ## Stats Pane
 pref-stats-title = Your FLoRA Stats

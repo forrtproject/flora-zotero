@@ -9,7 +9,8 @@
  *     ├── FLoRA Reproductions
  *     ├── FLoRA Originals linked to Replications
  *     ├── FLoRA Originals linked to Reproductions
- *     └── <Group name> [Read-Only]        (one per read-only source library)
+ *     ├── <Group name> [Read-Only]        (one per read-only source library)
+ *     └── <Group name> [Group-Library]    (one per editable group copied from)
  *
  * Libraries created by older versions kept these at the top level; they are
  * moved under the container once by `migrateCollectionsToRoot()` on startup.
@@ -91,8 +92,14 @@ export const MANAGED_SPECS: CollectionSpec[] = [
   ORIGINALS_REPRODUCTION_SPEC,
 ];
 
+/** Every collection whose name the user can set, container first. */
+export const NAMED_SPECS: CollectionSpec[] = [ROOT_SPEC, ...MANAGED_SPECS];
+
 /** Suffix used for the per-source-library copies of read-only originals. */
 export const READONLY_SUFFIX = " [Read-Only]";
+
+/** Suffix used for originals the user chose to copy from an editable group library. */
+export const GROUP_LIBRARY_SUFFIX = " [Group-Library]";
 
 /**
  * Bumped whenever the collection layout changes; `migrateCollectionsToRoot()`
@@ -306,9 +313,46 @@ export async function getOrCreateCollection(
     _resolve(libraryID, spec, root.id));
 }
 
+/** Why `name` can't be used, given the other managed names; null if it can. */
+export function collectionNameError(
+  name: string,
+  otherNames: string[],
+): "empty" | "duplicate" | null {
+  const trimmed = name.trim();
+  if (!trimmed) return "empty";
+  // Two managed collections sharing a name would resolve to the same collection.
+  return otherNames.some((other) => other.toLowerCase() === trimmed.toLowerCase())
+    ? "duplicate"
+    : null;
+}
+
+/**
+ * Rename a managed collection in every editable library, then store the name.
+ * The order matters: findOrRenameCollection() treats a stored name that differs
+ * from the collection as a rename made in Zotero, and would undo this one.
+ */
+export async function renameManagedCollection(spec: CollectionSpec, newName: string): Promise<void> {
+  const oldName = getCollectionFolderName(spec);
+  const storedIDs = _getStoredIDs(spec.idsPrefKey);
+
+  for (const library of Zotero.Libraries.getAll()) {
+    if (!library.editable || library.libraryType === "feed") continue;
+    const collections = Zotero.Collections.getByLibrary(library.libraryID, true);
+    const collection =
+      collections.find((c: any) => c.id === storedIDs[String(library.libraryID)])
+      ?? collections.find((c: any) => c.name === oldName);
+    if (collection && collection.name !== newName) {
+      collection.name = newName;
+      await collection.saveTx();
+    }
+  }
+
+  Zotero.Prefs.set(spec.namePrefKey, newName);
+}
+
 /**
  * Resolve (or create) a plain child collection by name inside the container.
- * Used for the "<Library name> [Read-Only]" collections, whose names are
+ * Used for the "<Library name> [Read-Only]" and "[Group-Library]" collections, whose names are
  * derived from the source library and so have no preference of their own.
  */
 export async function getOrCreateChildCollection(

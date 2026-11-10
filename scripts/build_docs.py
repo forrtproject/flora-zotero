@@ -268,11 +268,11 @@ def build(out_dir: Path) -> list[Path]:
             title="Contributing",
             source="Contributing.md",
             lede=(
-                "How to report a bug, propose a change, or help with code, docs, "
-                "testing and data curation."
+                "How to report a bug, set up a development checkout, test "
+                "safely and open a pull request."
             ),
         )
-        + repo_links(strip_leading_heading(contributing, "## Contributing")),
+        + repo_links(strip_leading_heading(contributing, "# Contributing to Replication Checker for Zotero")),
     )
     written.append(target)
 

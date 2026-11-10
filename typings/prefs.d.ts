@@ -9,6 +9,10 @@ declare namespace _ZoteroTypes {
     PluginPrefsMap: {
       "autoCheckFrequency": string;
       "autoCheckNewItems": boolean;
+      "autoCheckLibraries": string;
+      "groupAddMode": string;
+      "statsLibraryID": number;
+      "lastAutoCheck": string;
       "blacklist": string;
       "rootFolderName": string;
       "rootCollectionIDs": string;

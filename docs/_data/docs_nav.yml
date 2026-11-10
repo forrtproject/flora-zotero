@@ -100,5 +100,7 @@ excluded:
   Feedback: >-
     Surfaced as "Report an issue" in the top bar, the footer and the
     "Keep reading" row of every page.
+  Contributing: >-
+    Points to Contributing.md, which has its own page in the site navigation.
   Usage: Container heading only; its subsections are split across pages.
   How it works: Container heading only; its subsections are split across pages.

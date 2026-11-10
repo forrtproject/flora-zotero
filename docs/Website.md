@@ -112,15 +112,17 @@ title: Replication Checker for Zotero
       <p class="cell-sub">
         Each replication or reproduction is added to the library you checked,
         in a collection inside a <code>FLoRA</code> collection, and linked to
-        the original as a related item.
+        the original as a related item. In a shared group library, the plugin
+        asks first.
       </p>
     </div>
   </div>
 
   <p class="landing-note">
     To see what a check does before running it on everything, start with one
-    collection. In a read-only group library, the plugin copies the results to
-    your personal library instead.
+    collection. In a group library you can edit, the plugin asks before adding
+    anything, because other members see it too. In a read-only group library,
+    it offers to copy the results to your personal library instead.
   </p>
 
   <nav class="landing-links">
@@ -147,9 +149,11 @@ title: Replication Checker for Zotero
       </p>
       <p>
         One feature sends more: <strong>Open in FLoRA Atlas</strong>, in the
-        plugin's settings, opens a web page whose address lists the DOIs of your
-        matched papers. Neither the FLoRA server nor the Atlas links requests
-        together or tracks users.
+        plugin's settings, sends the DOIs of the papers the plugin tracks in a
+        library as an encrypted list and opens the Atlas on it. The list is
+        encrypted on your computer, only the full link can unlock it, and the
+        link stops working after 30 days. Neither the FLoRA server nor the
+        Atlas links requests together or tracks users.
       </p>
       </div>
     </div>

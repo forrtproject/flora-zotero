@@ -67,16 +67,19 @@ FLoRA
 ├── FLoRA Reproductions
 ├── FLoRA Originals linked to Replications
 ├── FLoRA Originals linked to Reproductions
-└── {LibraryName} [Read-Only]        (one per read-only group library)
+├── {LibraryName} [Read-Only]        (one per read-only group library)
+└── {LibraryName} [Group-Library]    (one per group library you copied from)
 ```
 
-You can rename the `FLoRA` collection and the four collections inside it, in the plugin's settings or directly in Zotero; the plugin keeps your names. Leave the `[Read-Only]` collections' names as they are: the plugin finds them by name. Libraries organised by earlier versions are reorganised automatically the first time the new version starts. Collections and their items are moved, not recreated.
+You can rename the `FLoRA` collection and the four collections inside it, in the plugin's settings or directly in Zotero; the plugin keeps your names. Leave the `[Read-Only]` and `[Group-Library]` collections' names as they are: the plugin finds them by name. Libraries organised by earlier versions are reorganised automatically the first time the new version starts. Collections and their items are moved, not recreated.
 
 ### Check a whole library
 
 Select a library and choose **Tools → Check Current Library for Replications**. A progress window shows the scan. The check covers whichever library is selected: your personal library or a group library.
 
-In a library you can edit, the plugin tags each paper that has replications or reproductions in FLoRA, adds notes, and adds the replication and reproduction studies to the library's `FLoRA` collection, linked to the original. In a group library, other members of the group see these items too. To see what a check does before running it on everything, start with one collection.
+In your personal library, the plugin tags each paper that has replications or reproductions in FLoRA, adds notes, and adds the replication and reproduction studies to the library's `FLoRA` collection, linked to the original. To see what a check does before running it on everything, start with one collection.
+
+In a group library you can edit, other members see whatever a check adds, so the plugin asks first. You can add the studies to the group library, copy them to your personal library instead, or cancel. When you copy, the originals go to a `{LibraryName} [Group-Library]` collection in your personal library and the studies to its `FLoRA Replications` and `FLoRA Reproductions` collections. In the plugin's settings you can choose to always add to group libraries, or to add only tags and notes there.
 
 In a read-only group library, the plugin cannot change anything, so it copies the results to your personal library instead. For replications, it shows how many papers have them and asks whether to copy them. If you agree:
 
@@ -84,7 +87,7 @@ In a read-only group library, the plugin cannot change anything, so it copies th
 - the replications are copied to `FLoRA Replications` in your personal library;
 - both are tagged `Original present in Read-Only Library`, linked to each other, and given the usual notes.
 
-Reproductions are copied in the same way, to `FLoRA Reproductions`.
+Reproductions are handled the same way: the plugin asks, then copies them to `FLoRA Reproductions`.
 
 ### Check selected items or collections
 
@@ -104,12 +107,14 @@ The banned list is stored in Zotero's settings on your computer. You can view it
 
 ### Settings
 
-Open **Edit → Settings → Replication Checker for Zotero** (on macOS: **Zotero → Preferences → Replication Checker for Zotero**). There you can:
+Open **Edit → Settings → Replication Checker for Zotero** (on macOS: **Zotero → Settings → Replication Checker for Zotero**). There you can:
 
 - turn automatic checking of newly added items on or off (on by default);
-- schedule a check of the selected library: disabled, daily, weekly or monthly (default: monthly);
-- rename the collections the plugin uses;
-- see how many papers in each library the plugin has identified, and open them in the FLoRA Replication Atlas;
+- schedule a library check: disabled, daily, weekly or monthly (default: monthly);
+- choose which libraries scheduled checks cover: your personal library (the default), the group libraries you can edit, or both;
+- choose what a check does in a group library you can edit: ask each time (the default), always add items, or add only tags and notes;
+- see how many papers in each library the plugin has identified, and open them in the FLoRA Replication Atlas. The counts open on the library you picked last;
+- rename the collections the plugin uses: click the pencil next to a name, then the tick. The collection is renamed straight away;
 - manage your banned list.
 
 ## How it works
@@ -125,7 +130,7 @@ To look up your items, the plugin:
 
 The server never receives your DOIs. There are 4,096 possible three-character codes, so each is shared by a very large number of DOIs, and a code does not show which of them you have. After a match, the plugin looks up the replications it found in the same way, to check whether they replicate more than one original. As with any web request, the server sees your IP address. The FLoRA server does not link requests together or track users.
 
-One feature sends more. **Open in FLoRA Atlas**, in the plugin's settings, opens the [FLoRA Replication Atlas](https://forrt.org/flora-replication-atlas/) with the DOIs of the papers the plugin has tagged in that library in the web address. If the list is too long for a web address, the plugin copies it to the clipboard instead. The Atlas does not link requests together or track users either.
+One feature sends more. **Open in FLoRA Atlas**, in the plugin's settings, sends the DOIs of the papers the plugin tracks in that library to the FLoRA server as an encrypted list, and opens the [FLoRA Replication Atlas](https://forrt.org/flora-replication-atlas/) on it. The list is encrypted on your computer with a new key for each link. The key is the part of the link after `#`, which browsers do not send to servers, so neither the FLoRA server nor the Atlas site can read the list. Anyone with the full link can open it, and the link stops working after 30 days. If the encrypted list cannot be created, the plugin copies the DOIs to the clipboard instead, to paste into the Atlas. The Atlas does not link requests together or track users either.
 
 The plugin reads a DOI from an item's DOI field, from a `DOI:` line in the Extra field, or from a `doi.org` link in the URL field. Items without a DOI are not checked.
 
@@ -147,9 +152,9 @@ Tags on the replications and reproductions the plugin adds:
 | `Is Replication`, `Is Reproduction` | The item is a replication or reproduction listed in FLoRA |
 | Outcome tag | The outcome, as on the original |
 | `Replication: Multiple Originals`, `Reproduction: Multiple Originals` | The study replicates or reproduces more than one original. It gets this tag instead of an outcome tag, and an "Original Articles" note listing each original with its DOI and outcome. |
-| `Added by Replication Checker` | The plugin added this item or filed it in a `FLoRA` collection |
+| `Added by Replication Checker` | The plugin created this item. Items you already had are filed in a `FLoRA` collection without this tag. |
 | `In FLoRA` | FLoRA lists this item: a replication you added yourself, or an original added with **Add Original** |
-| `Original present in Read-Only Library` | Copied from a read-only group library |
+| `Original present in Read-Only Library` | Copied from a read-only group library (copies from a group library you can edit do not get this tag) |
 
 Tags appear in your Zotero language. Items tagged by earlier versions, for example `Has Replication`, are still recognised.
 
@@ -205,6 +210,10 @@ If you use the plugin in your research, please cite it:
 > Wallrich, L., Tondlekar, R., Weinerova, J., Röseler, L., Baldoni, C., Fouilloux, A., Meier, M., Flores Kanter, P. E., Trajano, I., Vaidis, D. C., Müller, M., Arriaga, P., & Coulson, H. D. (2026). *Zotero Replication Checker* [Software]. <https://doi.org/10.5281/zenodo.18671300>
 
 The repository also includes a `citation.cff` file for citation tools such as GitHub's "Cite this repository" button.
+
+## Contributing
+
+See [the contribution guide](Contributing.md) for developer setup, safe test profiles, translations, and pull requests.
 
 ## Feedback
 

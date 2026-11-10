@@ -4,6 +4,7 @@
  */
 
 import { replicationChecker } from "./modules/replicationChecker";
+import { ATLAS_URL, createAtlasSetUrl, type CryptoEnv } from "./utils/atlasSet";
 import { onboardingManager } from "./modules/onboarding";
 import { blacklistManager } from "./modules/blacklistManager";
 import { reproductionHandler } from "./modules/reproductionHandler";
@@ -11,12 +12,23 @@ import { config } from "../package.json";
 import { createZToolkit } from "./utils/ztoolkit";
 import { getString } from "./utils/strings";
 import {
-  TAG_IS_REPLICATION, TAG_IS_REPRODUCTION, itemHasTag,
-  TAG_HAS_BEEN_REPLICATED, TAG_HAS_BEEN_REPRODUCED,
-  TAG_REPLICATION_MULTIPLE_ORIGINALS, TAG_REPRODUCTION_MULTIPLE_ORIGINALS,
+  TAG_IS_REPLICATION,
+  TAG_IS_REPRODUCTION,
+  itemHasTag,
+  TAG_HAS_BEEN_REPLICATED,
+  TAG_HAS_BEEN_REPRODUCED,
+  TAG_REPLICATION_MULTIPLE_ORIGINALS,
+  TAG_REPRODUCTION_MULTIPLE_ORIGINALS,
   getTag,
 } from "./utils/tags";
-import { migrateCollectionsToRoot } from "./utils/collectionUtils";
+import {
+  NAMED_SPECS,
+  collectionNameError,
+  getCollectionFolderName,
+  migrateCollectionsToRoot,
+  renameManagedCollection,
+  type CollectionSpec,
+} from "./utils/collectionUtils";
 import { extractDOI } from "./utils/zoteroIntegration";
 import { normalizeDoi } from "./utils/doi";
 import {
@@ -28,6 +40,7 @@ import {
 } from "./utils/theme";
 
 const ztoolkit = createZToolkit();
+const STATS_LIBRARY_PREF = "replication-checker.statsLibraryID";
 
 /**
  * Load and parse FTL (Fluent) localization file
@@ -36,7 +49,7 @@ const ztoolkit = createZToolkit();
 async function loadFTLStrings(
   rootURI: string,
   locale: string,
-  filename: string
+  filename: string,
 ): Promise<Record<string, string>> {
   const strings: Record<string, string> = {};
 
@@ -55,18 +68,24 @@ async function loadFTLStrings(
       const ftlContent = await loadFileFromURL(ftlURL);
 
       if (ftlContent) {
-        Zotero.debug(`[ReplicationChecker] Loaded FTL file (${ftlContent.length} chars) from ${ftlURL}`);
+        Zotero.debug(
+          `[ReplicationChecker] Loaded FTL file (${ftlContent.length} chars) from ${ftlURL}`,
+        );
 
         // Parse the FTL content
         parseFTL(ftlContent, strings);
 
         if (Object.keys(strings).length > 0) {
-          Zotero.debug(`[ReplicationChecker] Parsed ${Object.keys(strings).length} strings from ${loc} locale`);
+          Zotero.debug(
+            `[ReplicationChecker] Parsed ${Object.keys(strings).length} strings from ${loc} locale`,
+          );
           return strings;
         }
       }
     } catch (e) {
-      Zotero.debug(`[ReplicationChecker] Error loading FTL from ${ftlURL}: ${e}`);
+      Zotero.debug(
+        `[ReplicationChecker] Error loading FTL from ${ftlURL}: ${e}`,
+      );
     }
   }
 
@@ -89,7 +108,9 @@ function loadFileFromURL(url: string): Promise<string | null> {
           // status 0 is valid for chrome:// URLs
           resolve(xhr.responseText);
         } else {
-          Zotero.debug(`[ReplicationChecker] XHR failed for ${url}: status ${xhr.status}`);
+          Zotero.debug(
+            `[ReplicationChecker] XHR failed for ${url}: status ${xhr.status}`,
+          );
           resolve(null);
         }
       };
@@ -209,9 +230,13 @@ export async function onStartup() {
 
       if (Object.keys(ftlStrings).length > 0) {
         (addon.data as any).locale = { strings: ftlStrings };
-        Zotero.debug(`[ReplicationChecker] Loaded ${Object.keys(ftlStrings).length} strings for locale: ${locale}`);
+        Zotero.debug(
+          `[ReplicationChecker] Loaded ${Object.keys(ftlStrings).length} strings for locale: ${locale}`,
+        );
       } else {
-        Zotero.debug(`[ReplicationChecker] No strings loaded, using hardcoded fallback`);
+        Zotero.debug(
+          `[ReplicationChecker] No strings loaded, using hardcoded fallback`,
+        );
         (addon.data as any).locale = { strings: null };
       }
     } catch (e) {
@@ -239,11 +264,14 @@ export async function onStartup() {
     // Expose plugin internals globally for preference pane and test access
     (Zotero as any).ReplicationChecker.checker = replicationChecker;
     (Zotero as any).ReplicationChecker.blacklistManager = blacklistManager;
-    (Zotero as any).ReplicationChecker.reproductionHandler = reproductionHandler;
+    (Zotero as any).ReplicationChecker.reproductionHandler =
+      reproductionHandler;
 
     // Expose preference pane UI initializers globally
     (Zotero as any).ReplicationChecker.initBlacklistUI = initBlacklistUI;
     (Zotero as any).ReplicationChecker.initStatsUI = initStatsUI;
+    (Zotero as any).ReplicationChecker.initCollectionNamesUI =
+      initCollectionNamesUI;
 
     // Note: the auto-check frequency observer is registered inside
     // replicationChecker.init(), which also unregisters it by symbol on shutdown.
@@ -268,7 +296,9 @@ export async function onStartup() {
         await onMainWindowLoad(win);
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
-        Zotero.logError(new Error(`[ReplicationChecker] Error loading window: ${errorMsg}`));
+        Zotero.logError(
+          new Error(`[ReplicationChecker] Error loading window: ${errorMsg}`),
+        );
       }
     }
 
@@ -277,7 +307,9 @@ export async function onStartup() {
     Zotero.debug("[ReplicationChecker] Startup complete");
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
-    Zotero.logError(new Error(`[ReplicationChecker] Startup failed: ${errorMsg}`));
+    Zotero.logError(
+      new Error(`[ReplicationChecker] Startup failed: ${errorMsg}`),
+    );
     throw error;
   }
 }
@@ -297,7 +329,8 @@ export async function onMainWindowLoad(win: _ZoteroTypes.MainWindow) {
     };
 
     // Listeners added to popup elements, tracked for cleanup in onMainWindowUnload
-    const popupListeners: Array<{ popup: Element; listener: EventListener }> = [];
+    const popupListeners: Array<{ popup: Element; listener: EventListener }> =
+      [];
     (win as any)._rcMenuPopupListeners = popupListeners;
 
     function addMenuItem(
@@ -369,13 +402,16 @@ export async function onMainWindowLoad(win: _ZoteroTypes.MainWindow) {
       () => replicationChecker.banSelectedItems(),
       () => {
         const selectedItems = Zotero.getActiveZoteroPane().getSelectedItems();
-        return selectedItems.some((item: Zotero.Item) =>
-          itemHasTag(item, TAG_IS_REPLICATION) ||
-          itemHasTag(item, TAG_IS_REPRODUCTION)
+        return selectedItems.some(
+          (item: Zotero.Item) =>
+            itemHasTag(item, TAG_IS_REPLICATION) ||
+            itemHasTag(item, TAG_IS_REPRODUCTION),
         );
       },
     );
-    Zotero.debug("[ReplicationChecker] Added Ban Replication context menu item");
+    Zotero.debug(
+      "[ReplicationChecker] Added Ban Replication context menu item",
+    );
 
     // Item context menu - add original study
     addMenuItem(
@@ -385,24 +421,32 @@ export async function onMainWindowLoad(win: _ZoteroTypes.MainWindow) {
       () => replicationChecker.addOriginalStudy(),
       (elem) => {
         const selectedItems = Zotero.getActiveZoteroPane().getSelectedItems();
-        const isVisible = selectedItems.some((item: Zotero.Item) =>
-          itemHasTag(item, TAG_IS_REPLICATION) || itemHasTag(item, TAG_IS_REPRODUCTION)
+        const isVisible = selectedItems.some(
+          (item: Zotero.Item) =>
+            itemHasTag(item, TAG_IS_REPLICATION) ||
+            itemHasTag(item, TAG_IS_REPRODUCTION),
         );
         if (isVisible) {
-          const hasMultiple = selectedItems.some((item: Zotero.Item) =>
-            itemHasTag(item, TAG_REPLICATION_MULTIPLE_ORIGINALS) ||
-            itemHasTag(item, TAG_REPRODUCTION_MULTIPLE_ORIGINALS)
+          const hasMultiple = selectedItems.some(
+            (item: Zotero.Item) =>
+              itemHasTag(item, TAG_REPLICATION_MULTIPLE_ORIGINALS) ||
+              itemHasTag(item, TAG_REPRODUCTION_MULTIPLE_ORIGINALS),
           );
-          elem.setAttribute("label", getString(
-            hasMultiple
-              ? "replication-checker-context-menu-add-originals"
-              : "replication-checker-context-menu-add-original"
-          ));
+          elem.setAttribute(
+            "label",
+            getString(
+              hasMultiple
+                ? "replication-checker-context-menu-add-originals"
+                : "replication-checker-context-menu-add-original",
+            ),
+          );
         }
         return isVisible;
       },
     );
-    Zotero.debug("[ReplicationChecker] Added Add Original Study context menu item");
+    Zotero.debug(
+      "[ReplicationChecker] Added Add Original Study context menu item",
+    );
 
     // Collection context menu
     addMenuItem(
@@ -420,9 +464,13 @@ export async function onMainWindowLoad(win: _ZoteroTypes.MainWindow) {
         let firstRunDone;
         try {
           firstRunDone = Zotero.Prefs.get("replication-checker.firstRunDone");
-          Zotero.debug(`[ReplicationChecker] First run check: firstRunDone = ${firstRunDone}`);
+          Zotero.debug(
+            `[ReplicationChecker] First run check: firstRunDone = ${firstRunDone}`,
+          );
         } catch (error) {
-          Zotero.debug(`[ReplicationChecker] Error getting preference: ${error}`);
+          Zotero.debug(
+            `[ReplicationChecker] Error getting preference: ${error}`,
+          );
           firstRunDone = false; // Assume first run if preference doesn't exist
         }
 
@@ -435,7 +483,7 @@ export async function onMainWindowLoad(win: _ZoteroTypes.MainWindow) {
 
         if (onboardingManager.shouldShowOnboarding()) {
           Zotero.debug(
-            `[ReplicationChecker] Showing onboarding (firstRun=${isFirstRun})`
+            `[ReplicationChecker] Showing onboarding (firstRun=${isFirstRun})`,
           );
 
           // Mark as shown before showing onboarding
@@ -447,34 +495,48 @@ export async function onMainWindowLoad(win: _ZoteroTypes.MainWindow) {
           const result = await onboardingManager.showOnboarding(isFirstRun);
 
           if (result.completed && result.shouldScan) {
-            Zotero.debug("[ReplicationChecker] User accepted first-run scan from onboarding");
+            Zotero.debug(
+              "[ReplicationChecker] User accepted first-run scan from onboarding",
+            );
             replicationChecker.checkEntireLibrary();
           } else if (result.completed) {
-            Zotero.debug("[ReplicationChecker] User completed onboarding but declined scan");
+            Zotero.debug(
+              "[ReplicationChecker] User completed onboarding but declined scan",
+            );
           } else if (isFirstRun) {
             // User skipped onboarding - show separate first scan prompt.
             // First install only: prompting an existing user to rescan a library
             // the plugin has already been through is just an interruption.
-            Zotero.debug("[ReplicationChecker] User skipped onboarding, showing separate first scan prompt");
+            Zotero.debug(
+              "[ReplicationChecker] User skipped onboarding, showing separate first scan prompt",
+            );
             const win = Zotero.getMainWindow();
             if (win) {
               const shouldScan = win.confirm(
-                getString("replication-checker-prompt-first-run")
+                getString("replication-checker-prompt-first-run"),
               );
               if (shouldScan) {
-                Zotero.debug("[ReplicationChecker] User accepted first-run scan after skipping onboarding");
+                Zotero.debug(
+                  "[ReplicationChecker] User accepted first-run scan after skipping onboarding",
+                );
                 replicationChecker.checkEntireLibrary();
               } else {
-                Zotero.debug("[ReplicationChecker] User declined first-run scan");
+                Zotero.debug(
+                  "[ReplicationChecker] User declined first-run scan",
+                );
               }
             }
           }
         } else {
-          Zotero.debug("[ReplicationChecker] First-run already done or onboarding not needed, skipping");
+          Zotero.debug(
+            "[ReplicationChecker] First-run already done or onboarding not needed, skipping",
+          );
         }
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
-        Zotero.logError(new Error(`[ReplicationChecker] Error in onboarding: ${errorMsg}`));
+        Zotero.logError(
+          new Error(`[ReplicationChecker] Error in onboarding: ${errorMsg}`),
+        );
       }
     }, 3000);
 
@@ -482,12 +544,16 @@ export async function onMainWindowLoad(win: _ZoteroTypes.MainWindow) {
 
     // Register theme change listener to update menu icons dynamically
     onThemeChange((newTheme) => {
-      Zotero.debug(`[ReplicationChecker] Updating menu icons for theme: ${newTheme}`);
+      Zotero.debug(
+        `[ReplicationChecker] Updating menu icons for theme: ${newTheme}`,
+      );
       updateMenuIcons(win);
     });
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
-    Zotero.logError(new Error(`[ReplicationChecker] Error setting up window UI: ${errorMsg}`));
+    Zotero.logError(
+      new Error(`[ReplicationChecker] Error setting up window UI: ${errorMsg}`),
+    );
   }
 }
 
@@ -526,12 +592,15 @@ function updatePreferencePaneIcons() {
   const rootURI = `chrome://${config.addonRef}/content/`;
   const newIconPath = rootURI + getThemedIconRelativePath();
 
-  Zotero.debug(`[ReplicationChecker] updatePreferencePaneIcons called, newIconPath: ${newIconPath}`);
+  Zotero.debug(
+    `[ReplicationChecker] updatePreferencePaneIcons called, newIconPath: ${newIconPath}`,
+  );
 
   try {
     // Get all windows and look for preferences windows
-    const windowMediator = (Components.classes as any)["@mozilla.org/appshell/window-mediator;1"]
-      .getService((Components.interfaces as any).nsIWindowMediator);
+    const windowMediator = (Components.classes as any)[
+      "@mozilla.org/appshell/window-mediator;1"
+    ].getService((Components.interfaces as any).nsIWindowMediator);
     const enumerator = windowMediator.getEnumerator(null);
 
     let windowCount = 0;
@@ -540,38 +609,56 @@ function updatePreferencePaneIcons() {
       windowCount++;
 
       if (win.location?.href?.includes("preferences")) {
-        Zotero.debug(`[ReplicationChecker] Found preferences window: ${win.location.href}`);
+        Zotero.debug(
+          `[ReplicationChecker] Found preferences window: ${win.location.href}`,
+        );
         const doc = win.document;
 
         // Method 1: Look for elements with our plugin ID in the data-pane-id
-        const paneElements = doc.querySelectorAll(`[data-pane-id*="replication-checker"]`);
-        Zotero.debug(`[ReplicationChecker] Found ${paneElements.length} elements with data-pane-id containing replication-checker`);
+        const paneElements = doc.querySelectorAll(
+          `[data-pane-id*="replication-checker"]`,
+        );
+        Zotero.debug(
+          `[ReplicationChecker] Found ${paneElements.length} elements with data-pane-id containing replication-checker`,
+        );
         for (const elem of paneElements) {
           const img = elem.querySelector("image, img");
           if (img) {
             img.setAttribute("src", newIconPath);
-            Zotero.debug(`[ReplicationChecker] Updated preference pane icon via data-pane-id image element`);
+            Zotero.debug(
+              `[ReplicationChecker] Updated preference pane icon via data-pane-id image element`,
+            );
           }
           // Try setting image attribute directly
           if (elem.hasAttribute("image")) {
             elem.setAttribute("image", newIconPath);
-            Zotero.debug(`[ReplicationChecker] Updated preference pane image attribute via data-pane-id`);
+            Zotero.debug(
+              `[ReplicationChecker] Updated preference pane image attribute via data-pane-id`,
+            );
           }
         }
 
         // Method 2: Look for elements with our plugin ID pattern
         const pluginPanes = doc.querySelectorAll(`[id*="replication-checker"]`);
-        Zotero.debug(`[ReplicationChecker] Found ${pluginPanes.length} elements with id containing replication-checker`);
+        Zotero.debug(
+          `[ReplicationChecker] Found ${pluginPanes.length} elements with id containing replication-checker`,
+        );
         for (const pane of pluginPanes) {
-          Zotero.debug(`[ReplicationChecker] Found element: ${pane.tagName}#${pane.id}`);
+          Zotero.debug(
+            `[ReplicationChecker] Found element: ${pane.tagName}#${pane.id}`,
+          );
           const img = pane.querySelector("image, img");
           if (img) {
             img.setAttribute("src", newIconPath);
-            Zotero.debug(`[ReplicationChecker] Updated icon via plugin pane image element`);
+            Zotero.debug(
+              `[ReplicationChecker] Updated icon via plugin pane image element`,
+            );
           }
           if (pane.hasAttribute("image")) {
             pane.setAttribute("image", newIconPath);
-            Zotero.debug(`[ReplicationChecker] Updated image attribute on plugin pane`);
+            Zotero.debug(
+              `[ReplicationChecker] Updated image attribute on plugin pane`,
+            );
           }
         }
 
@@ -580,8 +667,13 @@ function updatePreferencePaneIcons() {
         for (const btn of buttons) {
           const label = btn.getAttribute("label") || btn.textContent || "";
           const id = btn.id || "";
-          if (label.includes("Replication Checker") || id.includes("replication-checker")) {
-            Zotero.debug(`[ReplicationChecker] Found button: ${btn.tagName}#${id}, label: ${label}`);
+          if (
+            label.includes("Replication Checker") ||
+            id.includes("replication-checker")
+          ) {
+            Zotero.debug(
+              `[ReplicationChecker] Found button: ${btn.tagName}#${id}, label: ${label}`,
+            );
             const img = btn.querySelector("image, img, .icon");
             if (img) {
               img.setAttribute("src", newIconPath);
@@ -589,18 +681,24 @@ function updatePreferencePaneIcons() {
             }
             if (btn.hasAttribute("image")) {
               btn.setAttribute("image", newIconPath);
-              Zotero.debug(`[ReplicationChecker] Updated button image attribute`);
+              Zotero.debug(
+                `[ReplicationChecker] Updated button image attribute`,
+              );
             }
           }
         }
 
         // Method 4: Try finding richlistitem elements (older XUL style)
         const richlistItems = doc.querySelectorAll("richlistitem");
-        Zotero.debug(`[ReplicationChecker] Found ${richlistItems.length} richlistitem elements`);
+        Zotero.debug(
+          `[ReplicationChecker] Found ${richlistItems.length} richlistitem elements`,
+        );
         for (const item of richlistItems) {
           const label = item.getAttribute("label") || item.textContent || "";
           if (label.includes("Replication Checker")) {
-            Zotero.debug(`[ReplicationChecker] Found richlistitem with Replication Checker label`);
+            Zotero.debug(
+              `[ReplicationChecker] Found richlistitem with Replication Checker label`,
+            );
             const img = item.querySelector("image, img");
             if (img) {
               img.setAttribute("src", newIconPath);
@@ -608,38 +706,56 @@ function updatePreferencePaneIcons() {
             }
             if (item.hasAttribute("image")) {
               item.setAttribute("image", newIconPath);
-              Zotero.debug(`[ReplicationChecker] Updated richlistitem image attribute`);
+              Zotero.debug(
+                `[ReplicationChecker] Updated richlistitem image attribute`,
+              );
             }
           }
         }
 
         // Method 5: Look for any element with our plugin name in various attributes
         // Then traverse up to find the parent container with the image
-        const allElements = doc.querySelectorAll(`[value*="Replication Checker"], [label*="Replication Checker"]`);
-        Zotero.debug(`[ReplicationChecker] Found ${allElements.length} elements with Replication Checker in value/label`);
+        const allElements = doc.querySelectorAll(
+          `[value*="Replication Checker"], [label*="Replication Checker"]`,
+        );
+        Zotero.debug(
+          `[ReplicationChecker] Found ${allElements.length} elements with Replication Checker in value/label`,
+        );
         for (const elem of allElements) {
-          Zotero.debug(`[ReplicationChecker] Found element: ${elem.tagName}#${(elem as Element).id}`);
+          Zotero.debug(
+            `[ReplicationChecker] Found element: ${elem.tagName}#${(elem as Element).id}`,
+          );
 
           // Traverse up to find parent container (richlistitem, button, etc.)
           let parent = elem.parentElement;
           let depth = 0;
           while (parent && depth < 5) {
-            Zotero.debug(`[ReplicationChecker] Checking parent: ${parent.tagName}#${parent.id}`);
+            Zotero.debug(
+              `[ReplicationChecker] Checking parent: ${parent.tagName}#${parent.id}`,
+            );
 
             // Look for image element in this parent
             const img = parent.querySelector("image, img");
             if (img) {
-              Zotero.debug(`[ReplicationChecker] Found image in parent: ${img.tagName}, current src: ${img.getAttribute("src")}`);
+              Zotero.debug(
+                `[ReplicationChecker] Found image in parent: ${img.tagName}, current src: ${img.getAttribute("src")}`,
+              );
               img.setAttribute("src", newIconPath);
-              Zotero.debug(`[ReplicationChecker] Updated image src to: ${newIconPath}`);
+              Zotero.debug(
+                `[ReplicationChecker] Updated image src to: ${newIconPath}`,
+              );
               break;
             }
 
             // Check if parent itself has image attribute
             if (parent.hasAttribute("image")) {
-              Zotero.debug(`[ReplicationChecker] Parent has image attribute: ${parent.getAttribute("image")}`);
+              Zotero.debug(
+                `[ReplicationChecker] Parent has image attribute: ${parent.getAttribute("image")}`,
+              );
               parent.setAttribute("image", newIconPath);
-              Zotero.debug(`[ReplicationChecker] Updated parent image attribute`);
+              Zotero.debug(
+                `[ReplicationChecker] Updated parent image attribute`,
+              );
               break;
             }
 
@@ -650,14 +766,18 @@ function updatePreferencePaneIcons() {
           // Also check if this element itself has image attribute
           if ((elem as Element).hasAttribute("image")) {
             (elem as Element).setAttribute("image", newIconPath);
-            Zotero.debug(`[ReplicationChecker] Updated element image attribute`);
+            Zotero.debug(
+              `[ReplicationChecker] Updated element image attribute`,
+            );
           }
         }
       }
     }
     Zotero.debug(`[ReplicationChecker] Checked ${windowCount} windows total`);
   } catch (e) {
-    Zotero.debug(`[ReplicationChecker] Error updating preference pane icons: ${e}`);
+    Zotero.debug(
+      `[ReplicationChecker] Error updating preference pane icons: ${e}`,
+    );
   }
 }
 
@@ -690,7 +810,9 @@ export async function onMainWindowUnload(win: Window) {
     }
     delete (win as any)._rcMenuPopupListeners;
   } catch (e) {
-    Zotero.debug("[ReplicationChecker] Error cleaning up window menu items: " + e);
+    Zotero.debug(
+      "[ReplicationChecker] Error cleaning up window menu items: " + e,
+    );
   }
 }
 
@@ -701,61 +823,85 @@ function setupPreferencePaneObserver() {
   Zotero.debug("[ReplicationChecker] Setting up preference pane observer");
 
   // Observe DOM-window-created events to catch when preferences window opens
-  const observerService = (Components.classes as any)["@mozilla.org/observer-service;1"]
-    .getService((Components.interfaces as any).nsIObserverService);
+  const observerService = (Components.classes as any)[
+    "@mozilla.org/observer-service;1"
+  ].getService((Components.interfaces as any).nsIObserverService);
 
   const prefObserver = {
     observe: function (subject: any, topic: string, _data: string) {
       if (topic === "domwindowopened") {
         const win = subject as Window;
 
-        win.addEventListener("load", function () {
-          try {
-            // Check if this is the preferences window
-            if (win.location?.href?.includes("preferences")) {
-              Zotero.debug("[ReplicationChecker] Preferences window detected, waiting for DOM");
+        win.addEventListener(
+          "load",
+          function () {
+            try {
+              // Check if this is the preferences window
+              if (win.location?.href?.includes("preferences")) {
+                Zotero.debug(
+                  "[ReplicationChecker] Preferences window detected, waiting for DOM",
+                );
 
-              // Update preference pane icon immediately to match current theme
-              setTimeout(() => updatePreferencePaneIcons(), 100);
+                // Update preference pane icon immediately to match current theme
+                setTimeout(() => updatePreferencePaneIcons(), 100);
 
-              // Poll for our preference pane to load (preference panes load asynchronously)
-              let attempts = 0;
-              const maxAttempts = 20; // Try for up to 10 seconds (20 * 500ms)
+                // Poll for our preference pane to load (preference panes load asynchronously)
+                let attempts = 0;
+                const maxAttempts = 20; // Try for up to 10 seconds (20 * 500ms)
 
-              const checkForPane = () => {
-                attempts++;
-                const doc = win.document;
-                const blacklistContainer = doc.getElementById("blacklist-list");
+                const checkForPane = () => {
+                  attempts++;
+                  const doc = win.document;
+                  const blacklistContainer =
+                    doc.getElementById("blacklist-list");
 
-                if (blacklistContainer) {
-                  Zotero.debug(`[ReplicationChecker] Our preference pane loaded after ${attempts} attempts, initializing UI`);
-                  if ((Zotero as any).ReplicationChecker?.initBlacklistUI) {
-                    (Zotero as any).ReplicationChecker.initBlacklistUI(doc);
+                  if (blacklistContainer) {
+                    Zotero.debug(
+                      `[ReplicationChecker] Our preference pane loaded after ${attempts} attempts, initializing UI`,
+                    );
+                    if ((Zotero as any).ReplicationChecker?.initBlacklistUI) {
+                      (Zotero as any).ReplicationChecker.initBlacklistUI(doc);
+                    } else {
+                      Zotero.debug(
+                        "[ReplicationChecker] ERROR: initBlacklistUI not available",
+                      );
+                    }
+                    (Zotero as any).ReplicationChecker?.initCollectionNamesUI?.(
+                      doc,
+                    );
+                    if ((Zotero as any).ReplicationChecker?.initStatsUI) {
+                      (Zotero as any).ReplicationChecker.initStatsUI(doc);
+                    } else {
+                      Zotero.debug(
+                        "[ReplicationChecker] ERROR: initStatsUI not available",
+                      );
+                    }
+                    // Update preference pane icon to match current theme
+                    updatePreferencePaneIcons();
+                  } else if (attempts < maxAttempts) {
+                    Zotero.debug(
+                      `[ReplicationChecker] Preference pane not loaded yet, attempt ${attempts}/${maxAttempts}`,
+                    );
+                    setTimeout(checkForPane, 500);
                   } else {
-                    Zotero.debug("[ReplicationChecker] ERROR: initBlacklistUI not available");
+                    Zotero.debug(
+                      "[ReplicationChecker] Gave up waiting for preference pane after 10 seconds",
+                    );
                   }
-                  if ((Zotero as any).ReplicationChecker?.initStatsUI) {
-                    (Zotero as any).ReplicationChecker.initStatsUI(doc);
-                  } else {
-                    Zotero.debug("[ReplicationChecker] ERROR: initStatsUI not available");
-                  }
-                  // Update preference pane icon to match current theme
-                  updatePreferencePaneIcons();
-                } else if (attempts < maxAttempts) {
-                  Zotero.debug(`[ReplicationChecker] Preference pane not loaded yet, attempt ${attempts}/${maxAttempts}`);
-                  setTimeout(checkForPane, 500);
-                } else {
-                  Zotero.debug("[ReplicationChecker] Gave up waiting for preference pane after 10 seconds");
-                }
-              };
+                };
 
-              // Start polling after initial delay
-              setTimeout(checkForPane, 500);
+                // Start polling after initial delay
+                setTimeout(checkForPane, 500);
+              }
+            } catch (error) {
+              Zotero.debug(
+                "[ReplicationChecker] Error in preference pane observer: " +
+                  error,
+              );
             }
-          } catch (error) {
-            Zotero.debug("[ReplicationChecker] Error in preference pane observer: " + error);
-          }
-        }, { once: true });
+          },
+          { once: true },
+        );
       }
     },
   };
@@ -813,7 +959,9 @@ export async function onShutdown() {
     Zotero.debug("[ReplicationChecker] Shutdown complete");
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
-    Zotero.logError(new Error(`[ReplicationChecker] Error during shutdown: ${errorMsg}`));
+    Zotero.logError(
+      new Error(`[ReplicationChecker] Error during shutdown: ${errorMsg}`),
+    );
   }
 }
 
@@ -838,16 +986,22 @@ export async function initBlacklistUI(doc: Document) {
       Zotero.debug("[ReplicationChecker Prefs] loadBlacklistUI called");
 
       if (!blacklistManager) {
-        Zotero.debug("[ReplicationChecker Prefs] BlacklistManager not available");
+        Zotero.debug(
+          "[ReplicationChecker Prefs] BlacklistManager not available",
+        );
         return;
       }
 
       const entries = blacklistManager.getEntriesWithMetadata();
-      Zotero.debug(`[ReplicationChecker Prefs] Retrieved ${entries.length} blacklist entries`);
+      Zotero.debug(
+        `[ReplicationChecker Prefs] Retrieved ${entries.length} blacklist entries`,
+      );
 
       const tbody = doc.getElementById("blacklist-list");
       if (!tbody) {
-        Zotero.debug("[ReplicationChecker Prefs] blacklist-list tbody not found");
+        Zotero.debug(
+          "[ReplicationChecker Prefs] blacklist-list tbody not found",
+        );
         return;
       }
 
@@ -868,7 +1022,9 @@ export async function initBlacklistUI(doc: Document) {
         emptyRow.appendChild(emptyCell);
         tbody.appendChild(emptyRow);
 
-        const removeBtn = doc.getElementById("blacklist-remove-btn") as HTMLButtonElement;
+        const removeBtn = doc.getElementById(
+          "blacklist-remove-btn",
+        ) as HTMLButtonElement;
         if (removeBtn) removeBtn.disabled = true;
         selectedIdentifier = null;
         return;
@@ -908,7 +1064,8 @@ export async function initBlacklistUI(doc: Document) {
         typeCell.style.borderRight = "1px solid #ddd";
         typeCell.style.color = "#333333";
         typeCell.style.fontSize = "0.85em";
-        typeCell.textContent = entry.type === 'reproduction' ? 'Reproduction' : 'Replication';
+        typeCell.textContent =
+          entry.type === "reproduction" ? "Reproduction" : "Replication";
 
         // Banned On column
         const dateCell = doc.createElement("td");
@@ -956,7 +1113,9 @@ export async function initBlacklistUI(doc: Document) {
           selectedIdentifier = identifier;
 
           // Enable remove button
-          const removeBtn = doc.getElementById("blacklist-remove-btn") as HTMLButtonElement;
+          const removeBtn = doc.getElementById(
+            "blacklist-remove-btn",
+          ) as HTMLButtonElement;
           if (removeBtn) removeBtn.disabled = false;
         });
 
@@ -965,7 +1124,9 @@ export async function initBlacklistUI(doc: Document) {
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
       Zotero.logError(err);
-      Zotero.debug("[ReplicationChecker Prefs] Error loading blacklist UI: " + error);
+      Zotero.debug(
+        "[ReplicationChecker Prefs] Error loading blacklist UI: " + error,
+      );
     }
   }
 
@@ -974,7 +1135,9 @@ export async function initBlacklistUI(doc: Document) {
 
     try {
       await blacklistManager.removeFromBlacklist(selectedIdentifier);
-      Zotero.debug(`[ReplicationChecker Prefs] Removed ${selectedIdentifier} from blacklist`);
+      Zotero.debug(
+        `[ReplicationChecker Prefs] Removed ${selectedIdentifier} from blacklist`,
+      );
       selectedIdentifier = null;
       await loadBlacklistUI();
     } catch (error) {
@@ -990,7 +1153,7 @@ export async function initBlacklistUI(doc: Document) {
     if (!win) return;
 
     const confirmed = win.confirm(
-      "Are you sure you want to clear all banned replications? This cannot be undone."
+      "Are you sure you want to clear all banned replications? This cannot be undone.",
     );
     if (!confirmed) return;
 
@@ -1024,13 +1187,18 @@ export async function initBlacklistUI(doc: Document) {
     prefObserverSymbol = Zotero.Prefs.registerObserver(
       "replication-checker.blacklist",
       async () => {
-        Zotero.debug("[ReplicationChecker Prefs] Blacklist preference changed, reloading UI");
+        Zotero.debug(
+          "[ReplicationChecker Prefs] Blacklist preference changed, reloading UI",
+        );
         await loadBlacklistUI();
-      }
+      },
     );
     Zotero.debug("[ReplicationChecker Prefs] Preference observer registered");
   } catch (error) {
-    Zotero.debug("[ReplicationChecker Prefs] Could not register preference observer: " + error);
+    Zotero.debug(
+      "[ReplicationChecker Prefs] Could not register preference observer: " +
+        error,
+    );
   }
 
   // Clean up observer when window is closed
@@ -1040,9 +1208,14 @@ export async function initBlacklistUI(doc: Document) {
       if (prefObserverSymbol) {
         try {
           Zotero.Prefs.unregisterObserver(prefObserverSymbol);
-          Zotero.debug("[ReplicationChecker Prefs] Preference observer unregistered");
+          Zotero.debug(
+            "[ReplicationChecker Prefs] Preference observer unregistered",
+          );
         } catch (error) {
-          Zotero.debug("[ReplicationChecker Prefs] Could not unregister observer: " + error);
+          Zotero.debug(
+            "[ReplicationChecker Prefs] Could not unregister observer: " +
+              error,
+          );
         }
       }
     });
@@ -1055,6 +1228,112 @@ export async function initBlacklistUI(doc: Document) {
 // ---------------------------------------------------------------------------
 // Stats UI for the preference pane
 // ---------------------------------------------------------------------------
+
+/**
+ * Collection names table: each row shows a name with a pencil, which swaps to a
+ * text box with a tick. Saving renames the real collections straight away.
+ */
+export function initCollectionNamesUI(doc: Document): void {
+  // See initBlacklistUI: guards against the pane being initialised twice.
+  if ((doc as any)._rcCollectionNamesUIReady) return;
+  (doc as any)._rcCollectionNamesUIReady = true;
+
+  const errorEl = doc.getElementById(
+    "collection-names-error",
+  ) as HTMLElement | null;
+  const showError = (message: string) => {
+    if (!errorEl) return;
+    errorEl.textContent = message;
+    errorEl.style.display = message ? "block" : "none";
+  };
+  const make = (tag: string) =>
+    doc.createElementNS("http://www.w3.org/1999/xhtml", tag) as HTMLElement;
+  const iconButton = (icon: string, labelKey: string) => {
+    const button = make("button") as HTMLButtonElement;
+    button.textContent = icon;
+    button.title = getString(labelKey);
+    button.setAttribute("aria-label", getString(labelKey));
+    button.style.cssText = "flex: none; min-width: 28px; padding: 2px 6px;";
+    return button;
+  };
+  const rowStyle = "display: flex; align-items: center; gap: 6px;";
+
+  function showName(cell: HTMLElement, spec: CollectionSpec): void {
+    const row = make("div");
+    row.style.cssText = rowStyle;
+    const name = make("span");
+    name.textContent = getCollectionFolderName(spec);
+    name.style.cssText = "flex: 1; padding: 3px 0; overflow-wrap: anywhere;";
+    const edit = iconButton("✎", "pref-collections-edit");
+    edit.addEventListener("click", () => showEditor(cell, spec));
+    row.append(name, edit);
+    cell.replaceChildren(row);
+  }
+
+  function showEditor(cell: HTMLElement, spec: CollectionSpec): void {
+    showError("");
+    const current = getCollectionFolderName(spec);
+    const row = make("div");
+    row.style.cssText = rowStyle;
+    const input = make("input") as HTMLInputElement;
+    input.type = "text";
+    input.value = current;
+    input.style.cssText = "flex: 1; min-width: 0; padding: 3px 6px;";
+    const saveBtn = iconButton("✓", "pref-collections-save");
+    const cancelBtn = iconButton("✕", "pref-collections-cancel");
+
+    const save = async () => {
+      const name = input.value.trim();
+      const others = NAMED_SPECS.filter((s) => s !== spec).map(
+        getCollectionFolderName,
+      );
+      const problem = collectionNameError(name, others);
+      if (problem) {
+        showError(getString(`pref-collections-error-${problem}`));
+        input.focus();
+        return;
+      }
+      saveBtn.disabled = true;
+      try {
+        if (name !== current) await renameManagedCollection(spec, name);
+        showError("");
+        showName(cell, spec);
+      } catch (error) {
+        Zotero.logError(error as Error);
+        saveBtn.disabled = false;
+        showError(getString("pref-collections-error-save"));
+      }
+    };
+
+    saveBtn.addEventListener("click", save);
+    cancelBtn.addEventListener("click", () => {
+      showError("");
+      showName(cell, spec);
+    });
+    input.addEventListener("keydown", (event: KeyboardEvent) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        void save();
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        cancelBtn.click();
+      }
+    });
+
+    row.append(input, saveBtn, cancelBtn);
+    cell.replaceChildren(row);
+    input.select();
+    input.focus();
+  }
+
+  for (const row of doc.querySelectorAll(
+    "#collection-names-table tr[data-spec]",
+  )) {
+    const spec = NAMED_SPECS[Number(row.getAttribute("data-spec"))];
+    showName(row.lastElementChild as HTMLElement, spec);
+  }
+}
 
 export async function initStatsUI(doc: Document): Promise<void> {
   Zotero.debug("[ReplicationChecker Prefs] initStatsUI called");
@@ -1070,11 +1349,13 @@ export async function initStatsUI(doc: Document): Promise<void> {
   // ── helpers ──────────────────────────────────────────────────────────────
 
   /**
-   * Library the stats and the Atlas button apply to. Defaults to the personal
-   * library; the picker below lets users switch to any group library.
+   * Library the stats and the Atlas button apply to. Defaults to the library
+   * picked last time, else the personal library; see initLibraryPicker.
    */
   function selectedLibraryID(): number {
-    const select = doc.getElementById("stats-library-select") as HTMLSelectElement | null;
+    const select = doc.getElementById(
+      "stats-library-select",
+    ) as HTMLSelectElement | null;
     const id = select ? parseInt(select.value, 10) : NaN;
     return Number.isNaN(id) ? Zotero.Libraries.userLibraryID : id;
   }
@@ -1082,7 +1363,10 @@ export async function initStatsUI(doc: Document): Promise<void> {
   // Scope comes from the Search constructor, not a "libraryID" condition: a new
   // Zotero.Search() defaults to the personal library, so a condition naming a
   // group library would contradict it and always return nothing (#100).
-  async function searchByTag(tag: string, libraryID: number): Promise<number[]> {
+  async function searchByTag(
+    tag: string,
+    libraryID: number,
+  ): Promise<number[]> {
     const search = new Zotero.Search({ libraryID });
     search.addCondition("tag", "is", tag);
     // Same filter countAllItems() uses. The plugin only ever tags top-level
@@ -1100,8 +1384,13 @@ export async function initStatsUI(doc: Document): Promise<void> {
   }
 
   /** Unique item IDs carrying any of the given tags. */
-  async function idsForTags(libraryID: number, tags: string[]): Promise<number[]> {
-    const results = await Promise.all(tags.map((tag) => searchByTag(tag, libraryID)));
+  async function idsForTags(
+    libraryID: number,
+    tags: string[],
+  ): Promise<number[]> {
+    const results = await Promise.all(
+      tags.map((tag) => searchByTag(tag, libraryID)),
+    );
     return [...new Set(results.flat())];
   }
 
@@ -1134,7 +1423,9 @@ export async function initStatsUI(doc: Document): Promise<void> {
    * articles. `null` marks an item the plugin tracks but cannot identify by
    * DOI — reported by the note under the table rather than silently dropped.
    */
-  async function resolveDOIs(ids: number[]): Promise<Map<number, string | null>> {
+  async function resolveDOIs(
+    ids: number[],
+  ): Promise<Map<number, string | null>> {
     const byID = new Map<number, string | null>();
     for (const id of ids) {
       const item = await Zotero.Items.getAsync(id);
@@ -1150,7 +1441,10 @@ export async function initStatsUI(doc: Document): Promise<void> {
    * so the same paper saved twice counts once. Items with no DOI cannot be
    * identified and are not counted here; `countWithoutDOI` reports them.
    */
-  function countUniqueDOIs(ids: number[], byID: Map<number, string | null>): number {
+  function countUniqueDOIs(
+    ids: number[],
+    byID: Map<number, string | null>,
+  ): number {
     const seen = new Set<string>();
     for (const id of ids) {
       const doi = byID.get(id);
@@ -1159,7 +1453,10 @@ export async function initStatsUI(doc: Document): Promise<void> {
     return seen.size;
   }
 
-  function countWithoutDOI(ids: number[], byID: Map<number, string | null>): number {
+  function countWithoutDOI(
+    ids: number[],
+    byID: Map<number, string | null>,
+  ): number {
     return ids.reduce((n, id) => (byID.get(id) ? n : n + 1), 0);
   }
 
@@ -1183,7 +1480,11 @@ export async function initStatsUI(doc: Document): Promise<void> {
     const dois = [...seen];
     const withoutDoi = countWithoutDOI(ids, byID);
 
-    return { dois, withoutDoi, duplicates: ids.length - withoutDoi - dois.length };
+    return {
+      dois,
+      withoutDoi,
+      duplicates: ids.length - withoutDoi - dois.length,
+    };
   }
 
   /**
@@ -1198,7 +1499,9 @@ export async function initStatsUI(doc: Document): Promise<void> {
     const el = doc.getElementById("stats-atlas-warning") as HTMLElement | null;
     if (!el) return;
     if (withoutDoi > 0) {
-      el.textContent = getString("pref-stats-no-doi-note", { count: withoutDoi });
+      el.textContent = getString("pref-stats-no-doi-note", {
+        count: withoutDoi,
+      });
       el.style.display = "block";
     } else {
       el.style.display = "none";
@@ -1210,12 +1513,15 @@ export async function initStatsUI(doc: Document): Promise<void> {
    * personal library, so nothing changes for single-library users (#100).
    */
   function initLibraryPicker(): void {
-    const select = doc.getElementById("stats-library-select") as HTMLSelectElement | null;
+    const select = doc.getElementById(
+      "stats-library-select",
+    ) as HTMLSelectElement | null;
     const row = doc.getElementById("stats-library-row") as HTMLElement | null;
     if (!select || !row) return;
 
-    const libraries = Zotero.Libraries.getAll()
-      .filter((lib: any) => lib.libraryType !== "feed");
+    const libraries = Zotero.Libraries.getAll().filter(
+      (lib: any) => lib.libraryType !== "feed",
+    );
     if (libraries.length < 2) return;
 
     const label = doc.getElementById("pref-stats-library-label");
@@ -1227,10 +1533,17 @@ export async function initStatsUI(doc: Document): Promise<void> {
       option.textContent = lib.name;
       select.appendChild(option);
     }
-    select.value = String(Zotero.Libraries.userLibraryID);
+    // Reopen on the library picked last time, if it still exists.
+    const saved = String(Zotero.Prefs.get(STATS_LIBRARY_PREF));
+    select.value = libraries.some((lib: any) => String(lib.libraryID) === saved)
+      ? saved
+      : String(Zotero.Libraries.userLibraryID);
     row.style.display = "flex";
 
-    select.addEventListener("change", () => { loadStatsUI(); });
+    select.addEventListener("change", () => {
+      Zotero.Prefs.set(STATS_LIBRARY_PREF, parseInt(select.value, 10));
+      loadStatsUI();
+    });
   }
 
   // ── load stats from Zotero library ───────────────────────────────────────
@@ -1239,24 +1552,32 @@ export async function initStatsUI(doc: Document): Promise<void> {
     try {
       // Show loading state
       for (const id of [
-        "stat-total", "stat-originals", "stat-has-replication",
-        "stat-is-replication", "stat-has-reproduction", "stat-is-reproduction",
-      ]) setText(id, "…");
+        "stat-total",
+        "stat-originals",
+        "stat-has-replication",
+        "stat-is-replication",
+        "stat-has-reproduction",
+        "stat-is-reproduction",
+      ])
+        setText(id, "…");
 
       const libraryID = selectedLibraryID();
 
-      const [total, hasRepIDs, isRepIDs, hasReproIDs, isReproIDs] = await Promise.all([
-        countAllItems(libraryID),
-        searchByTag(getTag(TAG_HAS_BEEN_REPLICATED), libraryID),
-        searchByTag(getTag(TAG_IS_REPLICATION), libraryID),
-        searchByTag(getTag(TAG_HAS_BEEN_REPRODUCED), libraryID),
-        searchByTag(getTag(TAG_IS_REPRODUCTION), libraryID),
-      ]);
+      const [total, hasRepIDs, isRepIDs, hasReproIDs, isReproIDs] =
+        await Promise.all([
+          countAllItems(libraryID),
+          searchByTag(getTag(TAG_HAS_BEEN_REPLICATED), libraryID),
+          searchByTag(getTag(TAG_IS_REPLICATION), libraryID),
+          searchByTag(getTag(TAG_HAS_BEEN_REPRODUCED), libraryID),
+          searchByTag(getTag(TAG_IS_REPRODUCTION), libraryID),
+        ]);
 
       // Original articles tracked = items tagged "Has Been Replicated" or
       // "Has Been Reproduced"; an item carrying both must still count once.
       const originalIDs = [...new Set([...hasRepIDs, ...hasReproIDs])];
-      const trackedIDs = [...new Set([...originalIDs, ...isRepIDs, ...isReproIDs])];
+      const trackedIDs = [
+        ...new Set([...originalIDs, ...isRepIDs, ...isReproIDs]),
+      ];
 
       // One resolution pass for every tracked item, reused by all five counts.
       const doiByID = await resolveDOIs(trackedIDs);
@@ -1266,24 +1587,24 @@ export async function initStatsUI(doc: Document): Promise<void> {
       // items here would have made the two disagree whenever a library held the
       // same paper twice. Only "Total library items" stays an item count.
       const originals = countUniqueDOIs(originalIDs, doiByID);
-      const hasRep    = countUniqueDOIs(hasRepIDs, doiByID);
-      const isRep     = countUniqueDOIs(isRepIDs, doiByID);
-      const hasRepro  = countUniqueDOIs(hasReproIDs, doiByID);
-      const isRepro   = countUniqueDOIs(isReproIDs, doiByID);
+      const hasRep = countUniqueDOIs(hasRepIDs, doiByID);
+      const isRep = countUniqueDOIs(isRepIDs, doiByID);
+      const hasRepro = countUniqueDOIs(hasReproIDs, doiByID);
+      const isRepro = countUniqueDOIs(isReproIDs, doiByID);
       const withoutDoi = countWithoutDOI(trackedIDs, doiByID);
 
-      setText("stat-total",            total.toLocaleString());
-      setText("stat-originals",        String(originals));
-      setText("stat-has-replication",  String(hasRep));
-      setText("stat-is-replication",   String(isRep));
+      setText("stat-total", total.toLocaleString());
+      setText("stat-originals", String(originals));
+      setText("stat-has-replication", String(hasRep));
+      setText("stat-is-replication", String(isRep));
       setText("stat-has-reproduction", String(hasRepro));
-      setText("stat-is-reproduction",  String(isRepro));
+      setText("stat-is-reproduction", String(isRepro));
 
       Zotero.debug(
         `[ReplicationChecker Prefs] Stats (unique DOIs): total=${total} ` +
-        `originals=${originals} hasRep=${hasRep} isRep=${isRep} ` +
-        `hasRepro=${hasRepro} isRepro=${isRepro}; ` +
-        `${trackedIDs.length} tracked items, ${withoutDoi} without a DOI`
+          `originals=${originals} hasRep=${hasRep} isRep=${isRep} ` +
+          `hasRepro=${hasRepro} isRepro=${isRepro}; ` +
+          `${trackedIDs.length} tracked items, ${withoutDoi} without a DOI`,
       );
 
       // Nothing is dropped silently: the note names the items excluded above.
@@ -1294,22 +1615,9 @@ export async function initStatsUI(doc: Document): Promise<void> {
   }
 
   // ── Open FLoRA Replication Atlas ─────────────────────────────────────────
-  // Tracked original DOIs travel in the query string (?dois=doi1,doi2,...).
-  //
-  // The Atlas is served from GitHub Pages, whose edge (Fastly) answers 414 as
-  // soon as the request target — path + query, excluding scheme and host —
-  // exceeds 8192 bytes. Measured against forrt.org on 2026-07-28:
-  // 8192 bytes → 200, 8193 bytes → 414. MAX_REQUEST_TARGET keeps a margin below
-  // that for corporate proxies with tighter limits.
-  //
-  // Anything longer cannot be delivered by URL at all: the Atlas reads its
-  // input from query parameters only, so a hash fragment (never sent to a
-  // server, hence unlimited) or a POST would need a change on the Atlas side.
-  // Until then, oversized lists go to the clipboard.
-
-  const ATLAS_PATH = "/flora-replication-atlas/";
-  const ATLAS_BASE = `https://forrt.org${ATLAS_PATH}`;
-  const MAX_REQUEST_TARGET = 8000;
+  // Tracked DOIs go to the Atlas as an encrypted set (see utils/atlasSet.ts), so
+  // list length no longer matters to the URL. The API caps a set at about 9,000
+  // DOIs; if a set can't be created the list goes to the clipboard instead.
 
   async function openAtlas(): Promise<void> {
     const errorEl = doc.getElementById("stats-atlas-error");
@@ -1322,11 +1630,14 @@ export async function initStatsUI(doc: Document): Promise<void> {
       if (!errorEl) return;
       errorEl.textContent = msg;
       (errorEl as HTMLElement).style.display = "block";
-      setTimeout(() => { (errorEl as HTMLElement).style.display = "none"; }, 6000);
+      setTimeout(() => {
+        (errorEl as HTMLElement).style.display = "none";
+      }, 6000);
     };
 
     try {
-      const { dois, withoutDoi, duplicates } = await collectTrackedDOIs(selectedLibraryID());
+      const { dois, withoutDoi, duplicates } =
+        await collectTrackedDOIs(selectedLibraryID());
 
       // Refresh the standing warning so it matches this click exactly.
       renderAtlasWarning(withoutDoi);
@@ -1336,19 +1647,22 @@ export async function initStatsUI(doc: Document): Promise<void> {
         return;
       }
 
-      // Percent-encode each DOI so characters that are legal in a DOI but not in
-      // a URL (#, spaces, <, >, &) can't truncate or corrupt the query. "/" is
-      // left as-is — it is legal inside a query string, and keeping it verbatim
-      // means ordinary DOIs produce exactly the URL they always have.
-      const query = dois
-        .map((doi) => encodeURIComponent(doi).replace(/%2F/gi, "/"))
-        .join(",");
-      const requestTarget = `${ATLAS_PATH}?dois=${query}`;
+      let setUrl: string | null = null;
+      try {
+        setUrl = await createAtlasSetUrl(
+          dois,
+          doc.defaultView as unknown as CryptoEnv,
+        );
+      } catch (error) {
+        Zotero.debug(
+          "[ReplicationChecker Prefs] Could not create Atlas set: " + error,
+        );
+      }
 
-      if (requestTarget.length <= MAX_REQUEST_TARGET) {
-        Zotero.launchURL(`https://forrt.org${requestTarget}`);
+      if (setUrl) {
+        Zotero.launchURL(setUrl);
       } else {
-        // Too many DOIs for one URL — copy the raw list and open the Atlas homepage
+        // Copy the raw list and open the Atlas homepage
         const clipHelper = (Components.classes as any)[
           "@mozilla.org/widget/clipboardhelper;1"
         ].getService((Components.interfaces as any).nsIClipboardHelper);
@@ -1359,18 +1673,17 @@ export async function initStatsUI(doc: Document): Promise<void> {
         // addDescription(), not addLines() — see addProgressLine() in
         // replicationChecker.ts: an empty icon renders as a broken-image box.
         progressWin.addDescription(
-          getString("pref-stats-atlas-clipboard", { count: dois.length })
+          getString("pref-stats-atlas-clipboard", { count: dois.length }),
         );
         progressWin.show();
         progressWin.startCloseTimer(5000);
 
-        Zotero.launchURL(ATLAS_BASE);
+        Zotero.launchURL(ATLAS_URL);
       }
 
       Zotero.debug(
         `[ReplicationChecker Prefs] Opening Atlas: ${dois.length} unique DOIs ` +
-        `(${withoutDoi} without a usable DOI, ${duplicates} duplicate DOIs), ` +
-        `request target ${requestTarget.length}/${MAX_REQUEST_TARGET} bytes`
+          `(${withoutDoi} without a usable DOI, ${duplicates} duplicate DOIs)`,
       );
     } catch (error) {
       Zotero.debug("[ReplicationChecker Prefs] Error opening Atlas: " + error);
@@ -1382,7 +1695,10 @@ export async function initStatsUI(doc: Document): Promise<void> {
   initLibraryPicker();
 
   const atlasBtn = doc.getElementById("stats-atlas-btn");
-  if (atlasBtn) atlasBtn.addEventListener("click", () => { openAtlas(); });
+  if (atlasBtn)
+    atlasBtn.addEventListener("click", () => {
+      openAtlas();
+    });
 
   // ── Auto-update via Zotero Notifier ──────────────────────────────────────
 
@@ -1390,17 +1706,29 @@ export async function initStatsUI(doc: Document): Promise<void> {
 
   statsNotifierID = Zotero.Notifier.registerObserver(
     {
-      notify: (event: string, type: string, _ids: (number | string)[], _extraData: Record<string, any>) => {
-        if (type === "item" && (event === "add" || event === "modify" || event === "delete")) {
+      notify: (
+        event: string,
+        type: string,
+        _ids: (number | string)[],
+        _extraData: Record<string, any>,
+      ) => {
+        if (
+          type === "item" &&
+          (event === "add" || event === "modify" || event === "delete")
+        ) {
           // Debounce: wait 500 ms after the last change before reloading
           if (debounceTimer !== null) clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(() => { loadStatsUI(); }, 500);
+          debounceTimer = setTimeout(() => {
+            loadStatsUI();
+          }, 500);
         }
       },
     },
-    ["item"]
+    ["item"],
   );
-  Zotero.debug("[ReplicationChecker Prefs] Stats notifier registered: " + statsNotifierID);
+  Zotero.debug(
+    "[ReplicationChecker Prefs] Stats notifier registered: " + statsNotifierID,
+  );
 
   // ── Clean up on window close ──────────────────────────────────────────────
 
@@ -1411,9 +1739,14 @@ export async function initStatsUI(doc: Document): Promise<void> {
       if (statsNotifierID) {
         try {
           Zotero.Notifier.unregisterObserver(statsNotifierID);
-          Zotero.debug("[ReplicationChecker Prefs] Stats notifier unregistered");
+          Zotero.debug(
+            "[ReplicationChecker Prefs] Stats notifier unregistered",
+          );
         } catch (e) {
-          Zotero.debug("[ReplicationChecker Prefs] Could not unregister stats notifier: " + e);
+          Zotero.debug(
+            "[ReplicationChecker Prefs] Could not unregister stats notifier: " +
+              e,
+          );
         }
       }
     });

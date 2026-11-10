@@ -32,14 +32,27 @@ import {
   ORIGINALS_REPLICATION_SPEC,
   ORIGINALS_REPRODUCTION_SPEC,
   READONLY_SUFFIX,
+  GROUP_LIBRARY_SUFFIX,
   getCollectionFolderName,
   getOrCreateCollection,
   getOrCreateChildCollection,
 } from "../utils/collectionUtils";
 import { getSelectedCollections, getSelectedLibraryID } from "../utils/zoteroCompat";
+import {
+  AUTO_CHECK_POLL_MS,
+  AUTO_CHECK_STARTUP_DELAY_MS,
+  decideAutoCheck,
+  getAutoCheckIntervalMs,
+  getAutoCheckLibraryIDs,
+  parseGroupAddMode,
+  parseLastAutoCheck,
+} from "../utils/autoCheckSchedule";
 
 const AUTO_CHECK_PREF = "replication-checker.autoCheckFrequency";
+const LAST_AUTO_CHECK_PREF = "replication-checker.lastAutoCheck";
 const NEW_ITEM_PREF = "replication-checker.autoCheckNewItems";
+const AUTO_CHECK_LIBRARIES_PREF = "replication-checker.autoCheckLibraries";
+const GROUP_ADD_MODE_PREF = "replication-checker.groupAddMode";
 
 type LocaleParams = Record<string, string | number>;
 
@@ -79,6 +92,8 @@ export class ReplicationCheckerPlugin {
   private rootURI: string = "";
   private notifierID: string | null = null;
   private autoCheckTimer: number | null = null;
+  private autoCheckStartupTimer: number | null = null;
+  private activeAutoCheckFrequency = "disabled";
   private prefObserverSymbols: symbol[] = [];
   private pluginAddedItems: Set<number> = new Set(); // Track items added by the plugin
   private isAddingOriginals = false; // Guard: suppress auto-check while batch-adding originals
@@ -203,6 +218,12 @@ export class ReplicationCheckerPlugin {
    * Restart the auto-check timer when preferences change
    */
   private restartAutoCheckTimer(): void {
+    // Switching scheduling on counts the period from now. A last-check time
+    // left over from before it was switched off would otherwise start a
+    // full-library check within the hour.
+    if (this.activeAutoCheckFrequency === "disabled") {
+      this.setLastAutoCheck(Date.now());
+    }
     this.stopAutoCheck();
     this.startAutoCheck();
   }
@@ -321,47 +342,105 @@ export class ReplicationCheckerPlugin {
    * Calculate auto-check interval in milliseconds
    */
   private getAutoCheckInterval(): number {
-    const frequency = this.getAutoCheckFrequency();
-    const intervals: { [key: string]: number } = {
-      disabled: 0,
-      test: 5 * 60 * 1000, // 5 minutes (for testing only)
-      daily: 24 * 60 * 60 * 1000, // 24 hours
-      weekly: 7 * 24 * 60 * 60 * 1000, // 7 days
-      monthly: 30 * 24 * 60 * 60 * 1000, // 30 days
-    };
-    return intervals[frequency] || 0;
+    return getAutoCheckIntervalMs(this.getAutoCheckFrequency());
+  }
+
+  /** Time of the last scheduled check, or null if none is recorded. */
+  private getLastAutoCheck(): number | null {
+    try {
+      return parseLastAutoCheck(Zotero.Prefs.get(LAST_AUTO_CHECK_PREF));
+    } catch (error) {
+      Zotero.debug(`Failed to read last auto-check time: ${error}`);
+      return null;
+    }
+  }
+
+  private setLastAutoCheck(timeMs: number): void {
+    try {
+      // A string: epoch milliseconds overflow an integer preference.
+      Zotero.Prefs.set(LAST_AUTO_CHECK_PREF, String(timeMs));
+    } catch (error) {
+      Zotero.debug(`Failed to store last auto-check time: ${error}`);
+    }
   }
 
   /**
-   * Start auto-check timer based on preferences
+   * Start the scheduled check. The last-check time is kept in a preference,
+   * so the period carries across Zotero restarts; a short timer looks once
+   * shortly after start-up and then hourly whether a check is due. See
+   * src/utils/autoCheckSchedule.ts for why this replaced a single long timer.
    */
   private startAutoCheck(): void {
     this.stopAutoCheck();
-    const interval = this.getAutoCheckInterval();
-    if (interval === 0) {
+    this.activeAutoCheckFrequency = this.getAutoCheckFrequency();
+    if (this.getAutoCheckInterval() === 0) {
       Zotero.debug("ReplicationChecker: Auto-check is disabled");
       return;
     }
 
-    const runAutoCheck = () => {
-      Zotero.debug(
-        `ReplicationChecker: Running auto-check (interval: ${this.getAutoCheckFrequency()})`
-      );
-      this.checkEntireLibrary();
-    };
+    // First start with scheduling on (new install, or an update from a
+    // version that kept no record): count the period from now.
+    if (this.getLastAutoCheck() === null) {
+      this.setLastAutoCheck(Date.now());
+    }
 
-    // Set up recurring check (starts after first interval)
-    this.autoCheckTimer = setInterval(runAutoCheck, interval) as unknown as number;
+    this.autoCheckStartupTimer = setTimeout(() => {
+      this.autoCheckStartupTimer = null;
+      this.runAutoCheckIfDue();
+    }, AUTO_CHECK_STARTUP_DELAY_MS) as unknown as number;
+    this.autoCheckTimer = setInterval(
+      () => this.runAutoCheckIfDue(),
+      AUTO_CHECK_POLL_MS,
+    ) as unknown as number;
 
     Zotero.debug(
-      `ReplicationChecker: Auto-check timer started (interval: ${this.getAutoCheckFrequency()}) - first check in ${interval / 1000 / 60} minutes`
+      `ReplicationChecker: Auto-check scheduled (${this.activeAutoCheckFrequency}); last check: ${
+        this.getLastAutoCheck() ?? "none recorded"
+      }`
     );
   }
 
+  /** Run the scheduled check if its period has passed since the last one. */
+  private runAutoCheckIfDue(): void {
+    const now = Date.now();
+    const decision = decideAutoCheck(this.getAutoCheckInterval(), this.getLastAutoCheck(), now);
+
+    if (decision === "reset") {
+      Zotero.debug("ReplicationChecker: No previous auto-check recorded; counting from now");
+      this.setLastAutoCheck(now);
+      return;
+    }
+    if (decision !== "run") return;
+
+    // Record the run before starting it, so an hourly tick during a long
+    // check cannot start a second one.
+    this.setLastAutoCheck(now);
+    Zotero.debug(
+      `ReplicationChecker: Running scheduled auto-check (${this.getAutoCheckFrequency()})`
+    );
+    void this.runScheduledCheck();
+  }
+
+  /** Check each library the auto-check setting includes, one after another. */
+  private async runScheduledCheck(): Promise<void> {
+    const libraryIDs = getAutoCheckLibraryIDs(
+      Zotero.Prefs.get(AUTO_CHECK_LIBRARIES_PREF),
+      Zotero.Libraries.getAll(),
+      Zotero.Libraries.userLibraryID,
+    );
+    for (const libraryID of libraryIDs) {
+      await this.checkEntireLibrary(libraryID);
+    }
+  }
+
   /**
-   * Stop auto-check timer
+   * Stop auto-check timers
    */
   private stopAutoCheck(): void {
+    if (this.autoCheckStartupTimer !== null) {
+      clearTimeout(this.autoCheckStartupTimer);
+      this.autoCheckStartupTimer = null;
+    }
     if (this.autoCheckTimer !== null) {
       clearInterval(this.autoCheckTimer);
       this.autoCheckTimer = null;
@@ -522,16 +601,35 @@ export class ReplicationCheckerPlugin {
     replications: Map<number, Map<number, RelatedStudy[]>>;
     reproductions: Map<number, Map<number, RelatedStudy[]>>;
   }): Promise<{ matchCount: number; reproductionMatchCount: number }> {
+    // In a shared group library every member sees what a check adds, so ask
+    // once per group library before writing to it.
+    const groupChoices = new Map<number, "add" | "copy" | "skip" | "tags">();
+    for (const libraryID of new Set([...grouped.replications.keys(), ...grouped.reproductions.keys()])) {
+      if (!this.isLibraryEditable(libraryID) || !this.isGroupLibrary(libraryID)) continue;
+      const mode = parseGroupAddMode(Zotero.Prefs.get(GROUP_ADD_MODE_PREF));
+      if (mode !== "ask") {
+        groupChoices.set(libraryID, mode === "always" ? "add" : "tags");
+        continue;
+      }
+      const itemIDs = new Set([
+        ...(grouped.replications.get(libraryID)?.keys() ?? []),
+        ...(grouped.reproductions.get(libraryID)?.keys() ?? []),
+      ]);
+      groupChoices.set(libraryID, this.askBeforeAddingToGroup(libraryID, itemIDs.size));
+    }
+
     let matchCount = 0;
     for (const [libraryID, itemsMap] of grouped.replications) {
-      if (!this.isLibraryEditable(libraryID)) {
-        await this.handleReadOnlyLibrary(itemsMap, libraryID);
+      const groupChoice = groupChoices.get(libraryID);
+      if (groupChoice === "skip") continue;
+      if (!this.isLibraryEditable(libraryID) || groupChoice === "copy") {
+        await this.handleReadOnlyLibrary(itemsMap, libraryID, groupChoice === "copy");
         matchCount += itemsMap.size;
         continue;
       }
       for (const [itemID, replications] of itemsMap) {
         try {
-          await this.notifyUserAndAddReplications(itemID, replications);
+          await this.notifyUserAndAddReplications(itemID, replications, groupChoice === "tags");
           matchCount++;
         } catch (error) {
           Zotero.logError(new Error(
@@ -545,16 +643,18 @@ export class ReplicationCheckerPlugin {
 
     let reproductionMatchCount = 0;
     for (const [libraryID, itemsMap] of grouped.reproductions) {
-      if (!this.isLibraryEditable(libraryID)) {
+      const groupChoice = groupChoices.get(libraryID);
+      if (groupChoice === "skip") continue;
+      if (!this.isLibraryEditable(libraryID) || groupChoice === "copy") {
         await reproductionHandler.handleReadOnlyReproductions(
-          itemsMap, libraryID, Zotero.Libraries.userLibraryID,
+          itemsMap, libraryID, Zotero.Libraries.userLibraryID, groupChoice === "copy",
         );
         reproductionMatchCount += itemsMap.size;
         continue;
       }
       for (const [itemID, reproductions] of itemsMap) {
         try {
-          await this.processReproductionsForItem(itemID, reproductions);
+          await this.processReproductionsForItem(itemID, reproductions, groupChoice === "tags");
           reproductionMatchCount++;
         } catch (error) {
           Zotero.logError(new Error(
@@ -570,9 +670,9 @@ export class ReplicationCheckerPlugin {
   }
 
   /**
-   * Check entire library for replications
+   * Check entire library for replications. Defaults to the selected library.
    */
-  async checkEntireLibrary(): Promise<void> {
+  async checkEntireLibrary(libraryID?: number): Promise<void> {
     try {
       if (!this.matcher) throw new Error("Matcher not initialized");
 
@@ -583,7 +683,7 @@ export class ReplicationCheckerPlugin {
       this.addProgressLine(progressWin, getString("replication-checker-progress-scanning-library"));
 
       // Get all DOIs from library
-      const libraryItems = await ZoteroIntegration.getAllDOIsFromLibrary();
+      const libraryItems = await ZoteroIntegration.getAllDOIsFromLibrary(libraryID);
       const uniqueDois = this.getUniqueDOIs(libraryItems);
 
       this.addProgressLine(
@@ -1448,7 +1548,7 @@ export class ReplicationCheckerPlugin {
 
       if (hasReplications) {
         const { newCount, existingCount, folderName } =
-          await this.notifyUserAndAddReplications(itemID, replications);
+          await this.notifyUserAndAddReplications(itemID, replications, await this.isTagsOnlyItem(itemID));
 
         let notifMsg: string;
         if (newCount > 0 && existingCount === 0) {
@@ -1470,7 +1570,7 @@ export class ReplicationCheckerPlugin {
       }
 
       if (hasReproductions) {
-        await this.processReproductionsForItem(itemID, reproductions);
+        await this.processReproductionsForItem(itemID, reproductions, await this.isTagsOnlyItem(itemID));
         this.addProgressLine(progressWin, getString(
           "reproduction-checker-dialog-progress-line", { title: itemTitle },
         ));
@@ -1513,6 +1613,7 @@ export class ReplicationCheckerPlugin {
   private async notifyUserAndAddReplications(
     itemID: number,
     replications: RelatedStudy[],
+    tagsAndNotesOnly = false,
   ): Promise<{ newCount: number; existingCount: number; folderName: string }> {
     try {
       Zotero.debug(`[ReplicationChecker] Processing item ${itemID} with ${replications.length} replications`);
@@ -1522,6 +1623,7 @@ export class ReplicationCheckerPlugin {
 
       // Step 1: Add tags and notes
       await this.notifyUser(itemID, replicationsOldFormat);
+      if (tagsAndNotesOnly) return { newCount: 0, existingCount: 0, folderName: "" };
 
       // Step 2: Add to replication folder (returns new/existing counts)
       const counts = await this.addReplicationsToFolder(itemID, replicationsOldFormat);
@@ -1542,12 +1644,16 @@ export class ReplicationCheckerPlugin {
    * Process reproductions for an item
    * Delegates to the reproduction handler module
    */
-  private async processReproductionsForItem(itemID: number, reproductions: RelatedStudy[]): Promise<void> {
+  private async processReproductionsForItem(
+    itemID: number,
+    reproductions: RelatedStudy[],
+    tagsAndNotesOnly = false,
+  ): Promise<void> {
     try {
       if (reproductions.length === 0) return;
 
       Zotero.debug(`[ReplicationChecker] Processing item ${itemID} with ${reproductions.length} reproductions`);
-      await reproductionHandler.processReproductions(itemID, reproductions);
+      await reproductionHandler.processReproductions(itemID, reproductions, tagsAndNotesOnly);
       Zotero.debug(`[ReplicationChecker] Completed processing reproductions for item ${itemID}`);
     } catch (error) {
       Zotero.logError(new Error(
@@ -1841,10 +1947,10 @@ export class ReplicationCheckerPlugin {
                 );
               }
 
-              // Add "Is Replication", "Added by Replication Checker", and outcome/multiple-originals tags
+              // Add "Is Replication" and outcome/multiple-originals tags. Not
+              // "Added by Replication Checker": the user already had this item.
               try {
                 existingItem.addTag(getTag(TAG_IS_REPLICATION));
-                existingItem.addTag(getTag(TAG_ADDED_BY_CHECKER));
 
                 const normDoi = this.matcher ? this.matcher.normalizeDoi(doi_r) : doi_r.toLowerCase();
                 const multipleOriginals = multipleOriginalsMap.get(normDoi);
@@ -2251,6 +2357,55 @@ export class ReplicationCheckerPlugin {
     return library ? library.editable : false;
   }
 
+  /** Whether the group "tags and notes only" setting applies to this item. */
+  private async isTagsOnlyItem(itemID: number): Promise<boolean> {
+    const item = await Zotero.Items.getAsync(itemID);
+    return (
+      !!item &&
+      this.isGroupLibrary(item.libraryID) &&
+      parseGroupAddMode(Zotero.Prefs.get(GROUP_ADD_MODE_PREF)) === "tags-only"
+    );
+  }
+
+  private isGroupLibrary(libraryID: number): boolean {
+    const library = Zotero.Libraries.get(libraryID);
+    return library ? library.libraryType === "group" : false;
+  }
+
+  /**
+   * Ask whether to add found studies to a shared group library, copy them to
+   * the personal library instead, or do nothing. Cancel (or no window) skips.
+   */
+  private askBeforeAddingToGroup(libraryID: number, itemCount: number): "add" | "copy" | "skip" {
+    const promptWin = this.getPromptWindow();
+    if (!promptWin) return "skip";
+    const library = Zotero.Libraries.get(libraryID);
+
+    // BUTTON_POS_0 * BUTTON_TITLE_IS_STRING = 1*127 = 127
+    // BUTTON_POS_1 * BUTTON_TITLE_CANCEL   = 256*2 = 512
+    // BUTTON_POS_2 * BUTTON_TITLE_IS_STRING = 65536*127 = 8323072
+    const buttonFlags = 127 + 512 + 8323072;
+    const buttonPressed = (Services.prompt as any).confirmEx(
+      promptWin,
+      getString("replication-checker-group-dialog-title"),
+      getString("replication-checker-group-dialog-message", {
+        itemCount,
+        libraryName: library ? library.name : "",
+      }),
+      buttonFlags,
+      getString("replication-checker-group-dialog-add-btn"),   // button 0
+      "",   // button 1: uses BUTTON_TITLE_CANCEL → standard "Cancel" label
+      getString("replication-checker-group-dialog-copy-btn"),  // button 2
+      "",   // no checkbox label
+      {}
+    ) as number;
+
+    if (buttonPressed === 0) return "add";
+    if (buttonPressed === 2) return "copy";
+    Zotero.debug(`[ReplicationChecker] User declined adding to group library ${libraryID}`);
+    return "skip";
+  }
+
   /**
    * Library that "Add Original" should write the original into.
    *
@@ -2519,11 +2674,14 @@ export class ReplicationCheckerPlugin {
   }
 
   /**
-   * Handle replications found in a read-only library by copying to Personal library
+   * Handle replications found in a read-only library by copying to Personal
+   * library. Also used when the user chose to copy from an editable group
+   * library: they have already confirmed, and the source is not read-only.
    */
   private async handleReadOnlyLibrary(
     itemsWithReplications: Map<number, any[]>,
-    sourceLibraryID: number
+    sourceLibraryID: number,
+    fromEditableGroup = false,
   ): Promise<void> {
     try {
       const promptWin = this.getPromptWindow();
@@ -2542,7 +2700,7 @@ export class ReplicationCheckerPlugin {
         replicationCount: replicationCount
       });
 
-      const result = Services.prompt.confirm(
+      const result = fromEditableGroup || Services.prompt.confirm(
         promptWin,
         getString("replication-checker-readonly-dialog-title"),
         message
@@ -2564,9 +2722,10 @@ export class ReplicationCheckerPlugin {
       const replicationCollection = await getOrCreateCollection(personalLibraryID, REPLICATION_SPEC);
 
       // Get or create collection for originals named "{LibraryName} [Read-Only]"
+      // (or "{LibraryName} [Group-Library]")
       const originalsCollection = await getOrCreateChildCollection(
         personalLibraryID,
-        `${sourceLibraryName}${READONLY_SUFFIX}`,
+        `${sourceLibraryName}${fromEditableGroup ? GROUP_LIBRARY_SUFFIX : READONLY_SUFFIX}`,
         "[ReplicationChecker]",
       );
 
@@ -2604,6 +2763,7 @@ export class ReplicationCheckerPlugin {
 
             // Check if original already exists in Personal library
             let copiedOriginalID: number;
+            let originalExisted = false;
             if (originalDOI) {
               const search = new Zotero.Search({ libraryID: personalLibraryID });
               search.addCondition("DOI", "is", originalDOI);
@@ -2611,6 +2771,7 @@ export class ReplicationCheckerPlugin {
 
               if (existingIDs.length > 0) {
                 copiedOriginalID = existingIDs[0];
+                originalExisted = true;
                 Zotero.debug(`[ReplicationChecker] Using existing item ${copiedOriginalID} in Personal library`);
                 // Track existing item so checkNewItems doesn't trigger dialogs
                 this.pluginAddedItems.add(copiedOriginalID);
@@ -2629,8 +2790,8 @@ export class ReplicationCheckerPlugin {
 
             // Add tags to copied original
             copiedOriginal.addTag(getTag(TAG_HAS_BEEN_REPLICATED));
-            copiedOriginal.addTag(getTag(TAG_ADDED_BY_CHECKER));
-            copiedOriginal.addTag(getTag(TAG_READONLY_ORIGIN));
+            if (!originalExisted) copiedOriginal.addTag(getTag(TAG_ADDED_BY_CHECKER));
+            if (!fromEditableGroup) copiedOriginal.addTag(getTag(TAG_READONLY_ORIGIN));
             await copiedOriginal.save();
 
             // Add original to the read-only library collection (not to replication folder)
@@ -2712,8 +2873,8 @@ export class ReplicationCheckerPlugin {
 
               // Add tags
               replicationItem.addTag(getTag(TAG_IS_REPLICATION));
-              replicationItem.addTag(getTag(TAG_ADDED_BY_CHECKER));
-              replicationItem.addTag(getTag(TAG_READONLY_ORIGIN));
+              if (existingRepIDs.length === 0) replicationItem.addTag(getTag(TAG_ADDED_BY_CHECKER));
+              if (!fromEditableGroup) replicationItem.addTag(getTag(TAG_READONLY_ORIGIN));
 
               // Add outcome or multiple-originals tag
               const normRepDoi = this.matcher ? this.matcher.normalizeDoi(doi_r) : doi_r.toLowerCase();

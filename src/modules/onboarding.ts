@@ -27,49 +27,13 @@ import { getString } from "../utils/strings";
  *   v2 — Collections nested under one "FLoRA" container (existing libraries are
  *        migrated on first start); new "Your FLoRA Stats" screen covering the
  *        per-library stats pane, the library picker and the Replication Atlas.
+ *   v3 — Redesigned guide: shared group library settings, scheduled-check
+ *        libraries, encrypted Atlas links and the outcome-label caveat.
  */
-const ONBOARDING_VERSION = 2;
+const ONBOARDING_VERSION = 3;
 const ONBOARDING_PREF = "replication-checker.onboardingVersion";
 
-interface OnboardingScreen {
-  title: string;
-  content: string;
-  image?: string;
-  highlight?: {
-    selector: string;
-    action?: () => void;
-  };
-}
-
 export class OnboardingManager {
-  private currentScreen = 0;
-
-  // Screens are computed lazily so getString() runs after locale is loaded
-  private get screens(): OnboardingScreen[] {
-    return [
-      {
-        title: getString("onboarding-welcome-title"),
-        content: getString("onboarding-welcome-content"),
-      },
-      {
-        title: getString("onboarding-tools-title"),
-        content: getString("onboarding-tools-content"),
-      },
-      {
-        title: getString("onboarding-context-title"),
-        content: getString("onboarding-context-content"),
-      },
-      {
-        title: getString("onboarding-stats-title"),
-        content: getString("onboarding-stats-content"),
-      },
-      {
-        title: getString("onboarding-scan-title"),
-        content: getString("onboarding-scan-content"),
-      },
-    ];
-  }
-
   /**
    * Check if onboarding should be shown
    */
@@ -103,50 +67,7 @@ export class OnboardingManager {
         return;
       }
 
-      this.currentScreen = 0;
       this.createDialog(win, showScanPrompt, resolve);
-    });
-  }
-
-  /**
-   * Trigger interactive highlight for current screen
-   */
-  triggerHighlight(mainWindow: Window): void {
-    const screen = this.screens[this.currentScreen];
-    if (!screen.highlight) return;
-
-    try {
-      const element = mainWindow.document.querySelector(screen.highlight.selector);
-      if (element) {
-        // Add highlight effect
-        (element as HTMLElement).style.outline = "3px solid #667eea";
-        (element as HTMLElement).style.outlineOffset = "2px";
-        (element as HTMLElement).style.transition = "outline 0.3s ease";
-
-        // Execute custom action if provided
-        if (screen.highlight.action) {
-          screen.highlight.action();
-        }
-
-        // Remove highlight after 3 seconds
-        setTimeout(() => {
-          (element as HTMLElement).style.outline = "";
-          (element as HTMLElement).style.outlineOffset = "";
-        }, 5000);
-      }
-    } catch (e) {
-      Zotero.debug(`[ReplicationChecker] Error highlighting element: ${e}`);
-    }
-  }
-
-  /**
-   * Clear all highlights
-   */
-  clearHighlights(mainWindow: Window): void {
-    const allHighlighted = mainWindow.document.querySelectorAll('[style*="outline"]');
-    allHighlighted.forEach((el: Element) => {
-      (el as HTMLElement).style.outline = "";
-      (el as HTMLElement).style.outlineOffset = "";
     });
   }
 
@@ -158,7 +79,7 @@ export class OnboardingManager {
     showScanPrompt: boolean,
     onComplete: (result: { completed: boolean; shouldScan?: boolean }) => void
   ): void {
-    const dialogFeatures = "chrome,centerscreen,modal,resizable=no,width=600,height=500";
+    const dialogFeatures = "chrome,centerscreen,modal,resizable=no,titlebar=no,width=920,height=680";
 
     // Open the dialog using chrome:// URL
     parentWindow.openDialog(
@@ -166,7 +87,8 @@ export class OnboardingManager {
       "replication-checker-onboarding",
       dialogFeatures,
       {
-        screens: this.screens,
+        getString,
+        rtl: (Zotero as any).rtl,
         showScanPrompt: showScanPrompt,
         onComplete: (result: { completed: boolean; shouldScan?: boolean }) => {
           // Recorded whether the user finished or skipped: the pref tracks that
@@ -174,64 +96,10 @@ export class OnboardingManager {
           // decision about it. Marking only on completion would re-open the
           // dialog on every startup for anyone who dismissed it.
           this.markOnboardingComplete();
-          this.clearHighlights(parentWindow);
           onComplete(result);
-        },
-        triggerHighlight: (screenIndex: number) => {
-          this.currentScreen = screenIndex;
-          this.triggerHighlight(parentWindow);
-        },
-        clearHighlights: () => {
-          this.clearHighlights(parentWindow);
         },
       }
     );
-  }
-
-  /**
-   * Get current screen data
-   */
-  getCurrentScreen(): OnboardingScreen {
-    return this.screens[this.currentScreen];
-  }
-
-  /**
-   * Get progress string (e.g., "1/3")
-   */
-  getCurrentProgress(): string {
-    return `${this.currentScreen + 1}/${this.screens.length}`;
-  }
-
-  /**
-   * Check if can go to previous screen
-   */
-  canGoPrevious(): boolean {
-    return this.currentScreen > 0;
-  }
-
-  /**
-   * Check if on last screen
-   */
-  isLastScreen(): boolean {
-    return this.currentScreen === this.screens.length - 1;
-  }
-
-  /**
-   * Go to next screen
-   */
-  nextScreen(): void {
-    if (this.currentScreen < this.screens.length - 1) {
-      this.currentScreen++;
-    }
-  }
-
-  /**
-   * Go to previous screen
-   */
-  previousScreen(): void {
-    if (this.currentScreen > 0) {
-      this.currentScreen--;
-    }
   }
 }
 

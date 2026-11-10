@@ -33,6 +33,7 @@ import {
 import {
   REPRODUCTION_SPEC,
   READONLY_SUFFIX,
+  GROUP_LIBRARY_SUFFIX,
   getCollectionFolderName,
   getOrCreateCollection,
   getOrCreateChildCollection,
@@ -153,7 +154,11 @@ export class ReproductionHandler {
    * @param itemID The original item ID that has reproductions
    * @param reproductions Array of reproduction studies from API
    */
-  async processReproductions(itemID: number, reproductions: RelatedStudy[]): Promise<void> {
+  async processReproductions(
+    itemID: number,
+    reproductions: RelatedStudy[],
+    tagsAndNotesOnly = false,
+  ): Promise<void> {
     try {
       Zotero.debug(`[ReproductionHandler] Processing item ${itemID} with ${reproductions.length} reproductions`);
 
@@ -166,6 +171,7 @@ export class ReproductionHandler {
 
       // Step 1: Add tags and notes to original item
       await this.notifyUserAboutReproductions(itemID, reproductionsForProcessing);
+      if (tagsAndNotesOnly) return;
 
       // Step 2: Add reproduction items to folder
       await this.addReproductionsToFolder(itemID, reproductionsForProcessing);
@@ -800,9 +806,33 @@ export class ReproductionHandler {
   async handleReadOnlyReproductions(
     itemsWithReproductions: Map<number, RelatedStudy[]>,
     sourceLibraryID: number,
-    personalLibraryID: number
+    personalLibraryID: number,
+    fromEditableGroup = false,
   ): Promise<void> {
     try {
+      // Same confirmation as handleReadOnlyLibrary() for replications. A copy
+      // from an editable group library was already confirmed by the user.
+      if (!fromEditableGroup) {
+        const promptWin = Zotero.getMainWindow() as unknown as mozIDOMWindowProxy | null;
+        if (!promptWin) return;
+        let reproductionCount = 0;
+        for (const reproductions of itemsWithReproductions.values()) {
+          reproductionCount += reproductions.length;
+        }
+        const confirmed = Services.prompt.confirm(
+          promptWin,
+          getString("reproduction-checker-readonly-dialog-title"),
+          getString("reproduction-checker-readonly-dialog-message", {
+            itemCount: itemsWithReproductions.size,
+            reproductionCount,
+          }),
+        );
+        if (!confirmed) {
+          Zotero.debug("[ReproductionHandler] User declined read-only library copy");
+          return;
+        }
+      }
+
       // Get source library name
       const sourceLibrary = Zotero.Libraries.get(sourceLibraryID);
       const sourceLibraryName = sourceLibrary ? sourceLibrary.name : "Unknown Library";
@@ -813,7 +843,7 @@ export class ReproductionHandler {
       // Get or create collection for originals
       const originalsCollection = await getOrCreateChildCollection(
         personalLibraryID,
-        `${sourceLibraryName}${READONLY_SUFFIX}`,
+        `${sourceLibraryName}${fromEditableGroup ? GROUP_LIBRARY_SUFFIX : READONLY_SUFFIX}`,
         "[ReproductionHandler]",
       );
 
@@ -843,6 +873,7 @@ export class ReproductionHandler {
 
             // Check if original already exists in Personal library
             let copiedOriginalID: number;
+            let originalExisted = false;
             if (originalDOI) {
               const search = new Zotero.Search({ libraryID: personalLibraryID });
               search.addCondition("DOI", "is", originalDOI);
@@ -850,6 +881,7 @@ export class ReproductionHandler {
 
               if (existingIDs.length > 0) {
                 copiedOriginalID = existingIDs[0];
+                originalExisted = true;
                 // Track item so auto-check doesn't trigger dialogs
                 this.pluginAddedItems.add(copiedOriginalID);
               } else {
@@ -868,8 +900,8 @@ export class ReproductionHandler {
 
             // Add tags to copied original
             copiedOriginal.addTag(getTag(TAG_HAS_BEEN_REPRODUCED));
-            copiedOriginal.addTag(getTag(TAG_ADDED_BY_CHECKER));
-            copiedOriginal.addTag(getTag(TAG_READONLY_ORIGIN));
+            if (!originalExisted) copiedOriginal.addTag(getTag(TAG_ADDED_BY_CHECKER));
+            if (!fromEditableGroup) copiedOriginal.addTag(getTag(TAG_READONLY_ORIGIN));
             await copiedOriginal.save();
 
             // Add original to the read-only library collection
@@ -943,8 +975,8 @@ export class ReproductionHandler {
 
               // Add tags
               reproductionItem.addTag(getTag(TAG_IS_REPRODUCTION));
-              reproductionItem.addTag(getTag(TAG_ADDED_BY_CHECKER));
-              reproductionItem.addTag(getTag(TAG_READONLY_ORIGIN));
+              if (existingRepIDs.length === 0) reproductionItem.addTag(getTag(TAG_ADDED_BY_CHECKER));
+              if (!fromEditableGroup) reproductionItem.addTag(getTag(TAG_READONLY_ORIGIN));
 
               // Add outcome or multiple-originals tag
               const normRepDoi = doi_rep && this.matcher
