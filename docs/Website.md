@@ -219,12 +219,13 @@ title: Replication Checker for Zotero
         authors describe their results.
       </p>
       <p>
-        FLoRA is incomplete, and a single record is not a final verdict on a
-        paper. A failed replication may reflect low power, chance or differences
+        FLoRA is incomplete, and one record says little about a paper on its
+        own. A failed replication may reflect low power, chance or differences
         from the original; a successful one may share the original's
         limitations. A replication may test only one study from a multi-study
-        paper, and its outcome is its authors' own assessment. The plugin checks only items
-        that have a DOI. If a replication is missing or a record looks wrong,
+        paper, and its outcome is its authors' own assessment. The plugin checks
+        only items that have a DOI. If a replication is missing or a record
+        looks wrong,
         <a href="{{ site.forrt.data_issues }}">report it to the FLoRA team</a>.
       </p>
     </div>
