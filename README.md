@@ -168,7 +168,7 @@ When a replication is in your library but its original is not, right-click the r
 
 The outcome comes from FLoRA's outcome field, which records how the replication's authors interpreted their results. The plugin turns the three outcomes, successful, failure and mixed, into tags so you can filter your library by them. The note shows the outcome for every replication.
 
-A failed replication can reflect low statistical power, chance, or differences from the original in population, setting, materials or procedure, so a single failure does not refute the original claim. A successful replication shows that the finding appeared again under similar conditions. If it copies the original design, it may also copy that design's weaknesses, such as an invalid measure or a narrow sample, so it does not show that the claim is valid or generalises. Several replications, and how closely each one matched the original, tell you more than any single outcome.
+A failed replication can reflect low statistical power, chance, or differences from the original in population, setting, materials or procedure, so a single failure does not refute the original claim. A successful replication shows that the finding appeared again. If it copies the original design, it may also copy that design's weaknesses, such as an invalid measure or a narrow sample, so it does not show that the claim is valid or generalises. Several replications, and how closely each one matched the original, tell you more than any single outcome.
 
 ### Reproduction outcomes
 
