@@ -89,7 +89,10 @@ export class OnboardingManager {
       "replication-checker-onboarding",
       dialogFeatures,
       {
-        getString,
+        getString: (key: string) =>
+          key === "onboarding-features-languages-title"
+            ? getString(key, { languageCount: __localeCount__ })
+            : getString(key),
         rtl: (Zotero as any).rtl,
         showScanPrompt: showScanPrompt,
         onComplete: (result: { completed: boolean; shouldScan?: boolean }) => {

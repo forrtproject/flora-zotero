@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { readFileSync } from "fs";
+import { readdirSync, readFileSync } from "fs";
 import { join } from "path";
 
 const FTL_PATH = join(
@@ -65,6 +65,21 @@ describe("FTL locale strings", function () {
       assert.fail(
         `${missingKeys.length} hardcoded string keys missing from FTL file: ${missingKeys.slice(0, 5).join(", ")}...`,
       );
+    }
+  });
+
+  it("every locale shows the build-time language count, not a fixed number", function () {
+    // The onboarding passes __localeCount__ (folders in addon/locale) as $languageCount.
+    const localeDir = join(__dirname, "../../addon/locale");
+    const locales = readdirSync(localeDir, { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name);
+    assert.isAbove(locales.length, 1);
+    for (const locale of locales) {
+      const ftl = readFileSync(join(localeDir, locale, "replication-checker.ftl"), "utf-8");
+      const line = ftl.match(/^onboarding-features-languages-title = (.*)$/m)?.[1] ?? "";
+      assert.include(line, "{ $languageCount }", locale);
+      assert.notMatch(line.replace("{ $languageCount }", ""), /\d/, locale);
     }
   });
 });

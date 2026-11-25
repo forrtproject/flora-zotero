@@ -16,3 +16,6 @@ declare const rootURI: string;
 declare const addon: import("../src/addon").default;
 
 declare const __env__: "production" | "development";
+
+/** Number of folders in addon/locale, counted at build time. */
+declare const __localeCount__: number;
