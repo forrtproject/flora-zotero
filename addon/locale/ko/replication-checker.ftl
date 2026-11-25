@@ -167,20 +167,20 @@ replication-checker-results-reproductions-none = 재현 연구를 찾을 수 없
 replication-checker-results-footer = 자세한 내용은 노트에서 확인하고, 다시 확인하려면 항목을 선택하세요.
 
 ## Tags
-replication-checker-tag = 복제됨
-replication-checker-tag-is-replication = 복제 연구임
+replication-checker-tag = 반복 검증됨
+replication-checker-tag-is-replication = 반복 연구임
 replication-checker-tag-added-by-checker = Replication Checker에 의해 추가됨
-replication-checker-tag-success = 복제 연구: 성공
-replication-checker-tag-failure = 복제 연구: 실패
-replication-checker-tag-mixed = 복제 연구: 혼합
-replication-checker-tag-multiple-originals = 복제 연구: 여러 원본
+replication-checker-tag-success = 반복 연구: 성공
+replication-checker-tag-failure = 반복 연구: 실패
+replication-checker-tag-mixed = 반복 연구: 혼재
+replication-checker-tag-multiple-originals = 반복 연구: 여러 원본
 replication-checker-tag-readonly-origin = 원본이 읽기 전용 라이브러리에 있음
-replication-checker-tag-has-been-replicated = 복제됨
+replication-checker-tag-has-been-replicated = 반복 검증됨
 replication-checker-tag-has-been-reproduced = 재현됨
 replication-checker-tag-in-flora = FLoRA에 수록됨
 
 ## Note Template
-replication-checker-note-title = 복제 연구 발견
+replication-checker-note-title = 반복 연구 발견
 replication-checker-note-warning = 이 노트는 자동으로 생성됩니다. 편집하면 다음 확인 시 새 노트가 생성되고 이 버전은 그대로 유지됩니다.
 replication-checker-note-intro = 이 연구는 반복 검증되었습니다:
 replication-checker-note-feedback = 이 결과가 유용하셨나요? <a href="{ $url }" target="_blank">여기</a>에서 피드백을 남겨주세요!
@@ -288,12 +288,12 @@ reproduction-checker-tag-added-by-checker = Replication Checker에 의해 추가
 reproduction-checker-tag-readonly-origin = 원본이 읽기 전용 라이브러리에 있음
 
 ## Reproduction Feature - Outcome Tags
-reproduction-checker-tag-outcome-cs-robust = 재현 연구: 계산 성공, 견고
-reproduction-checker-tag-outcome-cs-challenges = 재현 연구: 계산 성공, 견고성 문제
-reproduction-checker-tag-outcome-cs-not-checked = 재현 연구: 계산 성공, 견고성 미확인
-reproduction-checker-tag-outcome-ci-robust = 재현 연구: 계산 문제, 견고
-reproduction-checker-tag-outcome-ci-challenges = 재현 연구: 계산 문제, 견고성 문제
-reproduction-checker-tag-outcome-ci-not-checked = 재현 연구: 계산 문제, 견고성 미확인
+reproduction-checker-tag-outcome-cs-robust = 재현 연구: 계산 성공, 강건
+reproduction-checker-tag-outcome-cs-challenges = 재현 연구: 계산 성공, 강건성 문제
+reproduction-checker-tag-outcome-cs-not-checked = 재현 연구: 계산 성공, 강건성 미확인
+reproduction-checker-tag-outcome-ci-robust = 재현 연구: 계산 문제, 강건
+reproduction-checker-tag-outcome-ci-challenges = 재현 연구: 계산 문제, 강건성 문제
+reproduction-checker-tag-outcome-ci-not-checked = 재현 연구: 계산 문제, 강건성 미확인
 reproduction-checker-tag-multiple-originals = 재현 연구: 여러 원본
 
 ## Reproduction Feature - Note Template
