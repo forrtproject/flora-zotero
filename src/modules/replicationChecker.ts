@@ -26,6 +26,7 @@ import {
   escapeHtml,
   parseAuthors,
   copyItemToLibrary,
+  startsWithPluginNoteHeading,
 } from "../utils/studyUtils";
 import {
   REPLICATION_SPEC,
@@ -1728,17 +1729,12 @@ export class ReplicationCheckerPlugin {
       // Get or create replication note
       const noteIDs = item.getNotes();
       let existingNote = null;
-      const noteHeadingHtml = this.getNoteHeadingHtml();
-
       for (const noteID of noteIDs) {
         const note = await Zotero.Items.getAsync(noteID);
         if (!note) continue;
 
         const currentNoteHTML = note.getNote();
-        if (
-          currentNoteHTML.startsWith(noteHeadingHtml) ||
-          currentNoteHTML.startsWith("<h2>Replications Found</h2>")
-        ) {
+        if (startsWithPluginNoteHeading(currentNoteHTML, "replication-checker-note-title", "Replications Found")) {
           existingNote = note;
           break;
         }
@@ -2552,17 +2548,12 @@ export class ReplicationCheckerPlugin {
 
       const noteIDs = item.getNotes();
       let existingNote = null;
-      const noteHeadingHtml = this.getNoteHeadingHtml();
-
       for (const noteID of noteIDs) {
         const note = await Zotero.Items.getAsync(noteID);
         if (!note) continue;
 
         const currentNoteHTML = note.getNote();
-        if (
-          currentNoteHTML.startsWith(noteHeadingHtml) ||
-          currentNoteHTML.startsWith("<h2>Replications Found</h2>")
-        ) {
+        if (startsWithPluginNoteHeading(currentNoteHTML, "replication-checker-note-title", "Replications Found")) {
           existingNote = note;
           break;
         }

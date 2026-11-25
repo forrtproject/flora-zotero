@@ -1,5 +1,11 @@
+import { readdirSync } from "fs";
 import { defineConfig } from "zotero-plugin-scaffold";
 import pkg from "./package.json";
+
+// Shown in the onboarding guide ("9 languages"), so it never goes stale.
+const localeCount = readdirSync("addon/locale", { withFileTypes: true }).filter(
+  (d) => d.isDirectory(),
+).length;
 
 export default defineConfig({
   source: ["src", "addon"],
@@ -31,6 +37,7 @@ export default defineConfig({
         entryPoints: ["src/index.ts"],
         define: {
           __env__: `"${process.env.NODE_ENV}"`,
+          __localeCount__: String(localeCount),
         },
         bundle: true,
         target: "firefox115",

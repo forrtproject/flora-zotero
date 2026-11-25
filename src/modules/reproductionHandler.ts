@@ -21,6 +21,7 @@ import {
   escapeHtml,
   parseAuthors,
   copyItemToLibrary,
+  startsWithPluginNoteHeading,
 } from "../utils/studyUtils";
 import {
   TAG_HAS_REPRODUCTION, TAG_HAS_BEEN_REPRODUCED, TAG_IS_REPRODUCTION, TAG_ADDED_BY_CHECKER,
@@ -257,17 +258,12 @@ export class ReproductionHandler {
       // Get or create reproduction note
       const noteIDs = item.getNotes();
       let existingNote = null;
-      const noteHeadingHtml = this.getNoteHeadingHtml();
-
       for (const noteID of noteIDs) {
         const note = await Zotero.Items.getAsync(noteID);
         if (!note) continue;
 
         const currentNoteHTML = note.getNote();
-        if (
-          currentNoteHTML.startsWith(noteHeadingHtml) ||
-          currentNoteHTML.startsWith("<h2>Reproductions Found</h2>")
-        ) {
+        if (startsWithPluginNoteHeading(currentNoteHTML, "reproduction-checker-note-title", "Reproductions Found")) {
           existingNote = note;
           break;
         }

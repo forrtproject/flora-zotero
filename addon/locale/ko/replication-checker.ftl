@@ -2,26 +2,26 @@
 # Modern Fluent format (.ftl)
 
 ## Menu Items
-replication-checker-tools-menu = 현재 라이브러리에서 복제 연구 확인
-replication-checker-context-menu = 복제 연구 확인
-replication-checker-context-menu-ban = 복제 연구 차단
+replication-checker-tools-menu = 현재 라이브러리에서 반복 연구 확인
+replication-checker-context-menu = 반복 연구 확인
+replication-checker-context-menu-ban = 반복 연구 차단
 replication-checker-context-menu-add-original = 원본 추가
-replication-checker-context-menu-add-originals = 원본(들) 추가
+replication-checker-context-menu-add-originals = 원본 추가
 
 ## Progress Messages
-replication-checker-progress-checking-library = 복제 연구 확인 중
-replication-checker-progress-checking-collection = 컬렉션에서 복제 연구 확인 중
+replication-checker-progress-checking-library = 반복 연구 확인 중
+replication-checker-progress-checking-collection = 컬렉션에서 반복 연구 확인 중
 replication-checker-progress-scanning-library = 라이브러리 스캔 중...
 replication-checker-progress-scanning-collection = 컬렉션 스캔 중...
 replication-checker-progress-found-dois = DOI가 있는 항목 { $itemCount }개 발견 (고유 { $uniqueCount }개)
-replication-checker-progress-checking-database = 복제 연구 데이터베이스 조회 중...
+replication-checker-progress-checking-database = 반복 연구 데이터베이스 조회 중...
 replication-checker-progress-no-dois = 컬렉션에서 DOI가 있는 항목을 찾을 수 없음
 replication-checker-progress-complete = 확인 완료
 replication-checker-progress-failed = 확인 실패
 replication-checker-progress-match-count =
     { $count ->
-        [one] 복제 연구가 있는 항목 1개 발견
-       *[other] 복제 연구가 있는 항목 { $count }개 발견
+        [one] 반복 연구가 있는 항목 1개 발견
+       *[other] 반복 연구가 있는 항목 { $count }개 발견
     }
 replication-checker-progress-copying-readonly = 읽기 전용 라이브러리에서 개인 라이브러리로 항목 복사 중...
 
@@ -29,21 +29,21 @@ replication-checker-progress-copying-readonly = 읽기 전용 라이브러리에
 replication-checker-alert-title = Zotero Replication Checker
 replication-checker-alert-no-dois-selected = 선택한 항목에서 DOI를 찾을 수 없습니다.
 replication-checker-alert-no-collection = 이 확인을 실행하기 전에 컬렉션을 선택하세요.
-replication-checker-alert-no-originals-available = 이 복제 연구에 사용 가능한 원본 연구가 없습니다.
+replication-checker-alert-no-originals-available = 이 반복 연구에 사용 가능한 원본 연구가 없습니다.
 replication-checker-alert-no-doi = 선택한 항목에 DOI가 없습니다.
 replication-checker-add-original-success = "{ $title }"이(가) "{ $folderName }"에 성공적으로 추가되었습니다.
-replication-checker-add-original-exists = "{ $title }"은(는) 이미 라이브러리에 있습니다 — "{ $folderName }"에서 태그, 메모 및 관계가 업데이트되었습니다.
+replication-checker-add-original-exists = "{ $title }"은(는) 이미 라이브러리에 있습니다 — "{ $folderName }"에서 태그, 노트 및 관계가 업데이트되었습니다.
 replication-checker-add-original-add-all-btn = 모든 원본 추가
 replication-checker-add-original-confirm =
     { $count ->
-        [one] 이 복제 연구에 대해 원본 연구 1개를 찾았습니다. 라이브러리에 추가할 원본을 선택하세요.
-       *[other] 이 복제 연구에 대해 { $count }개의 원본 연구를 찾았습니다. 라이브러리에 추가할 원본을 선택하세요.
+        [one] 이 반복 연구에 대해 원본 연구 1개를 찾았습니다. 라이브러리에 추가할 원본을 선택하세요.
+       *[other] 이 반복 연구에 대해 { $count }개의 원본 연구를 찾았습니다. 라이브러리에 추가할 원본을 선택하세요.
     }
 replication-checker-add-original-select-btn = 추가할 원본 선택
 replication-checker-add-original-batch-success =
     { $newCount ->
-        [one] 1개 새로 추가, { $existingCount }개 기존 원본 연구가 "{ $folderName }"에서 업데이트되었습니다.
-       *[other] { $newCount }개 새로 추가, { $existingCount }개 기존 원본 연구가 "{ $folderName }"에서 업데이트되었습니다.
+        [one] "{ $folderName }"에 원본 연구 1개를 새로 추가하고 기존 원본 연구 { $existingCount }개를 업데이트했습니다.
+       *[other] "{ $folderName }"에 원본 연구 { $newCount }개를 새로 추가하고 기존 원본 연구 { $existingCount }개를 업데이트했습니다.
     }
 replication-checker-add-original-batch-new-only =
     { $count ->
@@ -52,13 +52,13 @@ replication-checker-add-original-batch-new-only =
     }
 replication-checker-add-original-batch-exists-only =
     { $count ->
-        [one] 원본 연구 1개가 이미 라이브러리에 있습니다 — "{ $folderName }"에서 태그, 메모 및 관계가 업데이트되었습니다.
-       *[other] { $count }개의 원본 연구가 이미 라이브러리에 있습니다 — "{ $folderName }"에서 태그, 메모 및 관계가 업데이트되었습니다.
+        [one] 원본 연구 1개가 이미 라이브러리에 있습니다 — "{ $folderName }"에서 태그, 노트 및 관계가 업데이트되었습니다.
+       *[other] { $count }개의 원본 연구가 이미 라이브러리에 있습니다 — "{ $folderName }"에서 태그, 노트 및 관계가 업데이트되었습니다.
     }
 replication-checker-error-title = Replication Checker - 오류
 replication-checker-error-api = API에서 데이터를 가져올 수 없습니다 - 인터넷 연결을 확인하거나 나중에 다시 시도하세요.
 replication-checker-error-body =
-    { $target }의 복제 연구 확인 실패:
+    { $target }에서 반복 연구를 확인하지 못했습니다:
 
     { $details }
 
@@ -68,30 +68,30 @@ replication-checker-target-selected = 선택한 항목
 replication-checker-target-collection = 선택한 컬렉션
 
 ## Ban Feature
-replication-checker-ban-title = 복제 연구 차단
+replication-checker-ban-title = 반복 연구 차단
 replication-checker-ban-confirm =
     { $count ->
-        [one] 복제 연구 1개를 차단하시겠습니까?
-       *[other] { $count }개의 복제 연구를 차단하시겠습니까?
+        [one] 반복 연구 1개를 차단하시겠습니까?
+       *[other] { $count }개의 반복 연구를 차단하시겠습니까?
     }
 
     이 항목들은 휴지통으로 이동되며 향후 확인 시 다시 추가되지 않습니다.
 replication-checker-ban-success =
     { $count ->
-        [one] 복제 연구 1개를 성공적으로 차단했습니다.
-       *[other] { $count }개의 복제 연구를 성공적으로 차단했습니다.
+        [one] 반복 연구 1개를 성공적으로 차단했습니다.
+       *[other] { $count }개의 반복 연구를 성공적으로 차단했습니다.
     }
-replication-checker-alert-no-replications-selected = 선택한 복제 연구 항목이 없습니다.
+replication-checker-alert-no-replications-selected = 선택한 반복 연구 항목이 없습니다.
 
 ## Dialog
-replication-checker-dialog-title = 복제 연구 발견
+replication-checker-dialog-title = 반복 연구 발견
 replication-checker-dialog-intro =
-    다음에 대한 복제 연구 발견:
+    다음에 대한 반복 연구 발견:
     "{ $title }"
 replication-checker-dialog-count =
     { $count ->
-        [one] 복제 연구 1개 발견:
-       *[other] { $count }개의 복제 연구 발견:
+        [one] 반복 연구 1개 발견:
+       *[other] { $count }개의 반복 연구 발견:
     }
 replication-checker-dialog-item =
     { $index }. { $title }
@@ -99,43 +99,43 @@ replication-checker-dialog-item =
        결과: { $outcome }
 replication-checker-dialog-more =
     { $count ->
-        [one] ...그리고 복제 연구 1개 더
-       *[other] ...그리고 { $count }개의 복제 연구 더
+        [one] ...외 반복 연구 1개
+       *[other] ...외 반복 연구 { $count }개
     }
-replication-checker-dialog-question = 복제 연구 정보를 추가하시겠습니까?
-replication-checker-dialog-progress-title = 복제 연구 정보 추가됨
-replication-checker-dialog-progress-line = "{ $title }"에 복제 연구 정보 추가됨
+replication-checker-dialog-question = 반복 연구 정보를 추가하시겠습니까?
+replication-checker-dialog-progress-title = 반복 연구 정보 추가됨
+replication-checker-dialog-progress-line = "{ $title }"에 반복 연구 정보 추가됨
 replication-checker-notif-replication-new =
     { $count ->
-        [one] 새 복제 연구 1개가 "{ $folderName }"에 성공적으로 추가되었습니다.
-       *[other] { $count }개의 새 복제 연구가 "{ $folderName }"에 성공적으로 추가되었습니다.
+        [one] 새 반복 연구 1개가 "{ $folderName }"에 성공적으로 추가되었습니다.
+       *[other] { $count }개의 새 반복 연구가 "{ $folderName }"에 성공적으로 추가되었습니다.
     }
 replication-checker-notif-replication-exists =
     { $count ->
-        [one] 복제 연구 1개가 이미 라이브러리에 있습니다 — "{ $folderName }"에서 태그, 메모 및 관계가 업데이트되었습니다.
-       *[other] { $count }개의 복제 연구가 이미 라이브러리에 있습니다 — "{ $folderName }"에서 태그, 메모 및 관계가 업데이트되었습니다.
+        [one] 반복 연구 1개가 이미 라이브러리에 있습니다 — "{ $folderName }"에서 태그, 노트 및 관계가 업데이트되었습니다.
+       *[other] { $count }개의 반복 연구가 이미 라이브러리에 있습니다 — "{ $folderName }"에서 태그, 노트 및 관계가 업데이트되었습니다.
     }
 replication-checker-notif-replication-mixed =
     { $newCount ->
-        [one] 1개 새로 추가, { $existingCount }개 기존 복제 연구가 "{ $folderName }"에서 업데이트되었습니다.
-       *[other] { $newCount }개 새로 추가, { $existingCount }개 기존 복제 연구가 "{ $folderName }"에서 업데이트되었습니다.
+        [one] "{ $folderName }"에 반복 연구 1개를 새로 추가하고 기존 반복 연구 { $existingCount }개를 업데이트했습니다.
+       *[other] "{ $folderName }"에 반복 연구 { $newCount }개를 새로 추가하고 기존 반복 연구 { $existingCount }개를 업데이트했습니다.
     }
 replication-checker-dialog-is-replication-title = 원본 연구 발견
 replication-checker-dialog-is-replication-message =
     { $count ->
-        [one] 복제 연구를 찾지 못했지만, 이 논문은 복제 연구인 것으로 보입니다. 원본 논문 1개를 찾았습니다. 라이브러리에 추가하시겠습니까?
-       *[other] 복제 연구를 찾지 못했지만, 이 논문은 복제 연구인 것으로 보입니다. { $count }개의 원본 논문을 찾았습니다. 라이브러리에 추가할 원본을 선택하세요.
+        [one] 반복 연구를 찾지 못했지만, 이 논문은 반복 연구인 것으로 보입니다. 원본 논문 1개를 찾았습니다. 라이브러리에 추가하시겠습니까?
+       *[other] 반복 연구를 찾지 못했지만, 이 논문은 반복 연구인 것으로 보입니다. { $count }개의 원본 논문을 찾았습니다. 라이브러리에 추가할 원본을 선택하세요.
     }
 
 ## Read-Only Library Handling
 replication-checker-readonly-dialog-title = 읽기 전용 라이브러리 감지됨
 replication-checker-readonly-dialog-message =
     { $replicationCount ->
-        [one] 이 라이브러리는 읽기 전용입니다. 복제 연구 1개가 있는 { $itemCount }개의 항목을 찾았습니다.
-       *[other] 이 라이브러리는 읽기 전용입니다. { $replicationCount }개의 복제 연구가 있는 { $itemCount }개의 항목을 찾았습니다.
+        [one] 이 라이브러리는 읽기 전용입니다. 반복 연구 1개가 있는 { $itemCount }개의 항목을 찾았습니다.
+       *[other] 이 라이브러리는 읽기 전용입니다. { $replicationCount }개의 반복 연구가 있는 { $itemCount }개의 항목을 찾았습니다.
     }
 
-    원본 논문과 복제 연구를 개인 라이브러리의 "복제 연구 폴더"에 복사하시겠습니까?
+    원본 논문과 반복 연구를 개인 라이브러리의 "반복 연구 폴더"에 복사하시겠습니까?
 
 ## Shared Group Library Handling
 replication-checker-group-dialog-title = 공유 그룹 라이브러리에 추가할까요?
@@ -154,38 +154,38 @@ replication-checker-results-total = 확인한 총 항목 수: { $count }
 replication-checker-results-dois = DOI가 있는 항목: { $count }
 replication-checker-results-found =
     { $count ->
-        [one] 1개의 항목에 복제 연구가 있으며 "{ $folderName }"에 저장되었습니다.
-       *[other] { $count }개의 항목에 복제 연구가 있으며 "{ $folderName }"에 저장되었습니다.
+        [one] 1개의 항목에 반복 연구가 있으며 "{ $folderName }"에 저장되었습니다.
+       *[other] { $count }개의 항목에 반복 연구가 있으며 "{ $folderName }"에 저장되었습니다.
     }
-replication-checker-results-none = 복제 연구를 찾을 수 없습니다.
+replication-checker-results-none = 반복 연구를 찾을 수 없습니다.
 replication-checker-results-reproductions-found =
     { $count ->
         [one] 1개의 항목에 재현 연구가 있으며 "{ $folderName }"에 저장되었습니다.
        *[other] { $count }개의 항목에 재현 연구가 있으며 "{ $folderName }"에 저장되었습니다.
     }
 replication-checker-results-reproductions-none = 재현 연구를 찾을 수 없습니다.
-replication-checker-results-footer = 세부 정보는 메모를 확인하거나 항목을 선택하여 다시 확인하세요.
+replication-checker-results-footer = 자세한 내용은 노트에서 확인하고, 다시 확인하려면 항목을 선택하세요.
 
 ## Tags
-replication-checker-tag = 복제됨
-replication-checker-tag-is-replication = 복제 연구임
+replication-checker-tag = 반복 검증됨
+replication-checker-tag-is-replication = 반복 연구임
 replication-checker-tag-added-by-checker = Replication Checker에 의해 추가됨
-replication-checker-tag-success = 복제 연구: 성공
-replication-checker-tag-failure = 복제 연구: 실패
-replication-checker-tag-mixed = 복제 연구: 혼합
-replication-checker-tag-multiple-originals = 복제 연구: 여러 원본
+replication-checker-tag-success = 반복 연구: 성공
+replication-checker-tag-failure = 반복 연구: 실패
+replication-checker-tag-mixed = 반복 연구: 혼재
+replication-checker-tag-multiple-originals = 반복 연구: 여러 원본
 replication-checker-tag-readonly-origin = 원본이 읽기 전용 라이브러리에 있음
-replication-checker-tag-has-been-replicated = 복제됨
+replication-checker-tag-has-been-replicated = 반복 검증됨
 replication-checker-tag-has-been-reproduced = 재현됨
 replication-checker-tag-in-flora = FLoRA에 수록됨
 
 ## Note Template
-replication-checker-note-title = 복제 연구 발견
-replication-checker-note-warning = 이 메모는 자동으로 생성됩니다. 편집하면 다음 확인 시 새 메모가 생성되고 이 버전은 그대로 유지됩니다.
-replication-checker-note-intro = 이 연구는 복제되었습니다:
+replication-checker-note-title = 반복 연구 발견
+replication-checker-note-warning = 이 노트는 자동으로 생성됩니다. 편집하면 다음 확인 시 새 노트가 생성되고 이 버전은 그대로 유지됩니다.
+replication-checker-note-intro = 이 연구는 반복 검증되었습니다:
 replication-checker-note-feedback = 이 결과가 유용하셨나요? <a href="{ $url }" target="_blank">여기</a>에서 피드백을 남겨주세요!
 replication-checker-note-data-issues = 데이터에서 문제를 발견하셨나요? <a href="{ $url }" target="_blank">여기</a>에 신고해 주세요!
-replication-checker-note-footer = FLoRA(FORRT Library of Reproduction and Replication Attempts)를 사용하는 Zotero Replication Checker에 의해 생성됨
+replication-checker-note-footer = Zotero Replication Checker가 FLoRA(FORRT Library of Reproduction and Replication Attempts)를 사용해 생성함
 
 ## Replication Item Details
 replication-checker-li-no-title = 제목 없음
@@ -201,9 +201,9 @@ replication-checker-prompt-title = Zotero Replication Checker에 오신 것을 �
 replication-checker-prompt-first-run =
     Zotero Replication Checker를 설치해 주셔서 감사합니다!
 
-    이 플러그인은 FLoRA(FORRT Library of Reproduction and Replication Attempts)에 대해 라이브러리 항목을 확인하여 연구에 대한 복제 연구를 발견하는 데 도움을 줍니다.
+    이 플러그인은 FLoRA(FORRT Library of Reproduction and Replication Attempts)에 대해 라이브러리 항목을 확인하여 연구에 대한 반복 연구를 발견하는 데 도움을 줍니다.
 
-    지금 라이브러리에서 복제 연구를 스캔하시겠습니까?
+    지금 라이브러리에서 반복 연구를 스캔하시겠습니까?
 
     • "확인"을 클릭하여 스캔 시작 (몇 분 소요될 수 있음)
     • "취소"를 클릭하여 건너뛰기 - 나중에 도구 메뉴에서 언제든지 스캔할 수 있습니다
@@ -246,10 +246,10 @@ onboarding-features-readonly-body = 플러그인이 먼저 묻고 원본과 연�
 onboarding-features-banned-title = 차단 목록
 onboarding-features-banned-body = 설정에서 차단한 항목을 모두 확인하고 언제든 복원할 수 있습니다.
 onboarding-features-verdict-title = 보고서를 읽어 보세요
-onboarding-features-verdict-body = 태그는 반복 연구 저자들이 내린 결론을 보여 줍니다. 반복 연구는 우연, 낮은 검정력이나 자체 결함, 또는 달라진 조건 때문에 실패할 수 있으므로 원본을 판단하기 전에 보고서를 확인하세요.
-onboarding-features-languages-title = 6개 언어
+onboarding-features-verdict-body = 태그는 반복 연구 저자들이 내린 결론을 보여 줍니다. 반복 연구는 우연히, 낮은 검정력이나 자체 결함 때문에, 또는 조건이 달라져서 실패할 수도 있으므로 원본 연구를 판단하기 전에 보고서를 확인하세요.
+onboarding-features-languages-title = { $languageCount }개 언어
 onboarding-features-languages-body = Zotero 언어를 따릅니다.
-onboarding-welcome-title = 내 라이브러리의 연구가 재현된 적이 있을까요?
+onboarding-welcome-title = 내 라이브러리의 연구가 반복 검증된 적이 있을까요?
 onboarding-welcome-lead = Replication Checker는 라이브러리를 FLoRA(FORRT Library of Reproduction and Replication Attempts)와 비교하여 어떤 논문이 반복 검증되거나 재현되었는지 보여 줍니다.
 onboarding-welcome-tags-title = 태그
 onboarding-welcome-tags-body = 어떤 논문에 반복 연구가 있고 결과가 어땠는지 확인하세요.
@@ -288,21 +288,21 @@ reproduction-checker-tag-added-by-checker = Replication Checker에 의해 추가
 reproduction-checker-tag-readonly-origin = 원본이 읽기 전용 라이브러리에 있음
 
 ## Reproduction Feature - Outcome Tags
-reproduction-checker-tag-outcome-cs-robust = 재현 연구: 계산 성공, 견고
-reproduction-checker-tag-outcome-cs-challenges = 재현 연구: 계산 성공, 견고성 문제
-reproduction-checker-tag-outcome-cs-not-checked = 재현 연구: 계산 성공, 견고성 미확인
-reproduction-checker-tag-outcome-ci-robust = 재현 연구: 계산 문제, 견고
-reproduction-checker-tag-outcome-ci-challenges = 재현 연구: 계산 문제, 견고성 문제
-reproduction-checker-tag-outcome-ci-not-checked = 재현 연구: 계산 문제, 견고성 미확인
+reproduction-checker-tag-outcome-cs-robust = 재현 연구: 계산 성공, 강건
+reproduction-checker-tag-outcome-cs-challenges = 재현 연구: 계산 성공, 강건성 문제
+reproduction-checker-tag-outcome-cs-not-checked = 재현 연구: 계산 성공, 강건성 미확인
+reproduction-checker-tag-outcome-ci-robust = 재현 연구: 계산 문제, 강건
+reproduction-checker-tag-outcome-ci-challenges = 재현 연구: 계산 문제, 강건성 문제
+reproduction-checker-tag-outcome-ci-not-checked = 재현 연구: 계산 문제, 강건성 미확인
 reproduction-checker-tag-multiple-originals = 재현 연구: 여러 원본
 
 ## Reproduction Feature - Note Template
 reproduction-checker-note-title = 재현 연구 발견
-reproduction-checker-note-warning = 이 메모는 자동으로 생성됩니다. 편집하면 다음 확인 시 새 메모가 생성되고 이 버전은 그대로 유지됩니다.
+reproduction-checker-note-warning = 이 노트는 자동으로 생성됩니다. 편집하면 다음 확인 시 새 노트가 생성되고 이 버전은 그대로 유지됩니다.
 reproduction-checker-note-intro = 이 연구는 재현되었습니다:
 reproduction-checker-note-feedback = 이 결과가 유용하셨나요? <a href="{ $url }" target="_blank">여기</a>에서 피드백을 남겨주세요!
 reproduction-checker-note-data-issues = 데이터에서 문제를 발견하셨나요? <a href="{ $url }" target="_blank">여기</a>에 신고해 주세요!
-reproduction-checker-note-footer = FLoRA(FORRT Library of Reproduction and Replication Attempts)를 사용하는 Zotero Replication Checker에 의해 생성됨
+reproduction-checker-note-footer = Zotero Replication Checker가 FLoRA(FORRT Library of Reproduction and Replication Attempts)를 사용해 생성함
 
 ## Reproduction Feature - Item Details
 reproduction-checker-li-no-title = 제목 없음
@@ -333,7 +333,7 @@ reproduction-checker-ban-success =
 replication-checker-dialog-title-studies = 관련 연구 발견
 replication-checker-dialog-intro-studies =
     다음 항목에 대한 연구를 찾았습니다:
-    '{ $title }'
+    "{ $title }"
 replication-checker-dialog-question-studies = 이 정보를 라이브러리에 추가하시겠습니까?
 reproduction-checker-dialog-title = 재현 연구 발견
 reproduction-checker-dialog-intro =
@@ -350,8 +350,8 @@ reproduction-checker-dialog-item =
        결과: { $outcome }
 reproduction-checker-dialog-more =
     { $count ->
-        [one] ...그리고 재현 연구 1개 더
-       *[other] ...그리고 { $count }개의 재현 연구 더
+        [one] ...외 재현 연구 1개
+       *[other] ...외 재현 연구 { $count }개
     }
 reproduction-checker-dialog-question = 재현 연구 정보를 추가하시겠습니까?
 reproduction-checker-dialog-progress-title = 재현 연구 정보 추가됨
@@ -365,18 +365,18 @@ reproduction-checker-progress-reproductions-found =
     }
 
 ## Preference Pane
-pref-autocheck-title = 복제 연구를 위한 라이브러리 자동 확인
-pref-autocheck-description = 정기적으로 라이브러리에서 복제 연구를 자동으로 확인
+pref-autocheck-title = 라이브러리 반복 연구 자동 확인
+pref-autocheck-description = 정기적으로 라이브러리에서 반복 연구를 자동으로 확인
 pref-autocheck-disabled = 비활성화됨 (수동 확인만)
 pref-autocheck-daily = 매일 (24시간마다 확인)
 pref-autocheck-weekly = 매주 (7일마다 확인)
 pref-autocheck-monthly = 매월 (30일마다 확인)
 pref-autocheck-new-items = 새로 추가된 라이브러리 항목 자동 확인 (권장)
-pref-autocheck-new-items-hint = 모든 복제 연구 확인을 수동으로 실행하려면 이 옵션을 비활성화하세요.
+pref-autocheck-new-items-hint = 모든 반복 연구 확인을 수동으로 실행하려면 이 옵션을 비활성화하세요.
 pref-autocheck-note = 자동 확인은 Zotero가 열려 있을 때 백그라운드에서 실행됩니다. 도구 메뉴를 사용하여 수동으로 확인할 수도 있습니다.
-pref-folder-title = 복제 연구 폴더 이름
+pref-folder-title = 반복 연구 폴더 이름
 pref-repro-folder-title = 재현 연구 폴더 이름
-pref-originals-replication-folder-title = 원본 폴더 (복제 연구와 연결됨)
+pref-originals-replication-folder-title = 원본 폴더 (반복 연구와 연결됨)
 pref-originals-reproduction-folder-title = 원본 폴더 (재현 연구와 연결됨)
 
 ## Collection Names
@@ -403,22 +403,33 @@ pref-group-add-hint = 편집할 수 있는 그룹 라이브러리에 적용됩�
 ## Stats Pane
 pref-stats-title = FLoRA 통계
 pref-stats-description = 현재 Zotero 라이브러리를 기반으로 한 통계
-pref-stats-has-replication = 복제 연구가 있는 논문
+pref-stats-has-replication = 반복 연구가 있는 논문
 pref-stats-has-reproduction = 재현 연구가 있는 논문
-pref-stats-is-replication = 복제 연구로 식별된 논문
-pref-stats-originals = 추적된 원본 논문
+pref-stats-is-replication = 반복 연구로 식별된 논문
+pref-stats-originals = 추적 중인 원본 논문
 pref-stats-refresh = 통계 새로 고침
-pref-stats-no-originals = 라이브러리에서 추적된 원본 논문을 찾을 수 없습니다. 먼저 복제 연구 확인을 실행하세요.
+pref-stats-no-originals = 라이브러리에서 추적 중인 원본 논문을 찾을 수 없습니다. 먼저 반복 연구 확인을 실행하세요.
 pref-stats-open-atlas = FLoRA Atlas에서 열기 ↗
 pref-stats-view-flora = FLoRA 데이터베이스 보기 →
+pref-stats-library = 라이브러리:
+pref-stats-no-doi-note =
+    { $count ->
+        [one] 추적 중인 항목 1개에 사용할 수 있는 DOI가 없어 위 집계에서 제외되며 Atlas로 전송되지 않습니다
+       *[other] 추적 중인 항목 { $count }개에 사용할 수 있는 DOI가 없어 위 집계에서 제외되며 Atlas로 전송되지 않습니다
+    }
+pref-stats-atlas-clipboard =
+    { $count ->
+        [one] DOI 1개를 복사했습니다 — Atlas의 DOI 검색창에 붙여 넣으세요
+       *[other] DOI { $count }개를 복사했습니다 — Atlas의 DOI 검색창에 붙여 넣으세요
+    }
 
-pref-blacklist-title = 차단된 복제 연구
-pref-blacklist-description = 라이브러리에 표시되지 않도록 차단한 복제 연구 관리
-pref-blacklist-col-replication = 복제 연구 논문
+pref-blacklist-title = 차단된 반복 연구
+pref-blacklist-description = 라이브러리에 표시되지 않도록 차단한 반복 연구 관리
+pref-blacklist-col-replication = 반복 연구 논문
 pref-blacklist-col-original = 원본 논문
 pref-blacklist-col-type = 유형
 pref-blacklist-col-banned = 차단 날짜
-pref-blacklist-empty = 차단된 복제 연구 없음
+pref-blacklist-empty = 차단된 반복 연구 없음
 pref-blacklist-remove = 선택 항목 제거
-pref-blacklist-clear = 모든 차단된 복제 연구 지우기
-pref-blacklist-hint = 차단된 복제 연구는 향후 확인 시 다시 추가되지 않습니다. 컨텍스트 메뉴를 사용하여 복제 연구를 차단할 수 있습니다.
+pref-blacklist-clear = 차단한 반복 연구 모두 지우기
+pref-blacklist-hint = 차단된 반복 연구는 향후 확인 시 다시 추가되지 않습니다. 마우스 오른쪽 버튼 메뉴에서 반복 연구를 차단할 수 있습니다.

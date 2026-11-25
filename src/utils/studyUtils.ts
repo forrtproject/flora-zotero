@@ -11,6 +11,7 @@ import type { RelatedStudy, DOICheckResult } from "../types/replication";
 import type { BatchMatcher } from "../modules/batchMatcher";
 import * as ZoteroIntegration from "./zoteroIntegration";
 import { getString } from "./strings";
+import { currentLocaleBase } from "./tags";
 
 /** Escape HTML special characters. Accepts any value and coerces to string. */
 export function escapeHtml(text: any): string {
@@ -21,6 +22,33 @@ export function escapeHtml(text: any): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+/**
+ * Note titles that earlier versions wrote in a given UI language, keyed by base
+ * locale and then by FTL key. Existing notes keep their old heading, so it has to
+ * stay recognisable. A unit test checks each title differs from today's FTL value.
+ */
+export const LEGACY_LOCALIZED_NOTE_TITLES: Record<string, Record<string, string>> = {
+  ko: { "replication-checker-note-title": "복제 연구 발견" },
+};
+
+/**
+ * Whether a note starts with the plugin's heading for `titleKey`: the current
+ * localized title, the English title older versions always used, or an earlier
+ * translation for the current UI language.
+ */
+export function startsWithPluginNoteHeading(
+  noteHtml: string,
+  titleKey: string,
+  englishTitle: string,
+): boolean {
+  const titles = [
+    getString(titleKey),
+    englishTitle,
+    LEGACY_LOCALIZED_NOTE_TITLES[currentLocaleBase()]?.[titleKey],
+  ];
+  return titles.some((t) => !!t && noteHtml.startsWith(`<h2>${escapeHtml(t)}</h2>`));
 }
 
 /**

@@ -20,6 +20,7 @@ import {
   TAG_REPLICATION_MULTIPLE_ORIGINALS,
   TAG_REPRODUCTION_MULTIPLE_ORIGINALS,
   getTag,
+  migrateLegacyTags,
 } from "./utils/tags";
 import {
   NAMED_SPECS,
@@ -249,6 +250,9 @@ export async function onStartup() {
 
     // Move collections created by older versions into the "FLoRA" container
     await migrateCollectionsToRoot();
+
+    // Rename tags written under an earlier translation (e.g. Korean 복제 → 반복)
+    await migrateLegacyTags();
 
     // Initialize the replication checker plugin
     await replicationChecker.init(rootURI);
